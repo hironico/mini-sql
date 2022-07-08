@@ -1,0 +1,20 @@
+{
+  "dbConfigList": [
+    {
+      "name": "DEV8",
+      "jdbcUrl": "jdbc:oracle:thin:@ldap://DCGVA:389/TAPEV08_PDB,cn=OracleContext,dc=corp,dc=ubp,dc=ch",
+      "driverClassName": "oracle.jdbc.OracleDriver",
+      "user": "aaa",
+      "password": "U5PXGj8TeMJbM5mmGHWZoA==",
+      "batchStatementSeparator": "GO"
+    },
+    {
+      "name": "DEV9",
+      "jdbcUrl": "jdbc:oracle:thin:@ldap://DCGVA:389/TAPEV09_PDB,cn=OracleContext,dc=corp,dc=ubp,dc=ch",
+      "driverClassName": "oracle.jdbc.OracleDriver",
+      "user": "aaa",
+      "password": "U5PXGj8TeMJbM5mmGHWZoA==",
+      "batchStatementSeparator": "GO"
+    }
+  ]
+}

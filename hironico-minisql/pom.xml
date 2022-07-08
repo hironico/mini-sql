@@ -1,0 +1,29 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>net.hironico</groupId>
+    <artifactId>parent</artifactId>
+    <version>${revision}</version>
+  </parent>
+
+  <artifactId>hironico-minisql</artifactId>
+
+  <name>Hironico minisql tools</name>
+  
+  <packaging>jar</packaging>  
+
+  <dependencies>
+    <dependency>
+      <groupId>net.hironico</groupId>
+      <artifactId>hironico-common</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+      <dependency>
+          <groupId>org.jetbrains</groupId>
+          <artifactId>annotations</artifactId>
+          <version>RELEASE</version>
+          <scope>compile</scope>
+      </dependency>
+  </dependencies>
+</project>
