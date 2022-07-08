@@ -73,7 +73,7 @@ public class SchemaExplorerPanel extends JPanel {
         }).whenComplete((result, ex) -> {
             SchemaExplorerPanel.this.setEnabled(true);
             if (ex != null) {
-                LOGGER.log(Level.SEVERE, "Error while retreiving the databse objects.", ex);
+                LOGGER.log(Level.SEVERE, "Error while retrieving the database objects.", ex);
             }
         });
     }
@@ -96,7 +96,7 @@ public class SchemaExplorerPanel extends JPanel {
         }).whenComplete((result, ex) -> {
             SchemaExplorerPanel.this.setEnabled(true);
             if (ex != null) {
-                LOGGER.log(Level.SEVERE, "Error while retreiving the databse objects.", ex);
+                LOGGER.log(Level.SEVERE, "Error while retrieving the database objects.", ex);
             }
         });
     }
