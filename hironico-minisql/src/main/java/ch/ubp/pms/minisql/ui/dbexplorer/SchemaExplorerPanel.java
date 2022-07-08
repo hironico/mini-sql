@@ -56,9 +56,8 @@ public class SchemaExplorerPanel extends JPanel {
     }
 
     private void refreshSchemas() {
-        getCmbSchemaModel().removeAllElements();
-
         if (this.dbConfig == null) {
+            this.getCmbSchemaModel().removeAllElements();
             return;
         }
 
@@ -68,6 +67,7 @@ public class SchemaExplorerPanel extends JPanel {
         .thenAccept(list -> {
             SwingUtilities.invokeLater(() -> {
                 DefaultComboBoxModel<String> model = getCmbSchemaModel();
+                model.removeAllElements();
                 list.forEach(model::addElement);
             });
         }).whenComplete((result, ex) -> {
@@ -80,10 +80,10 @@ public class SchemaExplorerPanel extends JPanel {
 
     private void refreshObjects() {
         SQLObjectsTreeTableModel model = (SQLObjectsTreeTableModel)this.getTreeTableObjectsModel();
-        model.clear();
 
         String schemaName = (String)this.getCmbSchema().getSelectedItem();
         if (schemaName == null) {
+            model.clear();
             return;
         }
 
@@ -91,6 +91,7 @@ public class SchemaExplorerPanel extends JPanel {
         CompletableFuture.supplyAsync(new ObjectListCallable(this.dbConfig, schemaName))
         .thenAccept(objects -> {
             SwingUtilities.invokeLater(() -> {
+                model.clear();
                 model.setSQLObjects(objects);
             });
         }).whenComplete((result, ex) -> {
