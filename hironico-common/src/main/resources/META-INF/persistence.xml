@@ -7,13 +7,13 @@
 
         <!-- Add class below if you wish to DISABLE auto discovery -->
         <!--
-        <class>ch.ubp.pms.entities.tapdta.BlkEvent</class>
-        <class>ch.ubp.pms.entities.tapdta.BlkPositionFamily</class>
-        <class>ch.ubp.pms.entities.tapdta.BlkPositionMax</class>
-        <class>ch.ubp.pms.entities.aaamaindb.SubscriptionEvent</class>
+        <class>BlkEvent</class>
+        <class>BlkPositionFamily</class>
+        <class>BlkPositionMax</class>
+        <class>SubscriptionEvent</class>
 
-        <class>ch.ubp.pms.entities.aaamaindb.SubscriptionEventStatusConverter</class>
-        <class>ch.ubp.pms.entities.aaamaindb.ExtOperation</class>
+        <class>SubscriptionEventStatusConverter</class>
+        <class>ExtOperation</class>
         -->
 
         <!-- Enables auto discovery of persistent classes, -->
