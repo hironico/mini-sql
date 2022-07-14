@@ -107,6 +107,7 @@ public class QueryHistoryPanel extends JPanel {
             scrollHistory.getViewport().setOpaque(true);
             scrollHistory.getViewport().setBackground(new Color(236,243,250));
             scrollHistory.setBackground(new Color(236, 243, 250));
+            scrollHistory.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         }
 
         return scrollHistory;
@@ -119,6 +120,7 @@ public class QueryHistoryPanel extends JPanel {
             tableHistory.setBackground(new Color(236, 243, 250));
             tableHistory.addHighlighter(HighlighterFactory.createSimpleStriping());
             tableHistory.setEditable(false);
+            tableHistory.setColumnControlVisible(false);
             tableHistory.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 
             tableHistory.setModel(getQueryHistoryTableModel());

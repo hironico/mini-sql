@@ -442,6 +442,7 @@ public class QueryPanel extends JPanel {
         table.setAutoResizeMode(JXTable.AUTO_RESIZE_OFF);
         table.setEditable(false);
         table.setColumnControlVisible(false);
+        table.setColumnSelectionAllowed(true);
 
         // setup renderers for the new table.
         for (int index = 0; index < modelToDisplay.getColumnCount(); index++) {
@@ -465,9 +466,9 @@ public class QueryPanel extends JPanel {
         }
 
         JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
-
-        // table.adaptAllColumnsWidth(true);
+        scroll.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
 
         return scroll;
     }

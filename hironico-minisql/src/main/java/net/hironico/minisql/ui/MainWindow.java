@@ -303,7 +303,7 @@ public class MainWindow extends JFrame {
     private JTabbedPane getTabTools() {
         if (tabTools == null) {
             tabTools = new JTabbedPane();
-            tabTools.setBorder(BorderFactory.createEmptyBorder(-3, 0, -2, -3));
+            tabTools.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
             tabTools.addTab("History", getPnlHistory());
         }
 
