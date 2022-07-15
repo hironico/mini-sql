@@ -92,6 +92,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                 List<SQLResultSetTableModel> modelListToDisplay;
                 try {
                     modelListToDisplay = futureResult.get();
+                    modelListToDisplay.forEach(r -> r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
                 } catch (InterruptedException | ExecutionException ie) {
                     LOGGER.log(Level.SEVERE, "Error while getting the procedure text.", ie);
                     modelListToDisplay = Collections.emptyList();
