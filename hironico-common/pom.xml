@@ -1,6 +1,5 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
-  
   <parent>
     <groupId>net.hironico</groupId>
     <artifactId>parent</artifactId>
@@ -8,8 +7,7 @@
   </parent>
 
   <artifactId>hironico-common</artifactId>
-
-  <name>Hironico common utilities library</name>
+  <name>hironico.net common utilities library</name>
   
   <packaging>jar</packaging>
 </project>

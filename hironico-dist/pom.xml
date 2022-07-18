@@ -8,8 +8,7 @@
     </parent>
 
     <artifactId>hironico-dist</artifactId>
-
-    <name>Hironico distribution JAR files</name>
+    <name>hironico.net distribution packager</name>
 
     <packaging>jar</packaging>
 
