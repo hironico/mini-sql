@@ -286,4 +286,12 @@ public class SchemaExplorerPanel extends JPanel {
 
         return this.treetableObjectsModel;
     }
+
+    public void collapseAll() {
+        this.getTreeTableObjects().collapseAll();
+    }
+
+    public void expandAll() {
+        this.getTreeTableObjects().expandAll();
+    }
 }

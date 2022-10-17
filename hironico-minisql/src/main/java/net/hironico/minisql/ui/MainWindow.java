@@ -3,10 +3,7 @@ package net.hironico.minisql.ui;
 import net.hironico.minisql.App;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
-import net.hironico.minisql.ui.dbexplorer.action.DbObjectCountAction;
-import net.hironico.minisql.ui.dbexplorer.action.DbObjectRefreshAction;
-import net.hironico.minisql.ui.dbexplorer.action.DbObjectSelect1kAction;
-import net.hironico.minisql.ui.dbexplorer.action.DbObjectStructureAction;
+import net.hironico.minisql.ui.dbexplorer.action.*;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
@@ -46,6 +43,7 @@ public class MainWindow extends JFrame {
     private RibbonGroup systemRibbonGroup = null;
     private RibbonGroup toolsRibbonGroup = null;
     private RibbonTab explorerRibbonTab = null;
+    private RibbonGroup viewRibbonGroup = null;
     private RibbonGroup objectsRibbonGroup = null;
     private RibbonGroup selectRibbonGroup = null;
     
@@ -199,11 +197,26 @@ public class MainWindow extends JFrame {
         if (this.explorerRibbonTab == null) {
             this.explorerRibbonTab = new RibbonTab("Explorer");
 
+            this.explorerRibbonTab.addGroup(getViewRibbonGroup());
             this.explorerRibbonTab.addGroup(getObjectsRibbonGroup());
             this.explorerRibbonTab.addGroup(getSelectRibbonGroup());
         }
 
         return this.explorerRibbonTab;
+    }
+
+    private RibbonGroup getViewRibbonGroup() {
+        if (this.viewRibbonGroup == null) {
+            this.viewRibbonGroup = new RibbonGroup("View");
+
+            DbObjectExpandAllAction expandAction = new DbObjectExpandAllAction();
+            this.viewRibbonGroup.addAction(expandAction, RibbonGroup.SMALL);
+
+            DbObjectCollapseAllAction collapseAction = new DbObjectCollapseAllAction();
+            this.viewRibbonGroup.addAction(collapseAction, RibbonGroup.SMALL);
+        }
+
+        return this.viewRibbonGroup;
     }
 
     private RibbonGroup getObjectsRibbonGroup() {
