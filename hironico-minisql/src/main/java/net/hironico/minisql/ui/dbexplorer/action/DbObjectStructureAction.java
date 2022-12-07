@@ -51,6 +51,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
         case "VIEW":
             showViewStructure(obj, configToUse);
+            break;
 
         case "PROCEDURE":
             showProcedureText(obj, configToUse);
