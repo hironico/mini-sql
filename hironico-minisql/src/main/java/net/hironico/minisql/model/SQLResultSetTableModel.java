@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 /**
  * SQL ResultSet TableModel to be displayed in the result component once the query is finished.
  * Multiple display types are possible in order to present the resultset as a table, json document, row text ...
+ * It is also possible to transpose a result set and vice versa.
  */
 public class SQLResultSetTableModel extends DefaultTableModel {
     private static final long serialVersionUID = 1L;
@@ -26,6 +27,7 @@ public class SQLResultSetTableModel extends DefaultTableModel {
 
     private String title;
     private String query;
+    private boolean isTransposed = false;
 
     /**
      * Describe the way to display the data in the result component
@@ -36,6 +38,10 @@ public class SQLResultSetTableModel extends DefaultTableModel {
     public static final int DISPLAY_TYPE_TABLE = 2;
     public static final int DISPLAY_TYPE_JSON = 3;
     public static final int DISPLAY_TYPE_SQL = 4;
+
+    private SQLResultSetTableModel() {
+        super();
+    }
 
     public SQLResultSetTableModel(ResultSet resultSet, String title, String query, int displayType) throws SQLException {
         super();
@@ -122,6 +128,42 @@ public class SQLResultSetTableModel extends DefaultTableModel {
         }
         setColumnIdentifiers(columnNames);
         setColumnClasses(columnClasses);
+    }
+
+    public SQLResultSetTableModel transpose() throws Exception {
+
+        if (this.isTransposed) {
+            LOGGER.severe("Cannot transpose an already transposed sql table model.");
+            throw new Exception("Cannot transpose an already transposed sql table model.");
+        }
+
+        SQLResultSetTableModel newModel = new SQLResultSetTableModel();
+        newModel.displayType = this.displayType;
+        newModel.title = this.title;
+        newModel.query = this.query;
+        newModel.isTransposed = true;
+
+        Class<?>[] newColClasses = new Class<?>[this.getRowCount() + 1];
+        String[] newColNames = new String[this.getRowCount() + 1];
+        newColClasses[0] = String.class;
+        newColNames[0] = "Property";
+        for(int i = 0; i < this.getRowCount(); i++) {
+            newColClasses[i+1] = Object.class;
+            newColNames[i+1] = String.format("Value %d", i);
+        }
+        newModel.setColumnClasses(newColClasses);
+        newModel.setColumnIdentifiers(newColNames);
+
+        for(int col = 0; col < this.getColumnCount(); col++) {
+            Object[] newRow = new Object[this.getRowCount() + 1];
+            newRow[0] = this.getColumnName(col);
+            for (int row = 0; row < this.getRowCount(); row++) {
+                newRow[row + 1] = this.getValueAt(row, col);
+            }
+            newModel.addRow(newRow);
+        }
+
+        return newModel;
     }
 
     private void setColumnClasses(Class<?>[] columnClasses) {
