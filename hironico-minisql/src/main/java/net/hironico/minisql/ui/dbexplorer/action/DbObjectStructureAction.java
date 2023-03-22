@@ -91,7 +91,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
     private void showProcedureText(final SQLObject obj, DbConfig config) {
         Runnable runQuery = () -> {
             if (config.jdbcUrl.startsWith("jdbc:oracle")) {
-                String query = "SELECT text FROM all_source WHERE name = '" + obj.name + "' ORDER BY line";
+                String query = String.format("SELECT text FROM all_source WHERE name = '%s' and owner = '%s' ORDER BY line", obj.name, obj.schemaName);
                 QueryResultCallable queryCall = new QueryResultCallable(query, config);
                 Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(queryCall);
 
