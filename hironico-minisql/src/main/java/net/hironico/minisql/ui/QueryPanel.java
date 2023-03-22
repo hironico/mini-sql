@@ -12,7 +12,6 @@ import net.hironico.common.swing.table.FilterableTable;
 import net.hironico.common.utils.json.JSONFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
@@ -269,7 +268,6 @@ public class QueryPanel extends JPanel {
         if (txtQuery == null) {
             txtQuery = new RSyntaxTextArea();
             txtQuery.setBorder(BorderFactory.createEmptyBorder());
-            txtQuery.setFont(new Font("Consolas", Font.PLAIN, 12));
             txtQuery.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
             txtQuery.addKeyListener(new KeyListener() {
                 @Override
