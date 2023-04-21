@@ -120,7 +120,13 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
             MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, SQLObjectTypeEnum.valueOf(obj.type), config);
             Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(call);
 
+            // oracle query as default
             String query = String.format("SELECT text FROM all_views WHERE view_name = '%s'", obj.name);
+
+            if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
+                query = String.format("select pg_get_viewdef('%s.%s'::regclass, true)", obj.schemaName, obj.name);
+            }
+
             QueryResultCallable queryCall = new QueryResultCallable(query, config);
             Future<List<SQLResultSetTableModel>> viewTextFuture = MainWindow.executorService.submit(queryCall);
 
