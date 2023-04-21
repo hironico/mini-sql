@@ -13,7 +13,7 @@ public class Ribbon extends JTabbedPane {
 
     private static final long serialVersionUID = 1L;
 
-    public class RibbonAction extends AbstractRibbonAction {
+    public static class RibbonAction extends AbstractRibbonAction {
 
         private static final long serialVersionUID = 1L;
 
@@ -30,8 +30,8 @@ public class Ribbon extends JTabbedPane {
 
     public Ribbon() {
         super();
-        setMaximumSize(new Dimension(4096, 115));
-        setPreferredSize(new Dimension(1024, 115));
+        setMaximumSize(new Dimension(4096, 172));
+        setPreferredSize(new Dimension(1024, 172));
     }
 
     public void addRibbonTab(RibbonTab pnl) {
@@ -63,7 +63,7 @@ public class Ribbon extends JTabbedPane {
         Ribbon ribbon = new Ribbon();
 
         RibbonGroup ribbonGroup1 = new RibbonGroup("Ribbon group 1");
-        RibbonAction action = ribbon.new RibbonAction("action text");
+        RibbonAction action = new RibbonAction("action text");
         ribbonGroup1.addAction(action, RibbonGroup.LARGE);
         ribbonGroup1.addAction(action, RibbonGroup.LARGE);
         ribbonGroup1.addAction(action, RibbonGroup.SMALL);
