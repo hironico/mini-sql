@@ -148,7 +148,13 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
     private void showSequenceStructure(final SQLObject obj, DbConfig config) {
         Runnable runDisplayResult = () -> {
+            // default use of oracle query
             String sql = String.format("SELECT * FROM all_sequences s WHERE s.sequence_owner = '%s' AND s.sequence_name = '%s' ORDER BY s.sequence_name", obj.schemaName, obj.name);
+
+            if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
+                sql = String.format("SELECT * FROM information_schema.sequences s WHERE s.sequence_schema = '%s' AND s.sequence_name = '%s' ORDER BY s.sequence_name", obj.schemaName, obj.name);
+            }
+
             QueryResultCallable queryCall = new QueryResultCallable(sql, config);
             Future<List<SQLResultSetTableModel>> sequenceStructureFuture = MainWindow.executorService.submit(queryCall);
 
