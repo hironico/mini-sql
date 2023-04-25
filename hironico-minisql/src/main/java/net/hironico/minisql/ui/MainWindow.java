@@ -358,6 +358,11 @@ public class MainWindow extends JFrame {
         }
     }
 
+    /**
+     * Add a new tab in the editor's area with the provided components and title to display.
+     * @param comp the component to display in the editors tab
+     * @param title the tab title
+     */
     public void displayCloseableComponent(JComponent comp, String title) {
         Runnable run = () -> {
             JTabbedPane tabResults = getTabEditors();

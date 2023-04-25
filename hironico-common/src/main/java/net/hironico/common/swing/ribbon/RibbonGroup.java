@@ -1,11 +1,6 @@
 package net.hironico.common.swing.ribbon;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -69,8 +64,10 @@ public class RibbonGroup extends JPanel {
             btn.setIcon(action.getLargeIcon());            
             btn.setVerticalTextPosition(SwingConstants.BOTTOM);
             btn.setHorizontalTextPosition(SwingConstants.CENTER);
+            btn.setMinimumSize(new Dimension(48,48));
         } else {            
             btn.setIcon(action.getSmallIcon());
+            btn.setMinimumSize(new Dimension(24,24));
         }
 
         btn.addMouseListener(new MouseListener() {

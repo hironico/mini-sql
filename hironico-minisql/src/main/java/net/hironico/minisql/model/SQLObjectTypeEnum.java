@@ -4,6 +4,7 @@ public enum SQLObjectTypeEnum {
     TABLE,
     VIEW,
     PROCEDURE,
+    SEQUENCE,
     INDEX,
     SCHEMA,
     DATABASE,

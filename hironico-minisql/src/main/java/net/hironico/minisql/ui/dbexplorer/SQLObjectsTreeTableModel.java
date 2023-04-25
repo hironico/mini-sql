@@ -14,8 +14,9 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
     private DefaultMutableTreeTableNode tablesNode;
     private DefaultMutableTreeTableNode viewsNode;
     private DefaultMutableTreeTableNode procsNode;
+    private DefaultMutableTreeTableNode sequencesNode;
 
-    private Class<?>[] columnClass = {
+    private final Class<?>[] columnClass = {
             String.class, String.class
     };
 
@@ -67,10 +68,12 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         tablesNode = new DefaultMutableTreeTableNode("Tables");
         viewsNode = new DefaultMutableTreeTableNode("Views");
         procsNode = new DefaultMutableTreeTableNode("Procedures");
+        sequencesNode = new DefaultMutableTreeTableNode("Sequences");
 
         this.insertNodeInto(tablesNode, root, 0);
         this.insertNodeInto(viewsNode, root, 1);
         this.insertNodeInto(procsNode, root, 2);
+        this.insertNodeInto(sequencesNode, root, 3);
     }
 
 
@@ -78,6 +81,7 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         this.removeNodeFromParent(this.tablesNode);
         this.removeNodeFromParent(this.viewsNode);
         this.removeNodeFromParent(this.procsNode);
+        this.removeNodeFromParent(this.sequencesNode);
 
         this.addRootNodes();
     }
@@ -106,6 +110,10 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
 
                 case "PROCEDURE":
                     this.addSQLObject(this.procsNode, myObj);
+                    break;
+
+                case "SEQUENCE":
+                    this.addSQLObject(this.sequencesNode, myObj);
                     break;
 
                 default:

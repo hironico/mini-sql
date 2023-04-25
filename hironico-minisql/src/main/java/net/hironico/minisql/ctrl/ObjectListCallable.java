@@ -1,5 +1,6 @@
 package net.hironico.minisql.ctrl;
 
+import java.sql.Statement;
 import java.util.concurrent.Callable;
 
 import java.sql.Connection;
@@ -18,8 +19,8 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
 
     private static final Logger LOGGER = Logger.getLogger(ObjectListCallable.class.getName());
 
-    private String schemaName;
-    private DbConfig configToUse;
+    private final String schemaName;
+    private final DbConfig configToUse;
 
     public ObjectListCallable(DbConfig configToUse, String schemaName) {
         this.configToUse = configToUse;
@@ -43,10 +44,9 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
             DatabaseMetaData metaData = con.getMetaData();
 
             // tables et vues
-
             ResultSet rs = metaData.getTables(null, schemaName, null, null);
             while (rs.next()) {
-                String row[] = new String[3];
+                String[] row = new String[3];
                 row[0] = rs.getString(2);
                 row[1] = rs.getString(3);
                 row[2] = rs.getString(4);
@@ -58,7 +58,7 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
             // proc stockess
             rs = metaData.getProcedures(null, schemaName, null);
             while (rs.next()) {
-                String row[] = new String[3];
+                String[] row = new String[3];
                 row[0] = rs.getString(2);
                 row[1] = rs.getString(3);
                 row[2] = SQLObjectTypeEnum.PROCEDURE.toString();
@@ -67,11 +67,27 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
             }
             rs.close();
 
+            // sequences
+            if (configToUse.jdbcUrl.contains("oracle")) {
+                LOGGER.info("Loading sequences ...");
+                String sql = String.format("SELECT s.sequence_name FROM all_sequences s WHERE s.sequence_owner = '%s' ORDER BY s.sequence_name", schemaName);
+                Statement stmt = con.createStatement();
+                rs = stmt.executeQuery(sql);
+                while (rs.next()) {
+                    String[] row = new String[3];
+                    row[0] = schemaName;
+                    row[1] = rs.getString(1);
+                    row[2] = SQLObjectTypeEnum.SEQUENCE.toString();
+
+                    result.add(row);
+                }
+            }
+
             // Collections.sort(result);
 
         } catch (Throwable t) {
             t.printStackTrace();
-            String[] row = { "Error while getting the table list. See log.", t.getMessage(), "" };
+            String[] row = { "Error while getting the object list. See log.", t.getMessage(), "" };
             result.add(row);
         } finally {
             if (con != null) {

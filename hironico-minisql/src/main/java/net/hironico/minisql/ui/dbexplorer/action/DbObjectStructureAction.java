@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
@@ -57,6 +58,10 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
             showProcedureText(obj, configToUse);
             break;
 
+        case "SEQUENCE":
+            showSequenceStructure(obj, configToUse);
+            break;
+
         default:
             LOGGER.warning("Object structure required for non supported SQL object type: " + obj.type);
             break;
@@ -86,7 +91,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
     private void showProcedureText(final SQLObject obj, DbConfig config) {
         Runnable runQuery = () -> {
             if (config.jdbcUrl.startsWith("jdbc:oracle")) {
-                String query = "SELECT text FROM all_source WHERE name = '" + obj.name + "' ORDER BY line";
+                String query = String.format("SELECT text FROM all_source WHERE name = '%s' and owner = '%s' ORDER BY line", obj.name, obj.schemaName);
                 QueryResultCallable queryCall = new QueryResultCallable(query, config);
                 Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(queryCall);
 
@@ -115,7 +120,13 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
             MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, SQLObjectTypeEnum.valueOf(obj.type), config);
             Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(call);
 
+            // oracle query as default
             String query = String.format("SELECT text FROM all_views WHERE view_name = '%s'", obj.name);
+
+            if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
+                query = String.format("select pg_get_viewdef('%s.%s'::regclass, true)", obj.schemaName, obj.name);
+            }
+
             QueryResultCallable queryCall = new QueryResultCallable(query, config);
             Future<List<SQLResultSetTableModel>> viewTextFuture = MainWindow.executorService.submit(queryCall);
 
@@ -130,6 +141,46 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                 List<SQLResultSetTableModel> textResult = viewTextFuture.get();
                 textResult.forEach(r -> r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
                 modelToDisplay.addAll(textResult);
+            } catch (InterruptedException | ExecutionException ie) {
+                LOGGER.log(Level.SEVERE, "Error while getting view SQL text.", ie);
+            }
+
+            displayResults(modelToDisplay, obj);
+        };
+
+        Thread threadQuery = new Thread(runDisplayResult);
+        threadQuery.start();
+    }
+
+    private void showSequenceStructure(final SQLObject obj, DbConfig config) {
+        Runnable runDisplayResult = () -> {
+            // default use of oracle query
+            String sql = String.format("SELECT * FROM all_sequences s WHERE s.sequence_owner = '%s' AND s.sequence_name = '%s' ORDER BY s.sequence_name", obj.schemaName, obj.name);
+
+            if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
+                sql = String.format("SELECT * FROM information_schema.sequences s WHERE s.sequence_schema = '%s' AND s.sequence_name = '%s' ORDER BY s.sequence_name", obj.schemaName, obj.name);
+            }
+
+            QueryResultCallable queryCall = new QueryResultCallable(sql, config);
+            Future<List<SQLResultSetTableModel>> sequenceStructureFuture = MainWindow.executorService.submit(queryCall);
+
+            List<SQLResultSetTableModel> modelToDisplay = new ArrayList<>();
+            try {
+                modelToDisplay.addAll(sequenceStructureFuture.get());
+            } catch (InterruptedException | ExecutionException ie) {
+                LOGGER.log(Level.SEVERE, "Error while getting view structure.", ie);
+            }
+
+            try {
+                List<SQLResultSetTableModel> sequenceResults = sequenceStructureFuture.get();
+                modelToDisplay = sequenceResults.stream().map(r -> {
+                    try {
+                        r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
+                        return r.transpose();
+                    } catch (Exception ex) {
+                        return r;
+                    }
+                }).collect(Collectors.toList());
             } catch (InterruptedException | ExecutionException ie) {
                 LOGGER.log(Level.SEVERE, "Error while getting view SQL text.", ie);
             }
