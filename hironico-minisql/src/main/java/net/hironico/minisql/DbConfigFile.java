@@ -5,10 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +18,8 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
+import javax.swing.*;
+
 @JsonRootName("config")
 @JacksonXmlRootElement(localName = "config")
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -29,7 +28,34 @@ public class DbConfigFile {
 
     protected static List<DbConfig> all = new ArrayList<>();
 
+    public static interface DbConfigFileListener {
+        public void configAdded(DbConfig config);
+        public void configRemoved(DbConfig config);
+    }
+
+    private static final List<DbConfigFileListener> listeners = new ArrayList<>();
+
     private DbConfigFile() {
+    }
+
+    public static void addListener(DbConfigFileListener listener) {
+        if (DbConfigFile.listeners.contains(listener)) {
+            return;
+        }
+
+        listeners.add(listener);
+    }
+
+    public void removeListener(DbConfigFileListener listener) {
+        DbConfigFile.listeners.remove(listener);
+    }
+
+    private static void fireConfigAdded(DbConfig config) {
+        SwingUtilities.invokeLater(() -> DbConfigFile.listeners.forEach(listener -> listener.configAdded(config)));
+    }
+
+    private static void fireConfigRemoved(DbConfig config) {
+        SwingUtilities.invokeLater(() -> DbConfigFile.listeners.forEach(listener -> listener.configRemoved(config)));
     }
 
     public static DbConfig addConfig(String name) {
@@ -45,6 +71,8 @@ public class DbConfigFile {
 
         all.add(cfg);
 
+        fireConfigAdded(cfg);
+
         return cfg;
     }
 
@@ -58,6 +86,8 @@ public class DbConfigFile {
             DbConfig newCfg = (DbConfig)srcCfg.clone();
             newCfg.name = dest;
             all.add(newCfg);
+
+            fireConfigAdded(newCfg);
 
             return newCfg;
         } catch (CloneNotSupportedException ex) {
@@ -77,7 +107,9 @@ public class DbConfigFile {
     }
 
     public static void removeConfig(String name) {
-        all.remove(getConfig(name));
+        DbConfig cfg = getConfig(name);
+        all.remove(cfg);
+        fireConfigRemoved(cfg);
     }
 
     public static Collection<String> getConfigNames() {
@@ -129,9 +161,7 @@ public class DbConfigFile {
     public static synchronized void loadConfig(InputStream in) throws IOException {
         XMLFile.load(in, DbConfigFile.class);
         final StringBuffer allNames = new StringBuffer();
-        DbConfigFile.all.forEach(cfg -> {
-            allNames.append(" ").append(cfg.name);
-        });
-        LOGGER.info("Found: " + DbConfigFile.all.size() + " DB configurations: " + allNames.toString());
+        DbConfigFile.all.forEach(cfg -> allNames.append(" ").append(cfg.name));
+        LOGGER.info("Found: " + DbConfigFile.all.size() + " DB configurations: " + allNames);
     }
 }
