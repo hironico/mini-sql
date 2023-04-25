@@ -22,7 +22,7 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 
-public class SchemaExplorerPanel extends JPanel {
+public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfigFileListener {
     private static final Logger LOGGER = Logger.getLogger(SchemaExplorerPanel.class.getName());
 
     private DbConfig dbConfig = null;
@@ -39,6 +39,7 @@ public class SchemaExplorerPanel extends JPanel {
     public SchemaExplorerPanel() {
         super();
         initialize();
+        DbConfigFile.addListener(this);
     }
 
     public void setConnection(String name) {
@@ -293,5 +294,15 @@ public class SchemaExplorerPanel extends JPanel {
 
     public void expandAll() {
         this.getTreeTableObjects().expandAll();
+    }
+
+    @Override
+    public void configAdded(DbConfig config) {
+        this.getCmbConnectionModel().addElement(config);
+    }
+
+    @Override
+    public void configRemoved(DbConfig config) {
+        this.getCmbConnectionModel().removeElement(config);
     }
 }
