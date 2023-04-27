@@ -12,6 +12,7 @@ import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.QueryPanel;
 
 import java.awt.event.ActionEvent;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,7 +57,11 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
             break;
 
         case "PROCEDURE":
-            showProcedureText(obj, configToUse);
+            showProcedureStructure(obj, configToUse);
+            break;
+
+        case "FUNCTION":
+            showFunctionStructure(obj, configToUse);
             break;
 
         case "SEQUENCE":
@@ -89,10 +94,68 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
         threadQuery.start();
     }
 
-    private void showProcedureText(final SQLObject obj, DbConfig config) {
+    private Future<List<SQLResultSetTableModel>> getFunctionTextPostgresql(final SQLObject obj, DbConfig config) {
+        String query = String.format("SELECT pg_get_functiondef('%s.%s'::regproc::oid);", obj.schemaName, obj.name);
+        QueryResultCallable queryCall = new QueryResultCallable(query, config);
+        return MainWindow.executorService.submit(queryCall);
+    }
+
+    private Future<List<SQLResultSetTableModel>> getFunctionStructurePostgresql(final SQLObject obj, DbConfig config) {
+        String sql = null;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream("net/hironico/minisql/metadata/postgresql/pg_get_functiondef.sql")) {
+            sql = new String(is.readAllBytes());
+        } catch (Exception ex) {
+            LOGGER.log(Level.SEVERE, "Cannot load the postgresql query for listing functions.", ex);
+            return null;
+        }
+
+        sql = sql.replace("?1", String.format("'%s'", obj.schemaName));
+        sql = sql.replace("?2", String.format("'%s'", obj.name));
+
+        QueryResultCallable queryCall = new QueryResultCallable(sql, config);
+        return MainWindow.executorService.submit(queryCall);
+    }
+
+    private void showFunctionStructure(final SQLObject obj, DbConfig config) {
+        if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
+            Future<List<SQLResultSetTableModel>> futText = this.getFunctionTextPostgresql(obj, config);
+            Future<List<SQLResultSetTableModel>> futStructure = this.getFunctionStructurePostgresql(obj, config);
+
+            List<SQLResultSetTableModel> modelListToDisplay = new ArrayList<>();
+            try {
+                List<SQLResultSetTableModel> resultStructure = futStructure.get();
+                resultStructure = resultStructure.stream().map(r -> {
+                    try {
+                        r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
+                        return r.transpose();
+                    } catch (Exception ex) {
+                        return r;
+                    }
+                }).collect(Collectors.toList());
+                modelListToDisplay.addAll(resultStructure);
+
+
+                List<SQLResultSetTableModel> textList = futText.get();
+                textList.forEach(m -> m.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
+                modelListToDisplay.addAll(textList);
+            } catch (InterruptedException | ExecutionException ie) {
+                LOGGER.log(Level.SEVERE, "Error while getting the procedure text.", ie);
+                modelListToDisplay = Collections.emptyList();
+            }
+
+            displayResults(modelListToDisplay, obj);
+        } else {
+            JOptionPane.showMessageDialog(App.mainWindow,
+                    "Show function structure is not supported at this time for this kind of database.\n" + config.jdbcUrl);
+        }
+    }
+
+    private void showProcedureStructure(final SQLObject obj, DbConfig config) {
         Runnable runQuery = () -> {
+            String query = null;
             if (config.jdbcUrl.startsWith("jdbc:oracle")) {
-                String query = String.format("SELECT text FROM all_source WHERE name = '%s' and owner = '%s' ORDER BY line", obj.name, obj.schemaName);
+                query = String.format("SELECT text FROM all_source WHERE name = '%s' and owner = '%s' ORDER BY line", obj.name, obj.schemaName);
+
                 QueryResultCallable queryCall = new QueryResultCallable(query, config);
                 Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(queryCall);
 
@@ -108,7 +171,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                 displayResults(modelListToDisplay, obj);
             } else {
                 JOptionPane.showMessageDialog(App.mainWindow,
-                        "Procedure type not supported at this time for this kind of database.");
+                        "Show procedure structure is not supported at this time for this kind of database.\n" + config.jdbcUrl);
             }
         };
 

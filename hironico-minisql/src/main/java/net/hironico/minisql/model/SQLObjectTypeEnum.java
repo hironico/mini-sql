@@ -5,6 +5,7 @@ public enum SQLObjectTypeEnum {
     VIEW,
     MATERIALIZED_VIEW,
     PROCEDURE,
+    FUNCTION,
     SEQUENCE,
     INDEX,
     SCHEMA,

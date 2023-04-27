@@ -110,11 +110,17 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
                     break;
 
                 case "PROCEDURE":
+                case "FUNCTION":
                     this.addSQLObject(this.procsNode, myObj);
                     break;
 
                 case "SEQUENCE":
                     this.addSQLObject(this.sequencesNode, myObj);
+                    break;
+
+                case "INDEX":
+                    // intentionally left apart because we display indexes as part of the
+                    // tables and materialized views structures
                     break;
 
                 default:
