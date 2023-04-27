@@ -30,7 +30,7 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jdesktop.swingx.JXTable;
 
-public class QueryPanel extends JPanel {
+public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListener {
 
     private static final long serialVersionUID = 1L;
 
@@ -55,6 +55,7 @@ public class QueryPanel extends JPanel {
 
     public QueryPanel() {
         initialize();
+        DbConfigFile.addListener(this);
     }
 
     private void initialize() {
@@ -164,7 +165,6 @@ public class QueryPanel extends JPanel {
                     MainWindow.getInstance().setTabComponentTitle(QueryPanel.this, (String) cmbConfig.getSelectedItem());
                 }
             });
-
         }
 
         return cmbConfig;
@@ -471,4 +471,13 @@ public class QueryPanel extends JPanel {
         return scroll;
     }
 
+    @Override
+    public void configAdded(DbConfig config) {
+        this.getCmbConfig().addItem(config.name);
+    }
+
+    @Override
+    public void configRemoved(DbConfig config) {
+        this.getCmbConfig().removeItem(config.name);
+    }
 }
