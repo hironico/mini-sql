@@ -117,52 +117,28 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
     }
 
     private void showFunctionStructure(final SQLObject obj, DbConfig config) {
-        if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
-            Future<List<SQLResultSetTableModel>> futText = this.getFunctionTextPostgresql(obj, config);
-            Future<List<SQLResultSetTableModel>> futStructure = this.getFunctionStructurePostgresql(obj, config);
+        Thread threadQuery = new Thread( () -> {
+            if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
+                Future<List<SQLResultSetTableModel>> futText = this.getFunctionTextPostgresql(obj, config);
+                Future<List<SQLResultSetTableModel>> futStructure = this.getFunctionStructurePostgresql(obj, config);
 
-            List<SQLResultSetTableModel> modelListToDisplay = new ArrayList<>();
-            try {
-                List<SQLResultSetTableModel> resultStructure = futStructure.get();
-                resultStructure = resultStructure.stream().map(r -> {
-                    try {
-                        r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
-                        return r.transpose();
-                    } catch (Exception ex) {
-                        return r;
-                    }
-                }).collect(Collectors.toList());
-                modelListToDisplay.addAll(resultStructure);
-
-
-                List<SQLResultSetTableModel> textList = futText.get();
-                textList.forEach(m -> m.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
-                modelListToDisplay.addAll(textList);
-            } catch (InterruptedException | ExecutionException ie) {
-                LOGGER.log(Level.SEVERE, "Error while getting the procedure text.", ie);
-                modelListToDisplay = Collections.emptyList();
-            }
-
-            displayResults(modelListToDisplay, obj);
-        } else {
-            JOptionPane.showMessageDialog(App.mainWindow,
-                    "Show function structure is not supported at this time for this kind of database.\n" + config.jdbcUrl);
-        }
-    }
-
-    private void showProcedureStructure(final SQLObject obj, DbConfig config) {
-        Runnable runQuery = () -> {
-            String query = null;
-            if (config.jdbcUrl.startsWith("jdbc:oracle")) {
-                query = String.format("SELECT text FROM all_source WHERE name = '%s' and owner = '%s' ORDER BY line", obj.name, obj.schemaName);
-
-                QueryResultCallable queryCall = new QueryResultCallable(query, config);
-                Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(queryCall);
-
-                List<SQLResultSetTableModel> modelListToDisplay;
+                List<SQLResultSetTableModel> modelListToDisplay = new ArrayList<>();
                 try {
-                    modelListToDisplay = futureResult.get();
-                    modelListToDisplay.forEach(r -> r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
+                    List<SQLResultSetTableModel> resultStructure = futStructure.get();
+                    resultStructure = resultStructure.stream().map(r -> {
+                        try {
+                            r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
+                            return r.transpose();
+                        } catch (Exception ex) {
+                            return r;
+                        }
+                    }).collect(Collectors.toList());
+                    modelListToDisplay.addAll(resultStructure);
+
+
+                    List<SQLResultSetTableModel> textList = futText.get();
+                    textList.forEach(m -> m.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
+                    modelListToDisplay.addAll(textList);
                 } catch (InterruptedException | ExecutionException ie) {
                     LOGGER.log(Level.SEVERE, "Error while getting the procedure text.", ie);
                     modelListToDisplay = Collections.emptyList();
@@ -171,11 +147,46 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                 displayResults(modelListToDisplay, obj);
             } else {
                 JOptionPane.showMessageDialog(App.mainWindow,
-                        "Show procedure structure is not supported at this time for this kind of database.\n" + config.jdbcUrl);
+                        "Show function structure is not supported at this time for this kind of database.\n" + config.jdbcUrl);
             }
-        };
+        });
 
-        Thread threadQuery = new Thread(runQuery);
+        threadQuery.start();
+    }
+
+    private void showProcedureStructure(final SQLObject obj, DbConfig config) {
+        if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
+            this.showFunctionStructure(obj, config);
+            return;
+        }
+
+        Thread threadQuery = new Thread( () -> {
+            String query = null;
+            if (config.jdbcUrl.startsWith("jdbc:oracle")) {
+                query = String.format("SELECT text FROM all_source WHERE name = '%s' and owner = '%s' ORDER BY line", obj.name, obj.schemaName);
+            }
+
+            if (query == null) {
+                JOptionPane.showMessageDialog(App.mainWindow,
+                        "Show procedure structure is not supported at this time for this kind of database.\n" + config.jdbcUrl);
+                return;
+            }
+
+            QueryResultCallable queryCall = new QueryResultCallable(query, config);
+            Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(queryCall);
+
+            List<SQLResultSetTableModel> modelListToDisplay;
+            try {
+                modelListToDisplay = futureResult.get();
+                modelListToDisplay.forEach(r -> r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
+            } catch (InterruptedException | ExecutionException ie) {
+                LOGGER.log(Level.SEVERE, "Error while getting the procedure text.", ie);
+                modelListToDisplay = Collections.emptyList();
+            }
+
+            displayResults(modelListToDisplay, obj);
+        });
+
         threadQuery.start();
     }
 
