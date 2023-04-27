@@ -65,6 +65,7 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
 
             switch (objectType) {
             case TABLE:
+            case MATERIALIZED_VIEW:
                 SQLResultSetTableModel resultTableCols = getTableColumns(metaData);
                 result.add(resultTableCols);
 
@@ -75,7 +76,7 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
                 result.add(resultPriv);
                 break;
 
-            case VIEW:
+                case VIEW:
                 SQLResultSetTableModel resultViewCols = getTableColumns(metaData);
                 result.add(resultViewCols);
 

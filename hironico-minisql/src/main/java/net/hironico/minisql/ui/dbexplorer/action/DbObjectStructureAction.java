@@ -51,6 +51,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
             break;
 
         case "VIEW":
+        case "MATERIALIZED VIEW":
             showViewStructure(obj, configToUse);
             break;
 
@@ -117,7 +118,8 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
     private void showViewStructure(final SQLObject obj, DbConfig config) {
         Runnable runDisplayResult = () -> {
-            MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, SQLObjectTypeEnum.valueOf(obj.type), config);
+            SQLObjectTypeEnum sqlObjectType = SQLObjectTypeEnum.valueOf(obj.type.replaceAll(" ", "_"));
+            MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, sqlObjectType, config);
             Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(call);
 
             // oracle query as default

@@ -105,6 +105,7 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
                     break;
 
                 case "VIEW":
+                case "MATERIALIZED VIEW":
                     this.addSQLObject(this.viewsNode, myObj);
                     break;
 

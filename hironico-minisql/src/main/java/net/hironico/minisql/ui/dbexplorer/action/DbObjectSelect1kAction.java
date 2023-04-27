@@ -54,9 +54,10 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
 
         QueryPanel pnl = showNewQueryPanel();
 
-        switch (SQLObjectTypeEnum.valueOf(obj.type)) {
+        switch (SQLObjectTypeEnum.valueOf(obj.type.replaceAll(" ", "_"))) {
             case TABLE:
             case VIEW:
+            case MATERIALIZED_VIEW:
                 String query = this.getSelectQuery(dbVendor);
                 query = String.format(query, obj.schemaName, obj.name);
                 pnl.setQueryText(query);
