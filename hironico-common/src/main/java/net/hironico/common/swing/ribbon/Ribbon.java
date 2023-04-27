@@ -30,8 +30,8 @@ public class Ribbon extends JTabbedPane {
 
     public Ribbon() {
         super();
-        setMaximumSize(new Dimension(4096, 172));
-        setPreferredSize(new Dimension(1024, 172));
+        setMaximumSize(new Dimension(4096, 148));
+        setPreferredSize(new Dimension(1024, 148));
     }
 
     public void addRibbonTab(RibbonTab pnl) {
