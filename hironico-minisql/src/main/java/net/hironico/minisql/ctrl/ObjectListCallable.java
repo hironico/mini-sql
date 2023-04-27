@@ -1,5 +1,7 @@
 package net.hironico.minisql.ctrl;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 import java.sql.Statement;
 import java.util.concurrent.Callable;
 
@@ -10,10 +12,12 @@ import java.sql.ResultSet;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.function.Supplier;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.model.SQLObjectTypeEnum;
+import org.postgresql.PGConnection;
 
 public class ObjectListCallable implements Callable<List<String[]>>, Supplier<List<String[]>> {
 
@@ -41,6 +45,7 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
                 return null;
             }
             con = configToUse.getConnection();
+
             DatabaseMetaData metaData = con.getMetaData();
 
             // tables et vues
@@ -51,11 +56,13 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
                 row[1] = rs.getString(3);
                 row[2] = rs.getString(4);
 
+                LOGGER.fine("Table found: " + String.join(" ; ", row));
+
                 result.add(row);
             }
             rs.close();
 
-            // proc stockess
+            // procedures
             rs = metaData.getProcedures(null, schemaName, null);
             while (rs.next()) {
                 String[] row = new String[3];
@@ -63,11 +70,13 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
                 row[1] = rs.getString(3);
                 row[2] = SQLObjectTypeEnum.PROCEDURE.toString();
 
+                LOGGER.fine("Procedure found: " + String.join(" ; ", row));
+
                 result.add(row);
             }
             rs.close();
 
-            // sequences
+            // sequences for oracle (postgres sequences come with table type...)
             if (configToUse.jdbcUrl.contains("oracle")) {
                 LOGGER.info("Loading sequences ...");
                 String sql = String.format("SELECT s.sequence_name FROM all_sequences s WHERE s.sequence_owner = '%s' ORDER BY s.sequence_name", schemaName);
@@ -79,7 +88,35 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
                     row[1] = rs.getString(1);
                     row[2] = SQLObjectTypeEnum.SEQUENCE.toString();
 
+                    LOGGER.fine("Sequence found: " + String.join(" ; ", row));
+
                     result.add(row);
+                }
+            }
+
+            // functions for postgres
+            if (configToUse.jdbcUrl.contains("postgres")) {
+                LOGGER.info("Loading Postgresql functions...");
+                String sql = null;
+                try (InputStream is = getClass().getClassLoader().getResourceAsStream("net/hironico/minisql/metadata/postgresql/pg_get_functions.sql")) {
+                    sql = new String(is.readAllBytes());
+                } catch (Exception ex) {
+                    LOGGER.log(Level.SEVERE, "Cannot load the postgresql query for listing functions.", ex);
+                }
+
+                if (sql != null) {
+                    Statement stmt = con.createStatement();
+                    rs = stmt.executeQuery(sql);
+                    while (rs.next()) {
+                        String[] row = new String[3];
+                        row[0] = schemaName;
+                        row[1] = rs.getString("name");
+                        row[2] = SQLObjectTypeEnum.FUNCTION.toString();
+
+                        LOGGER.fine("Function found: " + String.join(" ; ", row));
+
+                        result.add(row);
+                    }
                 }
             }
 
