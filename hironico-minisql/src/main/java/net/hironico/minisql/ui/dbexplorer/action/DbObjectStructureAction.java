@@ -32,7 +32,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
     public static final String NAME = "Structure";
 
     public DbObjectStructureAction() {
-        super(NAME, "icons8_analyze_64px_2.png");
+        super(NAME, "icons8_work_64px.png");
     }
 
     public void actionPerformed(ActionEvent evt) {
