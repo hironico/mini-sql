@@ -87,24 +87,17 @@ public class App {
     }
 
     private static void startGui() {
-        Runnable starter = new Runnable() {
-
-            @Override
-            public void run() {
-
-                try {
-                    UIManager.setLookAndFeel(new FlatLightLaf());
-                } catch (Throwable t) {
-                    LOGGER.log(Level.SEVERE, "Unable to set the windows look and feel...");
-                }
-
-                mainWindow = MainWindow.getInstance();
-
-                mainWindow.setVisible(true);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                UIManager.setLookAndFeel(new FlatLightLaf());
+            } catch (Throwable t) {
+                LOGGER.log(Level.SEVERE, "Unable to set the windows look and feel...");
             }
-        };
 
-        SwingUtilities.invokeLater(starter);
+            mainWindow = MainWindow.getInstance();
+
+            mainWindow.setVisible(true);
+        });
     }
 
     public static void main(String[] args) {
