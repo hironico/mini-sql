@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 
 public class DbObjectCollapseAllAction extends AbstractDbExplorerAction {
     public DbObjectCollapseAllAction() {
-        super("Collapse all", null);
+        super("Collapse all", "icons8_collapse_64px.png");
     }
 
     @Override

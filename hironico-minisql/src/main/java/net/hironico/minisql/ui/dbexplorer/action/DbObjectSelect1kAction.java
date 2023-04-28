@@ -29,7 +29,7 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
     private static final String pgsqlSelect = "SELECT * FROM %s.%s LIMIT 1000";
 
     public DbObjectSelect1kAction() {
-        super(NAME, "icons8_start_64px");
+        super(NAME, "icons8_k_64px.png");
     }
 
     @Override

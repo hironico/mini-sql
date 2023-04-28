@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 
 public class DbObjectExpandAllAction extends AbstractDbExplorerAction {
     public DbObjectExpandAllAction() {
-        super("Expand all", null);
+        super("Expand all", "icons8_expand_64px.png");
     }
     @Override
     public void actionPerformed(ActionEvent e) {

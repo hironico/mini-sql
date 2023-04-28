@@ -227,7 +227,7 @@ public class MainWindow extends JFrame {
             this.objectsRibbonGroup.addAction(refreshAction, RibbonGroup.LARGE);
 
             DbObjectStructureAction structureAction = new DbObjectStructureAction();
-            this.objectsRibbonGroup.addAction(structureAction, RibbonGroup.SMALL);
+            this.objectsRibbonGroup.addAction(structureAction, RibbonGroup.LARGE);
         }
 
         return this.objectsRibbonGroup;

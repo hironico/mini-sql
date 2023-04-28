@@ -14,7 +14,7 @@ public class DbObjectCountAction extends AbstractDbExplorerAction {
     public static final String NAME = "Count";
 
     public DbObjectCountAction() {
-        super(NAME, null);
+        super(NAME, "icons8_counter_64px.png");
     }
 
     @Override
