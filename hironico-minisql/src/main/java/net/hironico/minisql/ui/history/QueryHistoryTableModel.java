@@ -55,7 +55,8 @@ public class QueryHistoryTableModel extends DefaultTableModel implements QueryHi
         Object[] row = new Object[2];
         row[0] = query.timestamp;
         row[1] = query.query;
-        this.addRow(row);
+
+        insertRow(0, convertToVector(row));
     }
 
     @Override
