@@ -129,7 +129,7 @@ public class QueryHistoryPanel extends JPanel {
             Font font = getTxtPreview().getFont();
             tableHistory.setFont(font);
             FontMetrics fm = tableHistory.getFontMetrics(font);
-            int width = fm.stringWidth(" MM/MM/MM 99:99:99 ") + 10;
+            int width = fm.stringWidth(" MM/MM/MMMM 99:99:99 ") + 10;
 
             TableColumn colDate = tableHistory.getColumn(0);
             colDate.setMinWidth(width);
@@ -152,6 +152,7 @@ public class QueryHistoryPanel extends JPanel {
                 }
             };
             colDate.setCellRenderer(datetimeRenderer);
+            tableHistory.setDefaultRenderer(Date.class, datetimeRenderer);
 
             tableHistory.addMouseListener(new MouseAdapter() {
                 public void mouseClicked(MouseEvent evt) {
