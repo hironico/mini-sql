@@ -1,12 +1,17 @@
 package net.hironico.minisql;
 
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 
+import com.formdev.flatlaf.util.SystemInfo;
+import net.hironico.common.swing.ComponentMover;
+import net.hironico.common.swing.ComponentResizer;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.common.utils.DynamicFileLoader;
 import com.formdev.flatlaf.FlatLightLaf;
 
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -90,6 +95,33 @@ public class App {
         SwingUtilities.invokeLater(() -> {
             try {
                 UIManager.setLookAndFeel(new FlatLightLaf());
+
+                if( SystemInfo.isLinux ) {
+                    // enable custom window decorations
+                    JFrame.setDefaultLookAndFeelDecorated( true );
+                    JDialog.setDefaultLookAndFeelDecorated( true );
+                }
+
+                if( SystemInfo.isMacOS ) {
+                    // enable screen menu bar
+                    // (moves menu bar from JFrame window to top of screen)
+                    System.setProperty( "apple.laf.useScreenMenuBar", "true" );
+
+                    // application name used in screen menu bar
+                    // (in first menu after the "apple" menu)
+                    System.setProperty( "apple.awt.application.name", "My Application" );
+
+                    // appearance of window title bars
+                    // possible values:
+                    //   - "system": use current macOS appearance (light or dark)
+                    //   - "NSAppearanceNameAqua": use light appearance
+                    //   - "NSAppearanceNameDarkAqua": use dark appearance
+                    // (must be set on main thread and before AWT/Swing is initialized;
+                    //  setting it on AWT thread does not work)
+                    System.setProperty( "apple.awt.application.appearance", "system" );
+                }
+
+                UIManager.put( "TabbedPane.selectedBackground", Color.white );
             } catch (Throwable t) {
                 LOGGER.log(Level.SEVERE, "Unable to set the windows look and feel...");
             }
@@ -97,6 +129,45 @@ public class App {
             mainWindow = MainWindow.getInstance();
 
             mainWindow.setVisible(true);
+            mainWindow.setPreferredSize(new Dimension(1024,768));
+            mainWindow.setSize(1024, 768);
+
+            // add functionalities to undecorated window
+            if (mainWindow.isUndecorated()) {
+                GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                Rectangle screenBounds = env.getMaximumWindowBounds();
+
+                ComponentResizer cr = new ComponentResizer();
+                cr.setMinimumSize(new Dimension(1024, 768));
+                cr.setMaximumSize(new Dimension(screenBounds.width, screenBounds.height));
+                cr.registerComponent(mainWindow);
+                cr.setSnapSize(new Dimension(10, 10));
+
+                ComponentMover cm = new ComponentMover(mainWindow, mainWindow.getRibbon());
+                mainWindow.getRibbon().addMouseListener(new MouseAdapter() {
+                    final Rectangle oldBounds = new Rectangle(0, 0, 1024, 768);
+
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getClickCount() >= 2) {
+                            int width = mainWindow.getSize().width;
+                            int height = mainWindow.getSize().height;
+                            int x = mainWindow.getX();
+                            int y = mainWindow.getY();
+
+                            if (width < screenBounds.width && height < screenBounds.height) {
+                                this.oldBounds.x = x;
+                                this.oldBounds.y = y;
+                                this.oldBounds.width = width;
+                                this.oldBounds.height = height;
+                                mainWindow.setBounds(screenBounds);
+                            } else {
+                                mainWindow.setBounds(oldBounds);
+                            }
+                        }
+                    }
+                });
+            }
         });
     }
 
