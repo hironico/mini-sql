@@ -1,5 +1,6 @@
 package net.hironico.minisql.ui;
 
+import net.hironico.common.swing.ribbon.*;
 import net.hironico.minisql.App;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
@@ -8,10 +9,6 @@ import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
-import net.hironico.common.swing.ribbon.AbstractRibbonAction;
-import net.hironico.common.swing.ribbon.Ribbon;
-import net.hironico.common.swing.ribbon.RibbonGroup;
-import net.hironico.common.swing.ribbon.RibbonTab;
 
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -25,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.plaf.ComponentUI;
 
 public class MainWindow extends JFrame {
 
@@ -100,6 +98,7 @@ public class MainWindow extends JFrame {
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent evt) {
                 try {
+                    LOGGER.info("Saving config file...");
                     DbConfigFile.saveConfig();
                 } catch (Exception ex) {
                     LOGGER.log(Level.SEVERE, "Unable to save config file.", ex);
@@ -107,11 +106,30 @@ public class MainWindow extends JFrame {
                 System.exit(0);
             }
         });
-        
+
         getContentPane().setLayout(new BorderLayout());
+
+        /*
+        setUndecorated(true);
+        getRootPane().setBorder(BorderFactory.createMatteBorder(1,1,1,1, Color.WHITE));
+        RibbonWindowUI ribbonWinUI = new RibbonWindowUI();
+        JLayer<Ribbon> ribbonWithWinIcons = new JLayer<>(getRibbon(), ribbonWinUI);
+        ribbonWithWinIcons.setLayerEventMask(AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
+        getContentPane().add(ribbonWithWinIcons, BorderLayout.PAGE_START);
+        */
+
         getContentPane().add(getRibbon(), BorderLayout.PAGE_START);
         getContentPane().add(getSplitMain(), BorderLayout.CENTER);
         getContentPane().add(getStatusBar(), BorderLayout.AFTER_LAST_LINE);
+
+        /* change this to add later quick access toolbar
+        JMenu menu = new JMenu("File");
+        JMenuItem menuFileExit = new JMenuItem(appActions.get("Exit"));
+        menu.add(menuFileExit);
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(menu);
+        setJMenuBar(menuBar);
+         */
     }
 
     private void setSplitSizes() {

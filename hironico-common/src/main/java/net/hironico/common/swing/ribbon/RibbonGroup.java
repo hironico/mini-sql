@@ -1,6 +1,7 @@
 package net.hironico.common.swing.ribbon;
 
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -70,8 +71,7 @@ public class RibbonGroup extends JPanel {
             btn.setMinimumSize(new Dimension(24,24));
         }
 
-        btn.addMouseListener(new MouseListener() {
-
+        btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseExited(MouseEvent e) {
                 btn.setContentAreaFilled(false);
@@ -82,20 +82,6 @@ public class RibbonGroup extends JPanel {
                 btn.setContentAreaFilled(true);
             }
 
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
         });
 
         GridBagConstraints gbc = new GridBagConstraints();

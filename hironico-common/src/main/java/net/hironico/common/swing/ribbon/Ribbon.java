@@ -5,13 +5,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
-import javax.swing.JFrame;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
 
 @SuppressWarnings("restriction")
 public class Ribbon extends JTabbedPane {
 
     private static final long serialVersionUID = 1L;
+
+    private AbstractRibbonAction exitAction = null;
 
     public static class RibbonAction extends AbstractRibbonAction {
 
@@ -32,6 +33,19 @@ public class Ribbon extends JTabbedPane {
         super();
         setMaximumSize(new Dimension(4096, 148));
         setPreferredSize(new Dimension(1024, 148));
+    }
+
+    /**
+     * Set a custom exit action to execute when the ribbon close icon is clicked.
+     * Most of the time you may want to add a windows closing listener on the top JFrame of the application.
+     * @param exitAction the action to execute when the ribbon close icon is clicked.
+     */
+    public void setExitAction(AbstractRibbonAction exitAction) {
+        this.exitAction = exitAction;
+    }
+
+    public AbstractRibbonAction getExitAction() {
+        return exitAction;
     }
 
     public void addRibbonTab(RibbonTab pnl) {
