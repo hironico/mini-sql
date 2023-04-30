@@ -122,6 +122,7 @@ public class QueryHistoryPanel extends JPanel {
             tableHistory.setEditable(false);
             tableHistory.setColumnControlVisible(false);
             tableHistory.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+            tableHistory.setSortable(false);
 
             tableHistory.setModel(getQueryHistoryTableModel());
 
