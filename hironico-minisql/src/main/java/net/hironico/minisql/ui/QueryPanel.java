@@ -11,7 +11,8 @@ import net.hironico.common.swing.JSplitPaneNoDivider;
 import net.hironico.common.swing.table.FilterableTable;
 import net.hironico.common.utils.json.JSONFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import java.awt.BorderLayout;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.KeyEvent;
@@ -19,8 +20,12 @@ import java.awt.event.KeyListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -28,6 +33,7 @@ import javax.swing.table.TableCellRenderer;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rtextarea.RTextScrollPane;
+import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.JXTable;
 
 public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListener {
@@ -38,7 +44,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
 
     private String lastUsedDirectory = null;
 
-    private JToolBar toolbar = null;    
+    private JToolBar toolbar = null;
     private JComboBox<String> cmbConfig = null;
     private JToggleButton toggleTable = null;
     private JToggleButton toggleJSON = null;
@@ -47,6 +53,10 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
     private JSplitPaneNoDivider splitQuery = null;
     private RSyntaxTextArea txtQuery = null;
     private RTextScrollPane scrollQuery = null;
+    private JPanel pnlQuery = null;
+    private JXStatusBar stbEditorStatusBar = null;
+    private JLabel lblPosition = null;
+    private JLabel lblSelection = null;
     private JPanel pnlResults = null;
 
     private ExecuteQueryAction executeQueryAction = null;
@@ -181,7 +191,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
             splitQuery.setOrientation(JSplitPane.VERTICAL_SPLIT);
             splitQuery.setDividerLocation(250);
 
-            splitQuery.add(getScrollQuery(), JSplitPane.TOP);
+            splitQuery.add(getPnlQuery(), JSplitPane.TOP);
             splitQuery.add(getPnlResults(), JSplitPane.BOTTOM);
         }
 
@@ -264,6 +274,17 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         return scrollQuery;
     }
 
+    private JPanel getPnlQuery() {
+        if (pnlQuery == null) {
+            pnlQuery = new JPanel();
+            pnlQuery.setLayout(new BorderLayout());
+            pnlQuery.add(getScrollQuery(), BorderLayout.CENTER);
+            pnlQuery.add(getStbEditorStatusBar(), BorderLayout.SOUTH);
+        }
+
+        return pnlQuery;
+    }
+
     RSyntaxTextArea getTxtQuery() {
         if (txtQuery == null) {
             txtQuery = new RSyntaxTextArea();
@@ -314,9 +335,57 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
                 public void keyReleased(KeyEvent e) {
                 }
             });
+
+            txtQuery.addCaretListener(e -> {
+                int line = getTxtQuery().getCaretLineNumber() + 1;
+                int y = getTxtQuery().getCaretOffsetFromLineStart();
+                getLblPosition().setText(String.format("%d:%d (%d)", line, y, e.getDot()));
+
+                String selectionText = getTxtQuery().getSelectedText();
+                if (selectionText == null) {
+                    getLblSelection().setText("0 chars");
+                } else {
+                    int lineBreaks = selectionText.length() - selectionText.replace("\n", "").length();
+                    if (lineBreaks == 0) {
+                        getLblSelection().setText(String.format("%d chars.", getTxtQuery().getSelectedText().length()));
+                    } else {
+                        getLblSelection().setText(String.format("%d chars, %d line breaks.", selectionText.length(), lineBreaks));
+                    }
+                }
+            });
         }
 
         return txtQuery;
+    }
+
+    private JXStatusBar getStbEditorStatusBar() {
+        if (stbEditorStatusBar == null) {
+            stbEditorStatusBar = new JXStatusBar();
+            stbEditorStatusBar.setBorder(BorderFactory.createEtchedBorder());
+            stbEditorStatusBar.add(getLblPosition());
+            stbEditorStatusBar.add(getLblSelection());
+        }
+
+        return stbEditorStatusBar;
+    }
+
+    private JLabel getLblSelection() {
+        if (lblSelection == null) {
+            lblSelection = new JLabel("0 chars");
+            lblSelection.setToolTipText("Number of characters and line breaks if any currently selected");
+        }
+
+        return lblSelection;
+    }
+
+    private JLabel getLblPosition() {
+        if (lblPosition == null) {
+            lblPosition = new JLabel();
+            lblPosition.setText("1:0 (0)");
+            lblPosition.setToolTipText("Caret position at 'line:offset (char number)'");
+        }
+
+        return lblPosition;
     }
 
     /**
