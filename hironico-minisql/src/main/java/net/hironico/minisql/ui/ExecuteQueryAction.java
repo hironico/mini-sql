@@ -2,6 +2,7 @@ package net.hironico.minisql.ui;
 
 import net.hironico.minisql.ctrl.QueryResultCallable;
 import net.hironico.minisql.model.SQLResultSetTableModel;
+import net.hironico.minisql.ui.editor.QueryPanel;
 import net.hironico.minisql.ui.history.QueryHistory;
 
 import java.awt.Component;
@@ -24,7 +25,7 @@ public class ExecuteQueryAction extends AbstractQueryAction {
     public void actionPerformed(ActionEvent evt) {
         Component comp = MainWindow.getInstance().getCurrentTabComponent();
         QueryPanel queryPanel = null;
-        if ((comp == null) || !(comp instanceof QueryPanel)) {
+        if (!(comp instanceof QueryPanel)) {
             return;
         } else {
             queryPanel = (QueryPanel)comp;

@@ -1,6 +1,6 @@
 package net.hironico.minisql.ui.renderer;
 
-import net.hironico.minisql.ui.CopyAction;
+import net.hironico.minisql.ui.CopyAllAction;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -96,9 +96,9 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
             toolbarClobViewer = new JToolBar();
             toolbarClobViewer.setFloatable(false);
 
-            CopyAction copyAction = new CopyAction(this.getTxtClobViewer());
-            copyAction.putValue(AbstractAction.LARGE_ICON_KEY, null);
-            toolbarClobViewer.add(copyAction);
+            CopyAllAction copyAllAction = new CopyAllAction(this.getTxtClobViewer());
+            copyAllAction.putValue(AbstractAction.LARGE_ICON_KEY, null);
+            toolbarClobViewer.add(copyAllAction);
             toolbarClobViewer.addSeparator();
             toolbarClobViewer.add(new JLabel("Hightlight: "));
             toolbarClobViewer.add(getTxtSearchClobViewer());

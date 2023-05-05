@@ -1,8 +1,10 @@
-package net.hironico.minisql.ui;
+package net.hironico.minisql.ui.editor;
 
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.model.SQLResultSetTableModel;
+import net.hironico.minisql.ui.ExecuteQueryAction;
+import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.renderer.ClobTableCellEditor;
 import net.hironico.minisql.ui.renderer.ClobTableCellRenderer;
 import net.hironico.minisql.ui.renderer.DateTableCellRenderer;
@@ -13,19 +15,13 @@ import net.hironico.common.utils.json.JSONFile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
@@ -70,7 +66,6 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
 
     private void initialize() {
         setLayout(new BorderLayout());
-
         add(getToolbar(), BorderLayout.NORTH);
         add(getSplitQuery(), BorderLayout.CENTER);
         getSplitQuery().setDividerLocation(250);
@@ -232,7 +227,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         getTxtQuery().setText(text);
     }
 
-    int getResultDisplayType() {
+    public int getResultDisplayType() {
         if (getToggleTable().isSelected()) {
             return SQLResultSetTableModel.DISPLAY_TYPE_TABLE;
         } else if (getToggleJSON().isSelected()) {
@@ -245,7 +240,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         }
     }
 
-    void setResultsComponent(JComponent resultsComp) {
+    public void setResultsComponent(JComponent resultsComp) {
         getPnlResults().removeAll();
         getPnlResults().add(resultsComp, BorderLayout.CENTER);
         getPnlResults().updateUI();
@@ -351,6 +346,14 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
                     } else {
                         getLblSelection().setText(String.format("%d chars, %d line breaks.", selectionText.length(), lineBreaks));
                     }
+                }
+            });
+
+            txtQuery.addFocusListener(new FocusAdapter() {
+                @Override
+                public void focusGained(FocusEvent e) {
+                    super.focusGained(e);
+                    MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Home");
                 }
             });
         }

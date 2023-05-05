@@ -1,4 +1,4 @@
-package net.hironico.minisql.ui;
+package net.hironico.minisql.ui.editor;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -7,6 +7,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
+import net.hironico.minisql.ui.MainWindow;
 
 import java.io.BufferedWriter;
 import java.io.File;

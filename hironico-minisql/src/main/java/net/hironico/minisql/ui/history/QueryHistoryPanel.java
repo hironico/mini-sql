@@ -1,8 +1,8 @@
 package net.hironico.minisql.ui.history;
 
-import net.hironico.minisql.ui.CopyAction;
+import net.hironico.minisql.ui.CopyAllAction;
 import net.hironico.minisql.ui.MainWindow;
-import net.hironico.minisql.ui.QueryPanel;
+import net.hironico.minisql.ui.editor.QueryPanel;
 import net.hironico.common.swing.table.FilterableTable;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -243,7 +243,7 @@ public class QueryHistoryPanel extends JPanel {
 
     private JButton getBtnCopy() {
         if (btnCopy == null) {
-            CopyAction action = new CopyAction(getTxtPreview());
+            CopyAllAction action = new CopyAllAction(getTxtPreview());
             btnCopy = new JButton(action);
             btnCopy.setToolTipText("Copy to clipboard");
             btnCopy.setPreferredSize(new Dimension(24,24));

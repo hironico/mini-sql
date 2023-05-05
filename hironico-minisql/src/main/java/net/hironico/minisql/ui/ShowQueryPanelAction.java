@@ -6,6 +6,7 @@ import javax.swing.JPanel;
 
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
+import net.hironico.minisql.ui.editor.QueryPanel;
 
 public class ShowQueryPanelAction extends AbstractRibbonAction {
 

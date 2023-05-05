@@ -3,7 +3,7 @@ package net.hironico.minisql.ui.dbexplorer.action;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ui.MainWindow;
-import net.hironico.minisql.ui.QueryPanel;
+import net.hironico.minisql.ui.editor.QueryPanel;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
 

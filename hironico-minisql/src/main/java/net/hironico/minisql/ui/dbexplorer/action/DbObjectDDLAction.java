@@ -7,7 +7,7 @@ import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.model.SQLTable;
 import net.hironico.minisql.model.SQLView;
 import net.hironico.minisql.ui.MainWindow;
-import net.hironico.minisql.ui.QueryPanel;
+import net.hironico.minisql.ui.editor.QueryPanel;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
 
 import java.awt.event.ActionEvent;

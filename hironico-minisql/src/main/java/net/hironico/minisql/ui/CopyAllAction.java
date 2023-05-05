@@ -6,13 +6,13 @@ import javax.swing.text.JTextComponent;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
 
-public class CopyAction extends AbstractRibbonAction {
+public class CopyAllAction extends AbstractRibbonAction {
     
     private static final long serialVersionUID = 1L;
 
     private JTextComponent textComp = null;
 
-    public CopyAction(JTextComponent textComp) {
+    public CopyAllAction(JTextComponent textComp) {
         super("Copy", "icons8_copy_64px_2.png");
         this.textComp = textComp;
     }

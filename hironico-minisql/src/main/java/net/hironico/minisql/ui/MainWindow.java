@@ -6,6 +6,7 @@ import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
 import net.hironico.minisql.ui.dbexplorer.action.*;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
+import net.hironico.minisql.ui.editor.*;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
@@ -22,7 +23,6 @@ import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
-import javax.swing.plaf.ComponentUI;
 
 public class MainWindow extends JFrame {
 
@@ -40,6 +40,8 @@ public class MainWindow extends JFrame {
     private RibbonTab homeRibbonTab = null;
     private RibbonGroup systemRibbonGroup = null;
     private RibbonGroup toolsRibbonGroup = null;
+    private RibbonGroup clipBoardRibbonGroup = null;
+    private RibbonGroup undoRedoRibbonGroup = null;
     private RibbonTab explorerRibbonTab = null;
     private RibbonGroup viewRibbonGroup = null;
     private RibbonGroup objectsRibbonGroup = null;
@@ -180,6 +182,8 @@ public class MainWindow extends JFrame {
             this.homeRibbonTab = new RibbonTab("Home");
             
             this.homeRibbonTab.addGroup(getToolsRibbonGroup());
+            this.homeRibbonTab.addGroup(getClipboardRibbonGroup());
+            this.homeRibbonTab.addGroup(getUndoRedoRibbonGroup());
             this.homeRibbonTab.addGroup(getSystemRibbonGroup());
         }
 
@@ -197,6 +201,29 @@ public class MainWindow extends JFrame {
         }
 
         return toolsRibbonGroup;
+    }
+
+    private RibbonGroup getClipboardRibbonGroup() {
+        if (clipBoardRibbonGroup == null) {
+            clipBoardRibbonGroup = new RibbonGroup("Clipboard");
+
+            clipBoardRibbonGroup.addAction(new PasteAction(), RibbonGroup.LARGE);
+            clipBoardRibbonGroup.addAction(new CopyAction(), RibbonGroup.SMALL);
+            clipBoardRibbonGroup.addAction(new CutAction(), RibbonGroup.SMALL);
+        }
+
+        return clipBoardRibbonGroup;
+    }
+
+    private RibbonGroup getUndoRedoRibbonGroup() {
+        if (undoRedoRibbonGroup == null) {
+            undoRedoRibbonGroup = new RibbonGroup("Undo/Redo");
+
+            undoRedoRibbonGroup.addAction(new UndoAction(), RibbonGroup.SMALL);
+            undoRedoRibbonGroup.addAction(new RedoAction(), RibbonGroup.SMALL);
+        }
+
+        return undoRedoRibbonGroup;
     }
 
     private RibbonGroup getSystemRibbonGroup() {

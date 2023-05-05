@@ -9,7 +9,7 @@ import net.hironico.minisql.model.SQLObject;
 import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.model.SQLResultSetTableModel;
 import net.hironico.minisql.ui.MainWindow;
-import net.hironico.minisql.ui.QueryPanel;
+import net.hironico.minisql.ui.editor.QueryPanel;
 
 import java.awt.event.ActionEvent;
 import java.io.InputStream;
