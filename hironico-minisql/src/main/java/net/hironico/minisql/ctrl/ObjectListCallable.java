@@ -96,7 +96,7 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
 
             // functions for postgres
             if (configToUse.jdbcUrl.contains("postgres")) {
-                LOGGER.info("Loading Postgresql functions...");
+                LOGGER.fine("Loading Postgresql functions...");
                 String sql = null;
                 try (InputStream is = getClass().getClassLoader().getResourceAsStream("net/hironico/minisql/metadata/postgresql/pg_get_functions.sql")) {
                     sql = new String(is.readAllBytes());
@@ -108,19 +108,19 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
                     Statement stmt = con.createStatement();
                     rs = stmt.executeQuery(sql);
                     while (rs.next()) {
-                        String[] row = new String[3];
-                        row[0] = schemaName;
-                        row[1] = rs.getString("name");
-                        row[2] = SQLObjectTypeEnum.FUNCTION.toString();
+                        if (rs.getString("schema").equalsIgnoreCase(schemaName)) {
+                            String[] row = new String[3];
+                            row[0] = schemaName;
+                            row[1] = rs.getString("name");
+                            row[2] = SQLObjectTypeEnum.FUNCTION.toString();
 
-                        LOGGER.fine("Function found: " + String.join(" ; ", row));
+                            LOGGER.fine("Function found: " + String.join(" ; ", row));
 
-                        result.add(row);
+                            result.add(row);
+                        }
                     }
                 }
             }
-
-            // Collections.sort(result);
 
         } catch (Throwable t) {
             t.printStackTrace();
