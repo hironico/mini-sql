@@ -198,6 +198,7 @@ public class MainWindow extends JFrame {
             toolsRibbonGroup.addAction(new OpenQueryAction(), RibbonGroup.SMALL);
             toolsRibbonGroup.addAction(new SaveQueryAction(), RibbonGroup.SMALL);
             toolsRibbonGroup.addAction(new ExecuteQueryAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addAction(new ExecuteBatchQueryAction(), RibbonGroup.LARGE);
         }
 
         return toolsRibbonGroup;

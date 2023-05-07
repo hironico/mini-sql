@@ -20,15 +20,21 @@ public class QueryResultCallable implements Callable<List<SQLResultSetTableModel
 
     private static final Logger LOGGER = Logger.getLogger(QueryResultCallable.class.toString());
 
-    private String sqlQuery;
-    private DbConfig config;
+    private final String sqlQuery;
+    private final DbConfig config;
+    private final boolean batchMode;
 
-    private Set<QueryExecutionListener> historyListerners = new HashSet<>();
+    private final Set<QueryExecutionListener> historyListerners = new HashSet<>();
 
     public QueryResultCallable(String query, DbConfig config) {
+        this(query, config, false);
+    }
+
+    public QueryResultCallable(String query, DbConfig config, boolean batchMode) {
         super();
         this.sqlQuery = query;
         this.config = config;
+        this.batchMode = batchMode;
     }
 
     private SQLResultSetTableModel getResults(ResultSet resultSet) throws SQLException {
@@ -54,12 +60,16 @@ public class QueryResultCallable implements Callable<List<SQLResultSetTableModel
 
         try (Connection con = config.getConnection()) {
 
-            String[] sqlCommands = this.sqlQuery.split(config.batchStatementSeparator);
+            String[] sqlCommands = { sqlQuery };
 
-            for (String oneSqlcommand : sqlCommands) {
+            if (this.batchMode) {
+                sqlCommands = this.sqlQuery.split(config.batchStatementSeparator);
+            }
+
+            for (String oneSqlCommand : sqlCommands) {
 
                 Statement stmt = con.createStatement();
-                boolean hasResultSet = stmt.execute(oneSqlcommand);
+                boolean hasResultSet = stmt.execute(oneSqlCommand);
                 int updateCount = stmt.getUpdateCount();
 
                 do {

@@ -5,10 +5,10 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import javax.swing.*;
 
-public class ExecuteQueryAction extends AbstractQueryAction {
-    public ExecuteQueryAction() {
-        super("Execute", "icons8_play_64px.png");
-        putValue(Action.SHORT_DESCRIPTION, "Execute query of currently selected editor.");
+public class ExecuteBatchQueryAction extends AbstractQueryAction {
+    public ExecuteBatchQueryAction() {
+        super("Execute Batch", "icons8_play_property_64px.png");
+        putValue(Action.SHORT_DESCRIPTION, "Execute query of currently selected editor in BATCH mode using batch separator in db config.");
     }
 
     @Override
@@ -21,10 +21,6 @@ public class ExecuteQueryAction extends AbstractQueryAction {
             queryPanel = (QueryPanel)comp;
         }
 
-        ExecuteQueryAction.executeQueryAsync(queryPanel);
-    }
-
-    public static void executeQueryAsync(QueryPanel queryPanel) {
-        AbstractQueryAction.executeQueryAsync(queryPanel, false);
+        ExecuteQueryAction.executeQueryAsync(queryPanel, true);
     }
 }

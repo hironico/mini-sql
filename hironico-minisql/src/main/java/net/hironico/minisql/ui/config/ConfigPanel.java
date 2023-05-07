@@ -433,7 +433,7 @@ public class ConfigPanel extends JPanel {
 
     protected JLabel getLblStatementSeparator() {
         if (lblStatementSeparator == null) {
-            lblStatementSeparator = new JLabel("SQL statement separator:");
+            lblStatementSeparator = new JLabel("SQL statement separator (for batch mode only):");
         }
 
         return lblStatementSeparator;
@@ -442,6 +442,7 @@ public class ConfigPanel extends JPanel {
     protected JTextField getTxtStatementSeparator() {
         if (txtStatementSeparator == null) {
             txtStatementSeparator = new JTextField();
+            txtStatementSeparator.setToolTipText("Separator used to segregate statements to be executed one by one in a batch. Only valid for batch execution mode.");
         }
 
         return txtStatementSeparator;

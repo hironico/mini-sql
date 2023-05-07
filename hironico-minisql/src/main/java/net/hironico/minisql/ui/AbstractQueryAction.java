@@ -1,7 +1,13 @@
 package net.hironico.minisql.ui;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
+import net.hironico.minisql.ctrl.QueryResultCallable;
+import net.hironico.minisql.model.SQLResultSetTableModel;
+import net.hironico.minisql.ui.editor.QueryPanel;
+import net.hironico.minisql.ui.history.QueryHistory;
 
+import java.util.List;
+import java.util.concurrent.Future;
 import java.util.logging.Logger;
 import javax.swing.*;
 
@@ -13,12 +19,44 @@ import javax.swing.*;
  * As a consequence, a list of SQLResultSetTableModel can display each result differently.
  */
 public abstract class AbstractQueryAction extends AbstractRibbonAction {
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOGGER = Logger.getLogger(AbstractQueryAction.class.getName());
 
-    public AbstractQueryAction() {
-        super("Execute", "icons8_play_64px.png");
-        putValue(Action.SHORT_DESCRIPTION, "Execute query of currently selected editor.");
+    public AbstractQueryAction(String name, String icon) {
+        super(name, icon);
+    }
+
+    public static void executeQueryAsync(QueryPanel queryPanel, boolean batchMode) {
+
+        String sql = queryPanel.getQueryText();
+        int resultDisplayType = queryPanel.getResultDisplayType();
+
+        LOGGER.fine("Executing '" + sql + "'");
+
+        queryPanel.setResultsComponent(new JLabel("Executing query, please wait."));
+
+        QueryResultCallable queryCall = new QueryResultCallable(sql, queryPanel.getConfig(), batchMode);
+        queryCall.addQueryHistoryListener(QueryHistory.getInstance());
+        final Future<List<SQLResultSetTableModel>> futureResults = MainWindow.executorService.submit(queryCall);
+
+        Runnable waitQueryRun = () -> {
+            try {
+                List<SQLResultSetTableModel> results = futureResults.get();
+                results.forEach(result -> result.setDisplayType(resultDisplayType));
+                JComponent compResults = QueryPanel.getResultComponentTab(results);
+                queryPanel.setResultsComponent(compResults);
+            } catch (Exception ex) {
+                JTextPane txtErr = new JTextPane();
+                txtErr.setText(ex.getMessage());
+                txtErr.setBorder(BorderFactory.createEmptyBorder());
+                txtErr.setEditable(false);
+                txtErr.setEnabled(false);
+                JScrollPane scrollErr = new JScrollPane(txtErr);
+                scrollErr.setBorder(BorderFactory.createEmptyBorder());
+                queryPanel.setResultsComponent(scrollErr);
+            }
+        };
+
+        Thread waitQueryThread = new Thread(waitQueryRun);
+        waitQueryThread.start();
     }
 }
