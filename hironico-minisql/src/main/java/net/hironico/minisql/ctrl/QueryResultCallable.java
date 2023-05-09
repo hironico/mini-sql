@@ -18,13 +18,13 @@ import net.hironico.minisql.ui.history.QueryExecutionListener;
 
 public class QueryResultCallable implements Callable<List<SQLResultSetTableModel>> {
 
-    private static final Logger LOGGER = Logger.getLogger(QueryResultCallable.class.toString());
+    private static final Logger LOGGER = Logger.getLogger(QueryResultCallable.class.getName());
 
     private final String sqlQuery;
     private final DbConfig config;
     private final boolean batchMode;
 
-    private final Set<QueryExecutionListener> historyListerners = new HashSet<>();
+    private final Set<QueryExecutionListener> historyListeners = new HashSet<>();
 
     public QueryResultCallable(String query, DbConfig config) {
         this(query, config, false);
@@ -108,18 +108,18 @@ public class QueryResultCallable implements Callable<List<SQLResultSetTableModel
     }
 
     public void addQueryHistoryListener(QueryExecutionListener listener) {
-        this.historyListerners.add(listener);
+        this.historyListeners.add(listener);
     }
 
     public void removeQueryHistoryListener(QueryExecutionListener listener) {
-        this.historyListerners.remove(listener);
+        this.historyListeners.remove(listener);
     }
 
     /**
      * Asynch notification of the query being executed.
      */
     private void fireQueryExecuted() {
-        Runnable runNotif = () -> QueryResultCallable.this.historyListerners.forEach(listener -> listener.queryExecuted(QueryResultCallable.this.sqlQuery));
+        Runnable runNotif = () -> QueryResultCallable.this.historyListeners.forEach(listener -> listener.queryExecuted(QueryResultCallable.this.sqlQuery));
 
         Thread thread = new Thread(runNotif);
         thread.start();        
