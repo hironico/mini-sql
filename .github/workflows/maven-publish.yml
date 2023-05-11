@@ -22,8 +22,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'oracle'
-        server-id: hironico-mini-sql-github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
