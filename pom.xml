@@ -37,13 +37,6 @@
         <module>hironico-dist</module>
     </modules>
 
-    <distributionManagement>
-        <repository>
-            <id>hironico-mini-sql-github</id>
-            <url>https://maven.pkg.github.com/hironico/mini-sql</url>
-        </repository>
-    </distributionManagement>
-
     <build>
         <plugins>
             <plugin>
