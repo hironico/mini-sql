@@ -103,7 +103,7 @@ public class QueryResultCallable implements Callable<List<SQLResultSetTableModel
             this.fireQueryExecuted();
         }
 
-        LOGGER.info("Found " + modelResults.size() + " resultsets.");
+        LOGGER.finer("Found " + modelResults.size() + " resultsets.");
         return modelResults;
     }
 

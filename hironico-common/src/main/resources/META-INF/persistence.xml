@@ -6,15 +6,6 @@
         <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
 
         <!-- Add class below if you wish to DISABLE auto discovery -->
-        <!--
-        <class>BlkEvent</class>
-        <class>BlkPositionFamily</class>
-        <class>BlkPositionMax</class>
-        <class>SubscriptionEvent</class>
-
-        <class>SubscriptionEventStatusConverter</class>
-        <class>ExtOperation</class>
-        -->
 
         <!-- Enables auto discovery of persistent classes, -->
         <!-- otherwise they must be listed using <class>   -->

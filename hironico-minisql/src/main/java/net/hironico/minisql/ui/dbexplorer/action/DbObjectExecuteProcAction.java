@@ -37,7 +37,7 @@ public class DbObjectExecuteProcAction extends AbstractDbExplorerAction {
             return;
         }
 
-        if (obj.type.equalsIgnoreCase(SQLObjectTypeEnum.PROCEDURE.toString())) {
+        if (SQLObjectTypeEnum.isProcOrFunction(obj.type)) {
             generateExecuteSQL(obj, configToUse);
         }
     }

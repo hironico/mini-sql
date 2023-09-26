@@ -3,15 +3,8 @@ package net.hironico.common.swing.ribbon;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import javax.swing.*;
 
 public class RibbonGroup extends JPanel {
 
@@ -21,7 +14,6 @@ public class RibbonGroup extends JPanel {
     protected JLabel lblTitle = null;
     protected JPanel pnlTitle = null;
     protected JPanel pnlCommands = null;
-    protected JPanel pnlRight = null;
 
     public static final int SMALL = 0;
     public static final int LARGE = 3;
@@ -33,6 +25,60 @@ public class RibbonGroup extends JPanel {
         super();
         this.title = title;
         initialize();
+    }
+
+    /**
+     * Add a checkbox to the ribbon. Size is always small
+     * @param action action to perfom when the checkbox is clicked
+     */
+    public void addCheckBox(AbstractRibbonAction action) {
+        final JCheckBox chk = new JCheckBox(action);
+        chk.setContentAreaFilled(false);
+        chk.setText((String)action.getValue(Action.NAME));
+        chk.setToolTipText((String)action.getValue(Action.SHORT_DESCRIPTION));
+        // chk.setIcon(action.getSmallIcon());
+        chk.setMinimumSize(new Dimension(24,24));
+
+        chk.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                chk.setContentAreaFilled(false);
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                chk.setContentAreaFilled(true);
+            }
+
+        });
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(2, 2, 2, 2);
+        gbc.gridx = currentColumn;
+        gbc.gridy = currentRow;
+        gbc.fill = GridBagConstraints.VERTICAL;
+        gbc.anchor = GridBagConstraints.WEST;
+
+        gbc.gridheight = 1;
+        gbc.weighty = 0.33d;
+
+        getPnlCommands().add(chk, gbc);
+
+        if (chk.getHeight() < 16) {
+            chk.setSize(chk.getWidth(), 16);
+        }
+
+        // ensure we see the whole text
+        FontMetrics fm = chk.getFontMetrics(chk.getFont());
+        int width = fm.stringWidth(chk.getText());
+        chk.setSize(width, chk.getHeight());
+
+        if (currentRow == 2) {
+            currentRow = 0;
+            currentColumn++;
+        } else {
+            currentRow++;
+        }
     }
 
     public void addAction(AbstractRibbonAction action, int size) {

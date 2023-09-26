@@ -272,6 +272,9 @@ public class MainWindow extends JFrame {
             DbObjectRefreshAction refreshAction = new DbObjectRefreshAction();
             this.objectsRibbonGroup.addAction(refreshAction, RibbonGroup.LARGE);
 
+            DbObjectShowSystAction systObjAction = new DbObjectShowSystAction();
+            this.objectsRibbonGroup.addCheckBox(systObjAction);
+
             DbObjectStructureAction structureAction = new DbObjectStructureAction();
             this.objectsRibbonGroup.addAction(structureAction, RibbonGroup.LARGE);
         }

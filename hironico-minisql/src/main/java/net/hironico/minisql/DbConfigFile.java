@@ -28,9 +28,9 @@ public class DbConfigFile {
 
     protected static List<DbConfig> all = new ArrayList<>();
 
-    public static interface DbConfigFileListener {
-        public void configAdded(DbConfig config);
-        public void configRemoved(DbConfig config);
+    public interface DbConfigFileListener {
+        void configAdded(DbConfig config);
+        void configRemoved(DbConfig config);
     }
 
     private static final List<DbConfigFileListener> listeners = new ArrayList<>();
@@ -58,11 +58,11 @@ public class DbConfigFile {
         SwingUtilities.invokeLater(() -> DbConfigFile.listeners.forEach(listener -> listener.configRemoved(config)));
     }
 
-    public static DbConfig addConfig(String name) {
-        return DbConfigFile.addConfig(name, "", "", "");
+    public static void addConfig(String name) {
+        DbConfigFile.addConfig(name, "", "", "");
     }
 
-    private static DbConfig addConfig(String name, String url, String user, String password) {
+    private static void addConfig(String name, String url, String user, String password) {
         DbConfig cfg = new DbConfig();
         cfg.jdbcUrl = url;
         cfg.user = user;
@@ -72,8 +72,6 @@ public class DbConfigFile {
         all.add(cfg);
 
         fireConfigAdded(cfg);
-
-        return cfg;
     }
 
     public static DbConfig duplicate(String src, String dest) {
@@ -101,7 +99,7 @@ public class DbConfigFile {
             if (cfg.name.equals(name)) {
                 return cfg;
             }
-        };
+        }
 
         return null;
     }

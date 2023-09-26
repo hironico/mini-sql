@@ -22,7 +22,7 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
     private final DbConfig config;
 
     public MetadataResultCallable(SQLObject obj, DbConfig config) {
-        this(obj.schemaName, obj.name, SQLObjectTypeEnum.valueOf(obj.type), config);
+        this(obj.schemaName, obj.name, obj.type, config);
     }
 
     public MetadataResultCallable(String schemaName, String objectName, SQLObjectTypeEnum objectType, DbConfig config) {

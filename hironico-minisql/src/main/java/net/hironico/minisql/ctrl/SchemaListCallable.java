@@ -15,7 +15,7 @@ import java.util.logging.Logger;
 public class SchemaListCallable implements Callable<List<String>>, Supplier<List<String>> {
     private static final Logger LOGGER = Logger.getLogger(SchemaListCallable.class.getName());
 
-    private DbConfig configToUse;
+    private final DbConfig configToUse;
 
     public SchemaListCallable(DbConfig configToUse) {
         this.configToUse = configToUse;

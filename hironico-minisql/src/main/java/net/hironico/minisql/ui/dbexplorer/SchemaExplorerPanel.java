@@ -5,6 +5,7 @@ import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ctrl.ObjectListCallable;
 import net.hironico.minisql.ctrl.SchemaListCallable;
 import net.hironico.minisql.model.SQLObject;
+import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
 import java.awt.*;
@@ -20,7 +21,6 @@ import org.jdesktop.swingx.JXComboBox;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
-import org.jdesktop.swingx.treetable.TreeTableModel;
 
 public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfigFileListener {
     private static final Logger LOGGER = Logger.getLogger(SchemaExplorerPanel.class.getName());
@@ -34,27 +34,12 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
     private DefaultComboBoxModel<String> cmbSchemaModel = null;
     private JScrollPane scrollObjects = null;
     private JXTreeTable treetableObjects = null;
-    private TreeTableModel treetableObjectsModel = null;
+    private SQLObjectsTreeTableModel treetableObjectsModel = null;
 
     public SchemaExplorerPanel() {
         super();
         initialize();
         DbConfigFile.addListener(this);
-    }
-
-    public void setConnection(String name) {
-        if (name == null) {
-            return;
-        }
-
-        DbConfig config = DbConfigFile.getConfig(name);
-        if (config == null) {
-            return;
-        }
-
-        this.dbConfig = config;
-        getCmbConnection().setSelectedItem(this.dbConfig);
-        this.refreshSchemas();
     }
 
     private void refreshSchemas() {
@@ -66,13 +51,11 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
         this.setEnabled(false);
 
         CompletableFuture.supplyAsync(new SchemaListCallable(this.dbConfig))
-        .thenAccept(list -> {
-            SwingUtilities.invokeLater(() -> {
-                DefaultComboBoxModel<String> model = getCmbSchemaModel();
-                model.removeAllElements();
-                list.forEach(model::addElement);
-            });
-        }).whenComplete((result, ex) -> {
+        .thenAccept(list -> SwingUtilities.invokeLater(() -> {
+            DefaultComboBoxModel<String> model = getCmbSchemaModel();
+            model.removeAllElements();
+            list.forEach(model::addElement);
+        })).whenComplete((result, ex) -> {
             SchemaExplorerPanel.this.setEnabled(true);
             if (ex != null) {
                 LOGGER.log(Level.SEVERE, "Error while retrieving the database objects.", ex);
@@ -80,8 +63,8 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
         });
     }
 
-    private void refreshObjects() {
-        SQLObjectsTreeTableModel model = (SQLObjectsTreeTableModel)this.getTreeTableObjectsModel();
+    private void refreshObjects(SQLObjectTypeEnum objectTypeFilter) {
+        SQLObjectsTreeTableModel model = this.getTreeTableObjectsModel();
 
         String schemaName = (String)this.getCmbSchema().getSelectedItem();
         if (schemaName == null) {
@@ -90,13 +73,11 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
         }
 
         this.setEnabled(false);
-        CompletableFuture.supplyAsync(new ObjectListCallable(this.dbConfig, schemaName))
-        .thenAccept(objects -> {
-            SwingUtilities.invokeLater(() -> {
-                model.clear();
-                model.setSQLObjects(objects);
-            });
-        }).whenComplete((result, ex) -> {
+        CompletableFuture.supplyAsync(new ObjectListCallable(this.dbConfig, schemaName, objectTypeFilter))
+        .thenAccept(objects -> SwingUtilities.invokeLater(() -> {
+            model.clear(objectTypeFilter);
+            model.setSQLObjects(objects);
+        })).whenComplete((result, ex) -> {
             SchemaExplorerPanel.this.setEnabled(true);
             if (ex != null) {
                 LOGGER.log(Level.SEVERE, "Error while retrieving the database objects.", ex);
@@ -112,6 +93,32 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
 
         DefaultMutableTreeTableNode node = (DefaultMutableTreeTableNode)tp.getPathComponent(1);
         String nodeType = (String)node.getUserObject();
+
+        switch(nodeType.toUpperCase()) {
+            case "TABLES":
+                this.refreshObjects(SQLObjectTypeEnum.TABLE);
+                break;
+
+            case "VIEWS":
+                this.refreshObjects(SQLObjectTypeEnum.VIEW);
+                break;
+
+            case "PROCEDURES":
+                this.refreshObjects(SQLObjectTypeEnum.PROCEDURE);
+                break;
+
+            case "FUNCTIONS":
+                this.refreshObjects(SQLObjectTypeEnum.FUNCTION);
+                break;
+
+            case "SEQUENCES":
+                this.refreshObjects(SQLObjectTypeEnum.SEQUENCE);
+                break;
+
+            default:
+                LOGGER.warning("Unknown object type to refresh: " + nodeType);
+                break;
+        }
 
         LOGGER.info("Should refresh node: " + nodeType);
     }
@@ -234,7 +241,7 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
                     return;
                 }
 
-                SchemaExplorerPanel.this.refreshObjects();
+                SchemaExplorerPanel.this.refreshObjects(null);
             });
         }
         return cmbSchema;
@@ -280,7 +287,7 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
         return treetableObjects;
     }
 
-    private TreeTableModel getTreeTableObjectsModel() {
+    private SQLObjectsTreeTableModel getTreeTableObjectsModel() {
         if (this.treetableObjectsModel == null) {
             this.treetableObjectsModel = new SQLObjectsTreeTableModel();
         }
@@ -304,5 +311,9 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
     @Override
     public void configRemoved(DbConfig config) {
         this.getCmbConnectionModel().removeElement(config);
+    }
+
+    public void setShowSystemObjects(boolean showSystemObjects) {
+        this.getTreeTableObjectsModel().setShowSystemObjects(showSystemObjects);
     }
 }

@@ -34,14 +34,16 @@ public class DbObjectDDLAction extends AbstractDbExplorerAction {
         DbConfig cfg = DbConfigFile.getConfig(explorerPanel.getSelectedConnectionName());
         try {
             String ddl = null;
-            switch (SQLObjectTypeEnum.valueOf(obj.type)) {
+            switch (obj.type) {
             case TABLE:
+            case SYSTEM_TABLE:
                 SQLTable table = new SQLTable(obj.schemaName, obj.name);
                 table.loadMetaData(cfg);
                 ddl = table.getDDL(ddlAction);
                 break;
 
             case VIEW:
+            case SYSTEM_VIEW:
                 SQLView view = new SQLView(obj.schemaName, obj.name);
                 view.loadMetaData(cfg);
                 ddl = view.getDDL(ddlAction);

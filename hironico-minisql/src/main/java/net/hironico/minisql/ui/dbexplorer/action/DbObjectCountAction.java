@@ -25,18 +25,12 @@ public class DbObjectCountAction extends AbstractDbExplorerAction {
         if (obj == null) {
             return;
         }
-        switch (SQLObjectTypeEnum.valueOf(obj.type.replaceAll(" ", "_"))) {
-        case TABLE:
-        case VIEW:
-        case MATERIALIZED_VIEW:
+
+        if (SQLObjectTypeEnum.isTableOrView(obj.type)) {
             String query = "SELECT count(*) FROM " + obj.schemaName + "." + obj.name;
             pnl.setQueryText(query);
             pnl.setDividerLocation(0.25d);
             ExecuteQueryAction.executeQueryAsync(pnl);
-            break;
-
-        default:
-            break;
         }
     }
 }

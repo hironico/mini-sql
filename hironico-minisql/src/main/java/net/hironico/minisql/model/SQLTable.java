@@ -28,7 +28,7 @@ public class SQLTable extends SQLObject {
         super();
         this.name = name;
         this.schemaName = schema;
-        this.type = SQLObjectTypeEnum.TABLE.toString();
+        this.type = SQLObjectTypeEnum.TABLE;
     }
 
     public List<SQLColumn> getColumns() {

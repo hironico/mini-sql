@@ -47,24 +47,29 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
         }
 
         switch (obj.type) {
-        case "TABLE":
+        case TABLE:
+        case SYSTEM_TABLE:
             showTableStructure(obj, configToUse);
             break;
 
-        case "VIEW":
-        case "MATERIALIZED VIEW":
+        case VIEW:
+        case MATERIALIZED_VIEW:
+        case SYSTEM_VIEW:
             showViewStructure(obj, configToUse);
             break;
 
-        case "PROCEDURE":
+        case PROCEDURE:
+        case SYSTEM_PROCEDURE:
             showProcedureStructure(obj, configToUse);
             break;
 
-        case "FUNCTION":
+        case FUNCTION:
+        case SYSTEM_FUNCTION:
             showFunctionStructure(obj, configToUse);
             break;
 
-        case "SEQUENCE":
+        case SEQUENCE:
+        case SYSTEM_SEQUENCE:
             showSequenceStructure(obj, configToUse);
             break;
 
@@ -76,7 +81,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
     private void showTableStructure(final SQLObject obj, DbConfig config) {
         Runnable runDisplayResult = () -> {
-            MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, SQLObjectTypeEnum.valueOf(obj.type), config);
+            MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, obj.type, config);
             Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(call);
 
             List<SQLResultSetTableModel> modelToDisplay;
@@ -124,10 +129,12 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
                 List<SQLResultSetTableModel> modelListToDisplay = new ArrayList<>();
                 try {
+                    assert futStructure != null;
                     List<SQLResultSetTableModel> resultStructure = futStructure.get();
                     resultStructure = resultStructure.stream().map(r -> {
                         try {
                             r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
+                            r.setTitle("Structure");
                             return r.transpose();
                         } catch (Exception ex) {
                             return r;
@@ -135,9 +142,11 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                     }).collect(Collectors.toList());
                     modelListToDisplay.addAll(resultStructure);
 
-
                     List<SQLResultSetTableModel> textList = futText.get();
-                    textList.forEach(m -> m.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
+                    textList.forEach(m -> {
+                        m.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL);
+                        m.setTitle("SQL text");
+                    });
                     modelListToDisplay.addAll(textList);
                 } catch (InterruptedException | ExecutionException ie) {
                     LOGGER.log(Level.SEVERE, "Error while getting the procedure text.", ie);
@@ -192,8 +201,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
     private void showViewStructure(final SQLObject obj, DbConfig config) {
         Runnable runDisplayResult = () -> {
-            SQLObjectTypeEnum sqlObjectType = SQLObjectTypeEnum.valueOf(obj.type.replaceAll(" ", "_"));
-            MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, sqlObjectType, config);
+            MetadataResultCallable call = new MetadataResultCallable(obj.schemaName, obj.name, obj.type, config);
             Future<List<SQLResultSetTableModel>> futureResult = MainWindow.executorService.submit(call);
 
             // oracle query as default
@@ -215,7 +223,10 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
             try {
                 List<SQLResultSetTableModel> textResult = viewTextFuture.get();
-                textResult.forEach(r -> r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL));
+                textResult.forEach(r -> {
+                    r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_SQL);
+                    r.setTitle("View text");
+                });
                 modelToDisplay.addAll(textResult);
             } catch (InterruptedException | ExecutionException ie) {
                 LOGGER.log(Level.SEVERE, "Error while getting view SQL text.", ie);
@@ -252,6 +263,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                 modelToDisplay = sequenceResults.stream().map(r -> {
                     try {
                         r.setDisplayType(SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
+                        r.setTitle("Structure");
                         return r.transpose();
                     } catch (Exception ex) {
                         return r;

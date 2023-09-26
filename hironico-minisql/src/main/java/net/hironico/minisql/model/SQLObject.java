@@ -11,8 +11,7 @@ public class SQLObject {
 
     public String schemaName;
     public String name;
-    public String type;
-
+    public SQLObjectTypeEnum type;
     public enum DDLActionEnum {
         CREATE, DROP
     }

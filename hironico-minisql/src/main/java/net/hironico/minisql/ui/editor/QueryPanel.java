@@ -401,17 +401,27 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         JTabbedPane tabResults = new JTabbedPane(JTabbedPane.BOTTOM);
         tabResults.setBorder(BorderFactory.createEmptyBorder(-2, -2, -1, -3));
 
-        LOGGER.info("Need to display : " + modelListToDisplay.size() + " results.");
-
-        for (int index = 0; index < modelListToDisplay.size(); index++) {
-            SQLResultSetTableModel model = modelListToDisplay.get(index);
-            String title = model.getTitle() != null ? model.getTitle() : String.format("Result #%d", index);
-            title += String.format(" (%d rows)", model.getRowCount());
-            JComponent comp = getResultComponent(model);
-            tabResults.addTab(title, comp);
+        if (modelListToDisplay == null || modelListToDisplay.isEmpty()) {
+            JComponent comp = getEmptyResultComponent();
+            tabResults.addTab("No result", comp);
+        } else {
+            for (int index = 0; index < modelListToDisplay.size(); index++) {
+                SQLResultSetTableModel model = modelListToDisplay.get(index);
+                String title = model.getTitle() != null ? model.getTitle() : String.format("Result #%d", index);
+                title += String.format(" (%d rows)", model.getRowCount());
+                JComponent comp = getResultComponent(model);
+                tabResults.addTab(title, comp);
+            }
         }
 
         return tabResults;
+    }
+
+    private static JComponent getEmptyResultComponent() {
+        JPanel pnl = new JPanel();
+        pnl.add(new JLabel("Although the query was correct the database did not return anything."));
+        pnl.setBorder(BorderFactory.createEmptyBorder(15,15,15,15));
+        return pnl;
     }
 
     private static JComponent getResultComponent(SQLResultSetTableModel modelToDisplay) {
