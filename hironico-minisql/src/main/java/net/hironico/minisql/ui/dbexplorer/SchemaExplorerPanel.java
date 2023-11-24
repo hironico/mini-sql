@@ -104,10 +104,8 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
                 break;
 
             case "PROCEDURES":
-                this.refreshObjects(SQLObjectTypeEnum.PROCEDURE);
-                break;
-
             case "FUNCTIONS":
+                this.refreshObjects(SQLObjectTypeEnum.PROCEDURE);
                 this.refreshObjects(SQLObjectTypeEnum.FUNCTION);
                 break;
 
