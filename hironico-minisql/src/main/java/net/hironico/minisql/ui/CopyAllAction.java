@@ -10,7 +10,7 @@ public class CopyAllAction extends AbstractRibbonAction {
     
     private static final long serialVersionUID = 1L;
 
-    private JTextComponent textComp = null;
+    private JTextComponent textComp;
 
     public CopyAllAction(JTextComponent textComp) {
         super("Copy", "icons8_copy_64px_2.png");

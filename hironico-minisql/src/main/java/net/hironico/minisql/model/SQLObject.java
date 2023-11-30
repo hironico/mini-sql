@@ -66,4 +66,9 @@ public class SQLObject {
             return stmt.executeUpdate(sql);
         }
     }
+
+    @Override
+    public String toString() {
+        return String.join(".", schemaName, name);
+    }
 }

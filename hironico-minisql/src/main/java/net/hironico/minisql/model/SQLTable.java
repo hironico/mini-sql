@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,7 +24,8 @@ public class SQLTable extends SQLObject {
 
     private static final Logger LOGGER = Logger.getLogger(SQLTable.class.getName());
 
-    protected List<SQLColumn> columns = new ArrayList<>();
+    protected final List<SQLColumn> columns = new ArrayList<>();
+    protected final Map<String, List<SQLTableForeignKey>> foreignKeys = new HashMap<>();
 
     public SQLTable(String schema, String name) {
         super();
@@ -35,8 +38,8 @@ public class SQLTable extends SQLObject {
         return this.columns;
     }
 
-    public void setColumns(List<SQLColumn> columns) {
-        this.columns = columns;
+    public Map<String, List<SQLTableForeignKey>> getForeignKeys() {
+        return this.foreignKeys;
     }
 
     public String getDDLAddColumn(SQLColumn col) {
@@ -230,6 +233,7 @@ public class SQLTable extends SQLObject {
         try (Connection con = dbConfig.getConnection()) {
             DatabaseMetaData metaData = con.getMetaData();
             loadColumnsMetaData(metaData);
+            loadForeignKey(metaData);
         } catch (Exception ex) {
             throw new SQLException(ex);
         }
@@ -266,5 +270,45 @@ public class SQLTable extends SQLObject {
         }
 
         return this.columns;
+    }
+
+    public void loadForeignKey(DatabaseMetaData metaData) throws SQLException {
+        ResultSet rsFK = metaData.getImportedKeys(null, schemaName, name);
+        while (rsFK.next()) {
+//                    logger.debug("PKTABLE_NAME = " + rsFK.getString("PKTABLE_NAME") + "\n" +
+//                            "PKCOLUMN_NAME = " + rsFK.getString("PKCOLUMN_NAME") + "\n" +
+//                            "FKTABLE_NAME = " + rsFK.getString("FKTABLE_NAME") + "\n" +
+//                            "FKCOLUMN_NAME = " + rsFK.getString("FKCOLUMN_NAME") + "\n" +
+//                            "FK_NAME = " + rsFK.getString("FK_NAME") + "\n" +
+//                            "KEY_SEQ = " + rsFK.getInt("KEY_SEQ"));
+            String fkName = rsFK.getString("FK_NAME");
+
+            // parfois la clé étrangére n'a pas de nom (driver JTDS).
+            // on utilise alors la combinaison PK Table + FK Table
+            if (fkName == null) {
+                fkName = String.join("_",
+                        rsFK.getString("PKTABLE_NAME"),
+                        rsFK.getString("FKTABLE_NAME"));
+            }
+
+            SQLTableForeignKey fk = new SQLTableForeignKey(fkName);
+
+            fk.schemaName = rsFK.getString("FKTABLE_SCHEM");
+            fk.fkTableName = rsFK.getString("FKTABLE_NAME");
+            fk.fkColumnName = rsFK.getString("FKCOLUMN_NAME");
+
+            fk.pkSchemaName = rsFK.getString("PKTABLE_SCHEM");
+            fk.pkTableName = rsFK.getString("PKTABLE_NAME");
+            fk.pkColumnName = rsFK.getString("PKCOLUMN_NAME");
+
+            fk.deleteRule = rsFK.getString("DELETE_RULE");
+            fk.updateRule = rsFK.getString("UPDATE_RULE");
+            fk.kewSeq = rsFK.getInt("KEY_SEQ");
+
+            List<SQLTableForeignKey> fkList = foreignKeys.getOrDefault(fk.name, new ArrayList<>());
+            foreignKeys.putIfAbsent(fk.name, fkList);
+            fkList.add(fk);
+        }
+        rsFK.close();
     }
 }

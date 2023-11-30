@@ -2,8 +2,6 @@ package net.hironico.common.swing.ribbon;
 
 import net.hironico.common.swing.ImageIconUtils;
 
-import java.awt.Image;
-
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 

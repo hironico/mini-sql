@@ -10,6 +10,7 @@ import net.hironico.minisql.ui.editor.*;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
+import net.hironico.minisql.visualdb.NewVisualDbTabAction;
 
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -199,6 +200,7 @@ public class MainWindow extends JFrame {
             toolsRibbonGroup.addAction(new SaveQueryAction(), RibbonGroup.SMALL);
             toolsRibbonGroup.addAction(new ExecuteQueryAction(), RibbonGroup.LARGE);
             toolsRibbonGroup.addAction(new ExecuteBatchQueryAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addAction(new NewVisualDbTabAction(), RibbonGroup.LARGE);
         }
 
         return toolsRibbonGroup;
