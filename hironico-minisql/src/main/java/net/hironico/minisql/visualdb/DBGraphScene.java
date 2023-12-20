@@ -5,14 +5,11 @@ import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
-import javax.swing.ImageIcon;
+import javax.swing.*;
 
-import net.hironico.common.swing.ImageIconUtils;
-import net.hironico.minisql.model.SQLColumn;
-import net.hironico.minisql.model.SQLTable;
-import net.hironico.minisql.model.SQLTableForeignKey;
+import net.hironico.common.swing.image.ImageIconUtils;
+import net.hironico.minisql.model.*;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
@@ -27,25 +24,18 @@ import org.netbeans.api.visual.vmd.VMDPinWidget;
  */
 public class DBGraphScene extends VMDGraphScene {
 
-    protected static final Logger logger = Logger.getLogger(DBGraphScene.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(DBGraphScene.class.getName());
     /**
      * icones représentant une table pour les noeuds.
      */
     protected ImageIcon iconTable;
-    /**
-     * Compteur de liaison pour avoir à nom unique pour chaque liaison. 
-     * On préfère cette méthode à celle consistant à associer un nom basé sur 
-     * les noms de tables liées ce qui est plus compliqué. Remarque, les ID des 
-     * nodes (les tables) correspondent au nom de la table elle même.
-     */
-    private static int edgeID = 1;
     /**
      * Liste des tables qui sont actuellement en cours d'affihage dans la scène.
      * Cette property est mise à jour par la méthode createScene().
      * @see #createScene(java.util.List)
      * @since 2.1.0
      */
-    private List<SQLTable> displayedTableList = null;
+    private final List<SQLTable> displayedTableList = new ArrayList<>();
 
     /**
      * Ce constructeur charge les icones des éléments graphiques de la scène.
@@ -55,8 +45,10 @@ public class DBGraphScene extends VMDGraphScene {
         String fullIconName = "/icons/png_64/icons8_data_sheet_64px.png";
         iconTable = ImageIconUtils.createImageIcon(fullIconName, "");
         if (iconTable == null) {
-            logger.severe("Cannot load icon : org/hironico/resource/icons/inconexperience/small/shadow/table.png");
+            LOGGER.severe(String.format("Cannot load icon : %s", fullIconName));
+            return;
         }
+        iconTable = ImageIconUtils.getScaledImage(iconTable, 16,16);
     }
 
     /**
@@ -76,14 +68,13 @@ public class DBGraphScene extends VMDGraphScene {
      * @since 2.1.0
      */
     public void cleanUpScene() {
-        logger.finer("Cleanup scene...");
+        LOGGER.finer("Cleanup scene...");
         // il faut faire une recopie pour éviter les exceptions de concurrence d'accès
-        List<String> myNodes = new ArrayList<String>();
-        myNodes.addAll(getNodes());
+        List<String> myNodes = new ArrayList<>(getNodes());
         for (String nodeName : myNodes) {
             removeNode(nodeName);
         }
-        logger.finer("Cleanup scene complete.");
+        LOGGER.finer("Cleanup scene complete.");
     }
 
     /**
@@ -97,64 +88,87 @@ public class DBGraphScene extends VMDGraphScene {
             createView();
         }
 
-        displayedTableList = tableList;
-
-        for (SQLTable table : tableList) {
-            // creation de la 'boite' pour une table
-            createNode(this, (int) (Math.random() * 800), (int) (Math.random() * 800), iconTable.getImage(), table.name, "Table", null);
-
-            // rajoute les noms de colonnes dans les attributs.
-            List<SQLColumn> columnList = table.getColumns();
-            for (SQLColumn column : columnList) {
-                String columnName = column.name;
-                createPin(this, table.name, table.name + ":" + columnName, iconTable.getImage(), columnName, columnName);
+        tableList.forEach(table -> {
+            if (!displayedTableList.contains(table)) {
+                displayedTableList.add(table);
             }
-        }
+        });
 
-        // ok maintenant qu'on a toutes les boites, il faut les reliers entre
-        // elles à partir des infos de clef étrangère.
-        for (SQLTable table : tableList) {
-            Map<String, List<SQLTableForeignKey>> fkMap = table.getForeignKeys();
-            for (List<SQLTableForeignKey> fkList : fkMap.values()) {
-                for (SQLTableForeignKey fk : fkList) {
-                    String fkTable = fk.fkTableName;
-                    String fkColName = fk.fkColumnName;
-                    String pkTable = fk.pkTableName;
-                    String pkColName = fk.pkColumnName;
 
-                    createEdge(this, fkTable + ":" + fkColName, pkTable + ":" + pkColName);
+        Runnable run = () -> {
+
+            displayedTableList.forEach(table -> {
+                String nodeId = createNode(this, (int) (Math.random() * 800), (int) (Math.random() * 800), table);
+                if (nodeId != null) { // null means already exists
+                    table.getColumns().forEach(column -> {
+                        String pinId = String.format("%s.%s.%s", table.schemaName, table.name, column.name);
+                        ((VMDPinWidget) this.addPin(nodeId, pinId)).setProperties(column.name, null);
+                    });
                 }
-            }
+            });
+
+            // try or retry to link tables between them
+            displayedTableList.forEach(table -> table.getForeignKeys().values().forEach(fkList -> fkList.forEach(fk -> {
+                String sourcePinId = String.format("%s.%s.%s", fk.fkSchemaName, fk.fkTableName, fk.fkColumnName);
+                String targetPinId = String.format("%s.%s.%s", fk.pkSchemaName, fk.pkTableName, fk.pkColumnName);
+                createEdge(this, sourcePinId, targetPinId);
+            })));
+
+            revalidate();
+            validate();
+            repaint();
+        };
+
+        SwingUtilities.invokeLater(run);
+    }
+
+    private String createNode(VMDGraphScene scene, int x, int y, SQLObject sqlObject) {
+        String nodeId = String.format("%s.%s", sqlObject.schemaName, sqlObject.name);
+
+        if (scene.getNodes().contains(nodeId)) {
+            LOGGER.warning(String.format("Scene already contains %s", nodeId));
+            return null;
         }
 
-        this.moveTo(null);
-    }
-
-    private static String createNode(VMDGraphScene scene, int x, int y, Image image, String name, String type, java.util.List<Image> glyphs) {
-        String nodeID = name;
-        VMDNodeWidget widget = (VMDNodeWidget) scene.addNode(nodeID);
+        VMDNodeWidget widget = (VMDNodeWidget) scene.addNode(nodeId);
         widget.setPreferredLocation(new Point(x, y));
-        widget.setNodeProperties(image, name, type, glyphs);
-        return nodeID;
+
+        Image image = null;
+        switch (sqlObject.type) {
+            case TABLE:
+            case VIEW:
+                image = iconTable == null ? null : iconTable.getImage();
+                break;
+        }
+
+        // TODO change the background color for a view
+
+        widget.setNodeProperties(image, sqlObject.name, sqlObject.type.toString(), null);
+        return nodeId;
     }
 
-    private static void createPin(VMDGraphScene scene, String nodeID, String pinID, Image image, String name, String type) {
-        ((VMDPinWidget) scene.addPin(nodeID, pinID)).setProperties(name, null);
-    }
+    private void createEdge(VMDGraphScene scene, String sourcePinID, String targetPinID) {
+        String edgeIDStr = String.format("%s<->%s", sourcePinID, targetPinID);
 
-    private static void createEdge(VMDGraphScene scene, String sourcePinID, String targetPinID) {
-        String edgeIDStr = "edge" + DBGraphScene.edgeID++;
+        if (scene.getEdges().contains(edgeIDStr)) {
+            LOGGER.warning(String.format("This edge already exists %s", edgeIDStr));
+            return;
+        }
+
+        if (!scene.getPins().contains(sourcePinID)) {
+            LOGGER.warning(String.format("Source pin is not found: %s", sourcePinID));
+            return;
+        }
+
+        if (!scene.getPins().contains(targetPinID)) {
+            LOGGER.warning(String.format("Target pin is not found: %s", targetPinID));
+            return;
+        }
+
+        LOGGER.info(String.format("Creating edge: %s", edgeIDStr));
         scene.addEdge(edgeIDStr);
-        System.out.println("createEdge " + sourcePinID + "<->" + targetPinID);
         scene.setEdgeSource(edgeIDStr, sourcePinID);
         scene.setEdgeTarget(edgeIDStr, targetPinID);
-    }
-
-    private void moveTo(Point point) {
-        int index = 0;
-        for (String node : getNodes()) {
-            getSceneAnimator().animatePreferredLocation(findWidget(node), point != null ? point : new Point(++index * 100, index * 100));
-        }
     }
 }
 

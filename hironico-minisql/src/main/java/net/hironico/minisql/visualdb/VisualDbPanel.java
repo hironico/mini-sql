@@ -11,12 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -375,7 +373,10 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
         Future<List<SQLTable>> fut = MainWindow.executorService.submit(loaderThread);
 
         try {
+            graphScene.cleanUpScene();
             graphScene.createScene(fut.get());
+            graphScene.revalidate();
+            graphScene.validate();
         } catch (InterruptedException | ExecutionException ie) {
             ie.printStackTrace();
         }
@@ -400,7 +401,7 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
         }
     }//GEN-LAST:event_toggleMangifyViewStateChanged
 
-    private void btnAutoLayoutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAutoLayoutActionPerformed
+    private void btnAutoLayoutActionPerformed(java.awt.event.ActionEvent evt) {
         if (graphScene == null) {
             return;
         }
@@ -418,8 +419,12 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
             }
         }
 
-        graphScene.layoutScene();
-    }//GEN-LAST:event_btnAutoLayoutActionPerformed
+        SwingUtilities.invokeLater(() -> {
+            graphScene.layoutScene();
+            graphScene.revalidate ();
+            graphScene.validate ();
+        });
+    }
 
     private void btnZoomPlusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnZoomPlusActionPerformed
         double newZoomFactor = graphScene.getZoomFactor() * 1.10d;

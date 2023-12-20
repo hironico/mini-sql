@@ -188,7 +188,7 @@ public class SQLTable extends SQLObject {
 
     public boolean create(DbConfig dbConfig) {
 
-        if (this.columns == null || this.columns.isEmpty()) {
+        if (this.columns.isEmpty()) {
             LOGGER.severe(String.format("Cannot create table %s.%s since the columns are undefined or empty.", this.schemaName, this.name));
             return false;
         }
@@ -239,7 +239,7 @@ public class SQLTable extends SQLObject {
         }
     }
 
-    public List<SQLColumn> loadColumnsMetaData(DatabaseMetaData metaData) throws SQLException, IOException {
+    public void loadColumnsMetaData(DatabaseMetaData metaData) throws SQLException, IOException {
         this.columns.clear();
         try (ResultSet resultSet = metaData.getColumns(null, schemaName, name, null)) {
             while (resultSet.next()) {
@@ -268,8 +268,6 @@ public class SQLTable extends SQLObject {
                 this.columns.add(column);
             }
         }
-
-        return this.columns;
     }
 
     public void loadForeignKey(DatabaseMetaData metaData) throws SQLException {
@@ -293,7 +291,7 @@ public class SQLTable extends SQLObject {
 
             SQLTableForeignKey fk = new SQLTableForeignKey(fkName);
 
-            fk.schemaName = rsFK.getString("FKTABLE_SCHEM");
+            fk.fkSchemaName = rsFK.getString("FKTABLE_SCHEM");
             fk.fkTableName = rsFK.getString("FKTABLE_NAME");
             fk.fkColumnName = rsFK.getString("FKCOLUMN_NAME");
 
