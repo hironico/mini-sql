@@ -1,17 +1,18 @@
-package net.hironico.common.swing;
+package net.hironico.common.swing.image;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.logging.Logger;
 
 public class ImageIconUtils {
-    private static final ImageIconUtils instance = new ImageIconUtils();
+    private static final Logger LOGGER = Logger.getLogger(ImageIconUtils.class.getName());
 
     public static ImageIcon createImageIcon(String path, String description) {
-        java.net.URL imgURL = instance.getClass().getResource(path);
+        java.net.URL imgURL = ImageIconUtils.class.getResource(path);
         if (imgURL != null) {
             return new ImageIcon(imgURL, description);
         } else {
-            System.err.println("Couldn't find file: " + path);
+            LOGGER.severe(String.format("Couldn't find file: %s", path));
             return null;
         }
     }
