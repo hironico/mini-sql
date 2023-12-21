@@ -8,10 +8,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -241,7 +238,15 @@ public class SQLTable extends SQLObject {
 
     public void loadColumnsMetaData(DatabaseMetaData metaData) throws SQLException, IOException {
         this.columns.clear();
-        try (ResultSet resultSet = metaData.getColumns(null, schemaName, name, null)) {
+        try (ResultSet resultSet = metaData.getColumns(null, schemaName, name, null);
+             ResultSet resultSetPK = metaData.getPrimaryKeys(null, schemaName, name)) {
+
+            Set<String> pkColumnNames = new HashSet<>();
+            while(resultSetPK.next()) {
+                String columnName = resultSetPK.getString("COLUMN_NAME");
+                pkColumnNames.add(columnName);
+            }
+
             while (resultSet.next()) {
                 SQLColumn column = new SQLColumn();
                 column.name = resultSet.getString(4);
@@ -264,6 +269,8 @@ public class SQLTable extends SQLObject {
 
                 column.nullable = "YES".equalsIgnoreCase(resultSet.getString(18));
                 column.autoIncrement = "YES".equalsIgnoreCase(resultSet.getString(23));
+
+                column.isPrimaryKey = pkColumnNames.contains(column.name);
 
                 this.columns.add(column);
             }

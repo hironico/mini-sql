@@ -1,4 +1,4 @@
-package net.hironico.minisql.visualdb;
+package net.hironico.minisql.ui.visualdb;
 
 import java.awt.Color;
 import java.awt.Dimension;

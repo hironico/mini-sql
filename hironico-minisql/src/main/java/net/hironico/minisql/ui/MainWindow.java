@@ -10,7 +10,7 @@ import net.hironico.minisql.ui.editor.*;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
-import net.hironico.minisql.visualdb.NewVisualDbTabAction;
+import net.hironico.minisql.ui.visualdb.NewVisualDbTabAction;
 
 import java.awt.*;
 import java.awt.event.ComponentAdapter;

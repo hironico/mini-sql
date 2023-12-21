@@ -3,7 +3,7 @@
  *
  * Created on Dec 24, 2009, 12:05:57 PM
  */
-package net.hironico.minisql.visualdb;
+package net.hironico.minisql.ui.visualdb;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;

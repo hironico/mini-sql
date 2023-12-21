@@ -1,10 +1,7 @@
-package net.hironico.minisql.visualdb;
+package net.hironico.minisql.ui.visualdb;
 
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.util.logging.Logger;
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;

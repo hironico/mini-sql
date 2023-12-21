@@ -1,4 +1,4 @@
-package net.hironico.minisql.visualdb;
+package net.hironico.minisql.ui.visualdb;
 
 import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;

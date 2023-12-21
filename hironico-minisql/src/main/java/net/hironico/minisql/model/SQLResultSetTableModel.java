@@ -118,7 +118,7 @@ public class SQLResultSetTableModel extends DefaultTableModel {
             columnNames = new String[columnCount];
             columnClasses = new Class<?>[columnCount];
             for (int index = 1; index <= columnCount; index++) {
-                columnNames[index - 1] = metaData.getColumnLabel(index);
+                columnNames[index - 1] = metaData.getColumnLabel(index).toUpperCase();
                 try {
                     columnClasses[index - 1] = Class.forName(metaData.getColumnClassName(index));
                 } catch (Exception ex) {

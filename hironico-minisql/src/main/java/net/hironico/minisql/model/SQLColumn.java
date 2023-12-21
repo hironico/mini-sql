@@ -12,9 +12,15 @@ public class SQLColumn {
     public Boolean autoIncrement;
     public String defaultValue;
 
+    public Boolean isPrimaryKey = Boolean.FALSE;
+
+    public String getTypeString() {
+        return typeName + "(" + size + "," + scale + ")";
+    }
+
     public String toString() {
         return name + " " +
-               typeName + "(" + size + "," + scale + ") " + 
+                typeName + "(" + size + "," + scale + ") " +
                (nullable ? " NULL " : " NOT NULL ") + 
                (autoIncrement ? " AUTOINCREMENT " : "") + 
                (defaultValue.equals("") ? "" : (" DEFAULT " + defaultValue));

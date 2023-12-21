@@ -1,10 +1,12 @@
-package net.hironico.minisql.visualdb;
+package net.hironico.minisql.ui.visualdb;
 
 import java.awt.Image;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import javax.swing.*;
 
@@ -13,6 +15,7 @@ import net.hironico.minisql.model.*;
 import org.netbeans.api.visual.vmd.VMDGraphScene;
 import org.netbeans.api.visual.vmd.VMDNodeWidget;
 import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.api.visual.widget.Widget;
 
 /**
  * Cette classe modélise une scène de visualisation des tables de la base de données.
@@ -100,10 +103,28 @@ public class DBGraphScene extends VMDGraphScene {
             displayedTableList.forEach(table -> {
                 String nodeId = createNode(this, (int) (Math.random() * 800), (int) (Math.random() * 800), table);
                 if (nodeId != null) { // null means already exists
+                    HashMap<String, List<Widget>> pinByCategories = new HashMap<>();
                     table.getColumns().forEach(column -> {
                         String pinId = String.format("%s.%s.%s", table.schemaName, table.name, column.name);
-                        ((VMDPinWidget) this.addPin(nodeId, pinId)).setProperties(column.name, null);
+                        VMDPinWidget pinWidget = ((VMDPinWidget) this.addPin(nodeId, pinId));
+
+                        String name = String.format("%s : %s", column.name, column.getTypeString());
+
+                        pinWidget.setProperties(name, null);
+
+                        if (column.isPrimaryKey) {
+                            List<Widget> pkPinList = pinByCategories.getOrDefault("Primary keys", new ArrayList<>());
+                            pkPinList.add(pinWidget);
+                            pinByCategories.putIfAbsent("Primary keys", pkPinList);
+                        } else {
+                            List<Widget> pkPinList = pinByCategories.getOrDefault("Columns", new ArrayList<>());
+                            pkPinList.add(pinWidget);
+                            pinByCategories.putIfAbsent("Columns", pkPinList);
+                        }
                     });
+
+                    VMDNodeWidget nodeWidget = (VMDNodeWidget) findWidget(nodeId);
+                    nodeWidget.sortPins(pinByCategories);
                 }
             });
 
@@ -144,6 +165,7 @@ public class DBGraphScene extends VMDGraphScene {
         // TODO change the background color for a view
 
         widget.setNodeProperties(image, sqlObject.name, sqlObject.type.toString(), null);
+
         return nodeId;
     }
 

@@ -1,14 +1,11 @@
-package net.hironico.minisql.visualdb;
+package net.hironico.minisql.ui.visualdb;
 
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.model.SQLTable;
-import net.hironico.minisql.model.SQLTableForeignKey;
 
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

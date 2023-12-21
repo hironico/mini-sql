@@ -51,6 +51,12 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
         }
     }
 
+    private SQLResultSetTableModel geTableForeignKeys(DatabaseMetaData metaData) throws SQLException {
+        try (ResultSet rs = metaData.getImportedKeys(null, schemaName, objectName)) {
+            return new SQLResultSetTableModel(rs, "Foreign keys", "N/A", SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
+        }
+    }
+
     private SQLResultSetTableModel getProcedureColumns(DatabaseMetaData metaData) throws SQLException {
         try (ResultSet rs = metaData.getProcedureColumns(null, schemaName, objectName, null)) {
             return new SQLResultSetTableModel(rs, "Columns", "N/A", SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
@@ -74,6 +80,9 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
 
                 SQLResultSetTableModel resultPriv = getTablePrivileges(metaData);
                 result.add(resultPriv);
+
+                SQLResultSetTableModel resultFK = geTableForeignKeys(metaData);
+                result.add(resultFK);
                 break;
 
                 case VIEW:
