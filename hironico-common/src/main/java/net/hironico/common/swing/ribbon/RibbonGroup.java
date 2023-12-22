@@ -3,6 +3,7 @@ package net.hironico.common.swing.ribbon;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
@@ -10,7 +11,9 @@ public class RibbonGroup extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    protected String title = null;
+    private static final Logger LOGGER = Logger.getLogger(RibbonGroup.class.getName());
+
+    protected String title;
     protected JLabel lblTitle = null;
     protected JPanel pnlTitle = null;
     protected JPanel pnlCommands = null;
@@ -28,60 +31,41 @@ public class RibbonGroup extends JPanel {
     }
 
     /**
-     * Add a checkbox to the ribbon. Size is always small
-     * @param action action to perfom when the checkbox is clicked
+     * Warning using this component. Toggle and checkbox should update global configuration
+     * used by a displayed components of the application. Also pay attention that changing the state
+     * of the configuration other than with this toggle should be reflected in the ribbon's component.
+     * @param action the action to perform
      */
     public void addCheckBox(AbstractRibbonAction action) {
         final JCheckBox chk = new JCheckBox(action);
-        chk.setContentAreaFilled(false);
-        chk.setText((String)action.getValue(Action.NAME));
-        chk.setToolTipText((String)action.getValue(Action.SHORT_DESCRIPTION));
-        // chk.setIcon(action.getSmallIcon());
         chk.setMinimumSize(new Dimension(24,24));
-
-        chk.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseExited(MouseEvent e) {
-                chk.setContentAreaFilled(false);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                chk.setContentAreaFilled(true);
-            }
-
-        });
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(2, 2, 2, 2);
-        gbc.gridx = currentColumn;
-        gbc.gridy = currentRow;
-        gbc.fill = GridBagConstraints.VERTICAL;
-        gbc.anchor = GridBagConstraints.WEST;
-
-        gbc.gridheight = 1;
-        gbc.weighty = 0.33d;
-
-        getPnlCommands().add(chk, gbc);
-
-        if (chk.getHeight() < 16) {
-            chk.setSize(chk.getWidth(), 16);
-        }
-
-        // ensure we see the whole text
-        FontMetrics fm = chk.getFontMetrics(chk.getFont());
-        int width = fm.stringWidth(chk.getText());
-        chk.setSize(width, chk.getHeight());
-
-        if (currentRow == 2) {
-            currentRow = 0;
-            currentColumn++;
-        } else {
-            currentRow++;
-        }
+        addActionComponent(chk, SMALL);
     }
 
-    public void addAction(AbstractRibbonAction action, int size) {
+    public void addButton(AbstractRibbonAction action, int size) {
+        this.addActionComponent(new JButton(action), size);
+    }
+
+    /**
+     * Warning using this component. Toggle and checkbox should update global configuration
+     * used by a displayed components of the application. Also pay attention that changing the state
+     * of the configuration other than with this toggle should be reflected in the ribbon's component.
+     * @param action the action to perform
+     * @param size SMALL or LARGE
+     */
+    public void addToggle(AbstractRibbonAction action, int size) {
+        this.addActionComponent(new JToggleButton(action), size);
+    }
+
+    private void addActionComponent(AbstractButton btn, int size) {
+        if (! (btn.getAction() instanceof AbstractRibbonAction)) {
+            LOGGER.severe("Cannot add action to RibbonGroup. Action must be a subclass of AbstractRibbonAction.");
+            throw new IllegalArgumentException("Cannot add action to RibbonGroup. Action must be a subclass of AbstractRibbonAction.");
+        }
+
+        AbstractRibbonAction action = (AbstractRibbonAction)btn.getAction();
+        btn.setText((String)action.getValue(Action.NAME));
+        btn.setToolTipText((String)action.getValue(Action.SHORT_DESCRIPTION));
 
         if ((size == LARGE) && (currentRow > 0)) {
 
@@ -102,13 +86,8 @@ public class RibbonGroup extends JPanel {
             currentColumn++;
         }
 
-        final JButton btn = new JButton(action);
-        btn.setContentAreaFilled(false);
-        btn.setText((String)action.getValue(Action.NAME));
-        btn.setToolTipText((String)action.getValue(Action.SHORT_DESCRIPTION));
-
         if (size == LARGE) {
-            btn.setIcon(action.getLargeIcon());            
+            btn.setIcon(action.getLargeIcon());
             btn.setVerticalTextPosition(SwingConstants.BOTTOM);
             btn.setHorizontalTextPosition(SwingConstants.CENTER);
             btn.setMinimumSize(new Dimension(48,48));
@@ -117,10 +96,11 @@ public class RibbonGroup extends JPanel {
             btn.setMinimumSize(new Dimension(24,24));
         }
 
+        btn.setContentAreaFilled(! (btn instanceof JButton));
         btn.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseExited(MouseEvent e) {
-                btn.setContentAreaFilled(false);
+                btn.setContentAreaFilled(! (btn instanceof JButton));
             }
 
             @Override

@@ -78,29 +78,29 @@ public class Ribbon extends JTabbedPane {
 
         RibbonGroup ribbonGroup1 = new RibbonGroup("Ribbon group 1");
         RibbonAction action = new RibbonAction("action text");
-        ribbonGroup1.addAction(action, RibbonGroup.LARGE);
-        ribbonGroup1.addAction(action, RibbonGroup.LARGE);
-        ribbonGroup1.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup1.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup1.addAction(action, RibbonGroup.LARGE);
-        ribbonGroup1.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup1.addAction(action, RibbonGroup.LARGE);
-        ribbonGroup1.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup1.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup1.addAction(action, RibbonGroup.SMALL);
+        ribbonGroup1.addButton(action, RibbonGroup.LARGE);
+        ribbonGroup1.addButton(action, RibbonGroup.LARGE);
+        ribbonGroup1.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup1.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup1.addButton(action, RibbonGroup.LARGE);
+        ribbonGroup1.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup1.addButton(action, RibbonGroup.LARGE);
+        ribbonGroup1.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup1.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup1.addButton(action, RibbonGroup.SMALL);
 
         RibbonGroup ribbonGroup2 = new RibbonGroup("Ribbon group 2");
-        ribbonGroup2.addAction(action, RibbonGroup.LARGE);
-        ribbonGroup2.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup2.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup2.addAction(action, RibbonGroup.SMALL);
+        ribbonGroup2.addButton(action, RibbonGroup.LARGE);
+        ribbonGroup2.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup2.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup2.addButton(action, RibbonGroup.SMALL);
 
         RibbonGroup ribbonGroup3 = new RibbonGroup("Ribbon group 3");
-        ribbonGroup3.addAction(action, RibbonGroup.LARGE);
-        ribbonGroup3.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup3.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup3.addAction(action, RibbonGroup.SMALL);
-        ribbonGroup3.addAction(action, RibbonGroup.SMALL);
+        ribbonGroup3.addButton(action, RibbonGroup.LARGE);
+        ribbonGroup3.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup3.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup3.addButton(action, RibbonGroup.SMALL);
+        ribbonGroup3.addButton(action, RibbonGroup.SMALL);
 
         RibbonTab ribbonTab = new RibbonTab("Tab 1");
         ribbonTab.addGroup(ribbonGroup1);

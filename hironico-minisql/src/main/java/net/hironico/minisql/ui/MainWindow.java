@@ -11,6 +11,7 @@ import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
 import net.hironico.minisql.ui.visualdb.NewVisualDbTabAction;
+import net.hironico.minisql.ui.visualdb.VisualDbRibbonTab;
 
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
@@ -47,6 +48,7 @@ public class MainWindow extends JFrame {
     private RibbonGroup viewRibbonGroup = null;
     private RibbonGroup objectsRibbonGroup = null;
     private RibbonGroup selectRibbonGroup = null;
+    private VisualDbRibbonTab visualDbRibbonTab = new VisualDbRibbonTab();
     
     private JSplitPaneNoDivider splitMain = null;
 
@@ -173,6 +175,7 @@ public class MainWindow extends JFrame {
             this.ribbon.setBorder(BorderFactory.createEmptyBorder());
             this.ribbon.addRibbonTab(getHomeRibbonTab());
             this.ribbon.addRibbonTab(getExplorerRibbonTab());
+            this.ribbon.addRibbonTab(this.visualDbRibbonTab);
         }
 
         return this.ribbon;
@@ -195,12 +198,12 @@ public class MainWindow extends JFrame {
         if (toolsRibbonGroup == null) {
             toolsRibbonGroup = new RibbonGroup("Tools");
 
-            toolsRibbonGroup.addAction(appActions.get(ShowQueryPanelAction.NAME), RibbonGroup.LARGE);
-            toolsRibbonGroup.addAction(new OpenQueryAction(), RibbonGroup.SMALL);
-            toolsRibbonGroup.addAction(new SaveQueryAction(), RibbonGroup.SMALL);
-            toolsRibbonGroup.addAction(new ExecuteQueryAction(), RibbonGroup.LARGE);
-            toolsRibbonGroup.addAction(new ExecuteBatchQueryAction(), RibbonGroup.LARGE);
-            toolsRibbonGroup.addAction(new NewVisualDbTabAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addButton(appActions.get(ShowQueryPanelAction.NAME), RibbonGroup.LARGE);
+            toolsRibbonGroup.addButton(new OpenQueryAction(), RibbonGroup.SMALL);
+            toolsRibbonGroup.addButton(new SaveQueryAction(), RibbonGroup.SMALL);
+            toolsRibbonGroup.addButton(new ExecuteQueryAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addButton(new ExecuteBatchQueryAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addButton(new NewVisualDbTabAction(), RibbonGroup.LARGE);
         }
 
         return toolsRibbonGroup;
@@ -210,9 +213,9 @@ public class MainWindow extends JFrame {
         if (clipBoardRibbonGroup == null) {
             clipBoardRibbonGroup = new RibbonGroup("Clipboard");
 
-            clipBoardRibbonGroup.addAction(new PasteAction(), RibbonGroup.LARGE);
-            clipBoardRibbonGroup.addAction(new CopyAction(), RibbonGroup.SMALL);
-            clipBoardRibbonGroup.addAction(new CutAction(), RibbonGroup.SMALL);
+            clipBoardRibbonGroup.addButton(new PasteAction(), RibbonGroup.LARGE);
+            clipBoardRibbonGroup.addButton(new CopyAction(), RibbonGroup.SMALL);
+            clipBoardRibbonGroup.addButton(new CutAction(), RibbonGroup.SMALL);
         }
 
         return clipBoardRibbonGroup;
@@ -222,8 +225,8 @@ public class MainWindow extends JFrame {
         if (undoRedoRibbonGroup == null) {
             undoRedoRibbonGroup = new RibbonGroup("Undo/Redo");
 
-            undoRedoRibbonGroup.addAction(new UndoAction(), RibbonGroup.SMALL);
-            undoRedoRibbonGroup.addAction(new RedoAction(), RibbonGroup.SMALL);
+            undoRedoRibbonGroup.addButton(new UndoAction(), RibbonGroup.SMALL);
+            undoRedoRibbonGroup.addButton(new RedoAction(), RibbonGroup.SMALL);
         }
 
         return undoRedoRibbonGroup;
@@ -233,9 +236,9 @@ public class MainWindow extends JFrame {
         if (this.systemRibbonGroup == null) {
             this.systemRibbonGroup = new RibbonGroup("System");
 
-            this.systemRibbonGroup.addAction(appActions.get(ShowConfigPanelAction.NAME), RibbonGroup.LARGE);
-            this.systemRibbonGroup.addAction(new ShowLogAction(), RibbonGroup.LARGE);
-            this.systemRibbonGroup.addAction(appActions.get(ExitAction.NAME), RibbonGroup.LARGE);
+            this.systemRibbonGroup.addButton(appActions.get(ShowConfigPanelAction.NAME), RibbonGroup.LARGE);
+            this.systemRibbonGroup.addButton(new ShowLogAction(), RibbonGroup.LARGE);
+            this.systemRibbonGroup.addButton(appActions.get(ExitAction.NAME), RibbonGroup.LARGE);
         }
 
         return this.systemRibbonGroup;
@@ -258,10 +261,10 @@ public class MainWindow extends JFrame {
             this.viewRibbonGroup = new RibbonGroup("View");
 
             DbObjectExpandAllAction expandAction = new DbObjectExpandAllAction();
-            this.viewRibbonGroup.addAction(expandAction, RibbonGroup.SMALL);
+            this.viewRibbonGroup.addButton(expandAction, RibbonGroup.SMALL);
 
             DbObjectCollapseAllAction collapseAction = new DbObjectCollapseAllAction();
-            this.viewRibbonGroup.addAction(collapseAction, RibbonGroup.SMALL);
+            this.viewRibbonGroup.addButton(collapseAction, RibbonGroup.SMALL);
         }
 
         return this.viewRibbonGroup;
@@ -272,13 +275,13 @@ public class MainWindow extends JFrame {
             this.objectsRibbonGroup = new RibbonGroup("Objects");
 
             DbObjectRefreshAction refreshAction = new DbObjectRefreshAction();
-            this.objectsRibbonGroup.addAction(refreshAction, RibbonGroup.LARGE);
+            this.objectsRibbonGroup.addButton(refreshAction, RibbonGroup.LARGE);
 
             DbObjectShowSystAction systObjAction = new DbObjectShowSystAction();
             this.objectsRibbonGroup.addCheckBox(systObjAction);
 
             DbObjectStructureAction structureAction = new DbObjectStructureAction();
-            this.objectsRibbonGroup.addAction(structureAction, RibbonGroup.LARGE);
+            this.objectsRibbonGroup.addButton(structureAction, RibbonGroup.LARGE);
         }
 
         return this.objectsRibbonGroup;
@@ -288,8 +291,8 @@ public class MainWindow extends JFrame {
         if (this.selectRibbonGroup == null) {
             this.selectRibbonGroup = new RibbonGroup("Select...");
 
-            this.selectRibbonGroup.addAction(new DbObjectSelect1kAction(), RibbonGroup.SMALL);
-            this.selectRibbonGroup.addAction(new DbObjectCountAction(), RibbonGroup.SMALL);
+            this.selectRibbonGroup.addButton(new DbObjectSelect1kAction(), RibbonGroup.SMALL);
+            this.selectRibbonGroup.addButton(new DbObjectCountAction(), RibbonGroup.SMALL);
         }
 
         return selectRibbonGroup;

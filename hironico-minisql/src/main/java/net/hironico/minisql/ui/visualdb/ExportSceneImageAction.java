@@ -15,14 +15,13 @@ import javax.swing.JComponent;
  * @author hironico
  * @since 2.1.0
  */
-public abstract class ExportSceneImageAction extends AbstractRibbonAction {
+public abstract class ExportSceneImageAction extends AbstractSceneAction {
     protected static final Logger logger = Logger.getLogger(ExportSceneImageAction.class.getName());
 
     protected DBGraphScene graphScene;
 
-    public ExportSceneImageAction(String name, String icon, DBGraphScene graphScenetoExport) {
+    public ExportSceneImageAction(String name, String icon) {
         super(name, icon);
-        this.graphScene = graphScenetoExport;
     }
 
     /**

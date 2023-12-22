@@ -1,6 +1,5 @@
 package net.hironico.minisql.ui.visualdb;
 
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.logging.Level;
@@ -16,12 +15,12 @@ import javax.swing.filechooser.FileFilter;
  */
 public class ExportSceneImageToFileAction extends ExportSceneImageAction {
 
-    public ExportSceneImageToFileAction(DBGraphScene sceneToExport) {
-        super("Export to File", "icons8_png_64px.png", sceneToExport);
+    public ExportSceneImageToFileAction() {
+        super("Export to File", "icons8_png_64px.png");
     }
 
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void perfomSceneAction(DBGraphScene graphScene) {
         BufferedImage buffImage = getSceneImage();
 
         JFileChooser chooser = new JFileChooser();
@@ -29,7 +28,7 @@ public class ExportSceneImageToFileAction extends ExportSceneImageAction {
 
             @Override
             public boolean accept(File f) {
-                return ((f != null) && (f.getName().toLowerCase().endsWith(".png"))) || f.isDirectory();
+                return (f != null) && (f.getName().toLowerCase().endsWith(".png") || f.isDirectory());
             }
 
             @Override

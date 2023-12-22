@@ -15,12 +15,12 @@ import javax.swing.JOptionPane;
  */
 public class ExportSceneImageToClipboardAction extends ExportSceneImageAction {
 
-    public ExportSceneImageToClipboardAction(DBGraphScene graphScene) {
-        super("To clipboard", "icons8_clipboard_list_64px.png", graphScene);
+    public ExportSceneImageToClipboardAction() {
+        super("To clipboard", "icons8_clipboard_list_64px.png");
     } 
-    
+
     @Override
-    public void actionPerformed(ActionEvent e) {
+    public void perfomSceneAction(DBGraphScene graphScene) {
         BufferedImage img = getSceneImage();
         TransferableImage transferable = new TransferableImage(img);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(transferable, null);

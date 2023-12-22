@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Logger;
 import javax.swing.*;
 
@@ -191,6 +190,20 @@ public class DBGraphScene extends VMDGraphScene {
         scene.addEdge(edgeIDStr);
         scene.setEdgeSource(edgeIDStr, sourcePinID);
         scene.setEdgeTarget(edgeIDStr, targetPinID);
+    }
+
+    public void zoomMinus() {
+        double newZoomFactor = this.getZoomFactor() * 0.90d;
+        this.setZoomFactor(newZoomFactor);
+    }
+
+    public void zoomPlus() {
+        double newZoomFactor = this.getZoomFactor() * 1.10d;
+        this.setZoomFactor(newZoomFactor);
+    }
+
+    public void zoomOriginal() {
+        this.setZoomFactor(1.0d);
     }
 }
 
