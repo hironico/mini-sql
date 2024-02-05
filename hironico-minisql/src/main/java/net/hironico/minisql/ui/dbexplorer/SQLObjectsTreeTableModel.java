@@ -136,7 +136,6 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         }
 
         objects.forEach(sqlObj -> {
-            String type = sqlObj[2];
             SQLObject myObj = this.createSQLObject(sqlObj);
             DefaultMutableTreeTableNode myObjNode = this.getSQLObjectParentNode(myObj);
             if (myObjNode != null) {
@@ -151,6 +150,7 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         }
         switch(myObj.type) {
             case TABLE:
+            case SYNONYM:
                 return this.tablesNode;
 
             case SYSTEM_TABLE:
@@ -196,7 +196,7 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
                 break;
 
             default:
-                LOGGER.severe("Unknown object type: " + myObj.type.toString());
+                LOGGER.severe("Unsupported object type: " + myObj.type.toString());
                 break;
         }
 
@@ -205,11 +205,16 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
     }
 
     private SQLObject createSQLObject(String[] infos) {
-        SQLObject obj = new SQLObject();
-        obj.schemaName = infos[0];
-        obj.name = infos[1];
-        obj.type = SQLObjectTypeEnum.valueOfStr(infos[2]);
-        return obj;
+        try {
+            SQLObject obj = new SQLObject();
+            obj.schemaName = infos[0];
+            obj.name = infos[1];
+            obj.type = SQLObjectTypeEnum.valueOfStr(infos[2]);
+            return obj;
+        } catch (IllegalArgumentException iae) {
+            // silently return null for non supported object type
+            return null;
+        }
     }
 
     /**

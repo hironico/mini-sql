@@ -14,6 +14,7 @@ public enum SQLObjectTypeEnum {
     SYSTEM_SEQUENCE("SYSTEM SEQUENCE"),
     INDEX("INDEX"),
     SYSTEM_INDEX("SYSTEM INDEX"),
+    SYNONYM("SYNONYM"),
     SCHEMA("SCHEMA"),
     DATABASE("DATABASE"),
     UNKNOWN("UNKNOWN");
@@ -26,7 +27,7 @@ public enum SQLObjectTypeEnum {
 
     public static boolean isTableOrView(SQLObjectTypeEnum typeEnum) {
         return typeEnum == TABLE || typeEnum == VIEW || typeEnum == MATERIALIZED_VIEW
-                || typeEnum == SYSTEM_TABLE || typeEnum == SYSTEM_VIEW;
+                || typeEnum == SYSTEM_TABLE || typeEnum == SYSTEM_VIEW || typeEnum == SYNONYM;
     }
 
     public static boolean isProcOrFunction(SQLObjectTypeEnum typeEnum) {

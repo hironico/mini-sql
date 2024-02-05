@@ -54,21 +54,12 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
 
         QueryPanel pnl = showNewQueryPanel();
 
-        switch (obj.type) {
-            case TABLE:
-            case VIEW:
-            case MATERIALIZED_VIEW:
-            case SYSTEM_TABLE:
-            case SYSTEM_VIEW:
-                String query = this.getSelectQuery(dbVendor);
-                query = String.format(query, obj.schemaName, obj.name);
-                pnl.setQueryText(query);
-                pnl.setDividerLocation(0.25d);
-                ExecuteQueryAction.executeQueryAsync(pnl);
-                break;
-
-            default:
-                break;
+        if (SQLObjectTypeEnum.isTableOrView(obj.type)) {
+            String query = this.getSelectQuery(dbVendor);
+            query = String.format(query, obj.schemaName, obj.name);
+            pnl.setQueryText(query);
+            pnl.setDividerLocation(0.25d);
+            ExecuteQueryAction.executeQueryAsync(pnl);
         }
     }
     private DB_VENDOR getDbVendor(DbConfig cfg) {
