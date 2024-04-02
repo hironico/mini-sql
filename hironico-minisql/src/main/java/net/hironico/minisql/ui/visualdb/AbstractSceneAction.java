@@ -12,16 +12,17 @@ public abstract class AbstractSceneAction extends AbstractRibbonAction {
     public AbstractSceneAction(String title, String icon) {
         super(title, icon);
     }
+
     @Override
     public final void actionPerformed(ActionEvent e) {
         Component comp = MainWindow.getInstance().getCurrentTabComponent();
         if (comp instanceof VisualDbPanel) {
             visualDbPanel = (VisualDbPanel) comp;
             DBGraphScene graphScene = visualDbPanel.getGraphScene();
-            perfomSceneAction(graphScene);
+            performSceneAction(graphScene);
             visualDbPanel.repaint();
         }
     }
 
-    public abstract void perfomSceneAction(DBGraphScene graphScene);
+    public abstract void performSceneAction(DBGraphScene graphScene);
 }

@@ -8,7 +8,7 @@ public class AutoLayoutSceneAction extends AbstractSceneAction {
         super("Auto layout", "icons8_genealogy_64px.png");
     }
     @Override
-    public void perfomSceneAction(DBGraphScene graphScene) {
+    public void performSceneAction(DBGraphScene graphScene) {
         if (graphScene.getEdges().size() == 0) {
             int confirm = JOptionPane.showConfirmDialog(graphScene.getView(),
                     "There is no foreign key defined in this model.\n"

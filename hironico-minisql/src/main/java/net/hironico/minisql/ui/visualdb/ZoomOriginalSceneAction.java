@@ -6,7 +6,7 @@ public class ZoomOriginalSceneAction extends AbstractSceneAction {
     }
 
     @Override
-    public void perfomSceneAction(DBGraphScene graphScene) {
+    public void performSceneAction(DBGraphScene graphScene) {
         graphScene.zoomOriginal();
     }
 }

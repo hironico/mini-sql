@@ -12,7 +12,7 @@ public class ZoomPlusSceneAction extends AbstractSceneAction {
     }
 
     @Override
-    public void perfomSceneAction(DBGraphScene graphScene) {
+    public void performSceneAction(DBGraphScene graphScene) {
         graphScene.zoomPlus();
     }
 }

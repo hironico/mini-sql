@@ -10,14 +10,10 @@ import net.hironico.minisql.ui.editor.*;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
-import net.hironico.minisql.ui.visualdb.NewVisualDbTabAction;
-import net.hironico.minisql.ui.visualdb.VisualDbRibbonTab;
+import net.hironico.minisql.ui.visualdb.*;
 
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +44,8 @@ public class MainWindow extends JFrame {
     private RibbonGroup viewRibbonGroup = null;
     private RibbonGroup objectsRibbonGroup = null;
     private RibbonGroup selectRibbonGroup = null;
-    private VisualDbRibbonTab visualDbRibbonTab = new VisualDbRibbonTab();
+    private RibbonTab visualDbRibbonTab = null;
+    private RibbonGroup groupView = null;
     
     private JSplitPaneNoDivider splitMain = null;
 
@@ -171,14 +168,21 @@ public class MainWindow extends JFrame {
         if(this.ribbon == null) {
             this.ribbon = new Ribbon();
             this.ribbon.setOpaque(true);
-            this.ribbon.setBackground(Color.WHITE);
-            this.ribbon.setBorder(BorderFactory.createEmptyBorder());
+            //this.ribbon.setBackground(Color.WHITE);
+            this.ribbon.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
             this.ribbon.addRibbonTab(getHomeRibbonTab());
             this.ribbon.addRibbonTab(getExplorerRibbonTab());
-            this.ribbon.addRibbonTab(this.visualDbRibbonTab);
+            this.ribbon.addRibbonTab(getVisualDbRibbonTab());
         }
 
         return this.ribbon;
+    }
+
+    private RibbonTab getVisualDbRibbonTab() {
+        if (this.visualDbRibbonTab == null) {
+            this.visualDbRibbonTab = new VisualDbRibbonTab();
+        }
+        return this.visualDbRibbonTab;
     }
 
     private RibbonTab getHomeRibbonTab() {

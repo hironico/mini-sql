@@ -100,7 +100,7 @@ public class DBGraphScene extends VMDGraphScene {
         Runnable run = () -> {
 
             displayedTableList.forEach(table -> {
-                String nodeId = createNode(this, (int) (Math.random() * 800), (int) (Math.random() * 800), table);
+                String nodeId = createNode(this, (int) (Math.random() * 400), (int) (Math.random() * 400), table);
                 if (nodeId != null) { // null means already exists
                     HashMap<String, List<Widget>> pinByCategories = new HashMap<>();
                     table.getColumns().forEach(column -> {
@@ -173,7 +173,7 @@ public class DBGraphScene extends VMDGraphScene {
 
         if (scene.getEdges().contains(edgeIDStr)) {
             LOGGER.warning(String.format("This edge already exists %s", edgeIDStr));
-            return;
+            scene.removeEdge(edgeIDStr);
         }
 
         if (!scene.getPins().contains(sourcePinID)) {

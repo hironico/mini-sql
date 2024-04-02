@@ -17,6 +17,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.tree.TreePath;
 
+import net.hironico.minisql.ui.visualdb.SQLObjectMoveHandler;
 import org.jdesktop.swingx.JXComboBox;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
@@ -281,6 +282,9 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
                     MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Explorer");
                 }
             });
+
+            this.treetableObjects.setDragEnabled(true);
+            SQLObjectMoveHandler.createFor(treetableObjects);
         }
         return treetableObjects;
     }

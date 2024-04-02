@@ -6,15 +6,19 @@
 package net.hironico.minisql.ui.visualdb;
 
 import java.awt.BorderLayout;
+import java.awt.dnd.DropTarget;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 import javax.swing.*;
 
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
+import net.hironico.minisql.model.SQLObject;
+import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.model.SQLTable;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.tableselector.ShowTableSelectorAction;
@@ -124,12 +128,15 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
 
         add(mainToolBar, java.awt.BorderLayout.NORTH);
 
-        scrollScene.setViewportView(graphScene.createView());
+        JComponent sceneView = graphScene.createView();
+        scrollScene.setViewportView(sceneView);
 
         satelliteUI = new SatelliteUI(graphScene);
         satelliteUI.setSatellitevisible(true);
         sceneLayer = new JXLayer<>(scrollScene, satelliteUI);
         this.add(sceneLayer, BorderLayout.CENTER);
+
+        SQLObjectMoveHandler.createFor(this, sceneLayer);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSelectTablesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectTablesActionPerformed
@@ -156,10 +163,21 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
         DbConfig dbConfig = DbConfigFile.getConfig(connectionName);
         final List<SQLTable> tables = selectionAction.getSelectedTablesList();
 
-        // recup des colonnes des tables en asynchrone
+        this.addSQLTables(tables, dbConfig);
+    }
+
+    public void addSQLObjects(List<SQLObject> sqlObjects, DbConfig dbConfig) {
+        List<SQLTable> tables = sqlObjects.stream()
+                .filter(o -> o.type == SQLObjectTypeEnum.TABLE)
+                .map(o -> new SQLTable(o.schemaName, o.name))
+                .collect(Collectors.toList());
+
+        this.addSQLTables(tables, dbConfig);
+    }
+
+    public void addSQLTables(List<SQLTable> tables, DbConfig dbConfig) {
         SQLTableLoaderThread loaderThread = new SQLTableLoaderThread(tables, dbConfig);
         Future<List<SQLTable>> fut = MainWindow.executorService.submit(loaderThread);
-
         try {
             graphScene.cleanUpScene();
             graphScene.createScene(fut.get());

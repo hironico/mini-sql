@@ -7,12 +7,10 @@ import javax.swing.ImageIcon;
 
 public abstract class AbstractRibbonAction extends AbstractAction {
 
-    private static final long serialVersionUID = 1L;
-
     private static final String BASE_ICON_PATH = "/icons/png_64/";
 
     public AbstractRibbonAction(String name) {
-        super(name);
+        this(name, null);
     }
 
     public AbstractRibbonAction(String name, String iconName) {

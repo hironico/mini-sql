@@ -1,11 +1,13 @@
 package net.hironico.common.swing.ribbon;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 @SuppressWarnings("restriction")
 public class Ribbon extends JTabbedPane {
@@ -33,6 +35,7 @@ public class Ribbon extends JTabbedPane {
         super();
         setMaximumSize(new Dimension(4096, 148));
         setPreferredSize(new Dimension(1024, 148));
+        this.putClientProperty(FlatClientProperties.TABBED_PANE_SHOW_CONTENT_SEPARATOR, false);
     }
 
     /**
@@ -49,7 +52,17 @@ public class Ribbon extends JTabbedPane {
     }
 
     public void addRibbonTab(RibbonTab pnl) {
-        super.addTab(pnl.getTitle(), pnl);
+        JPanel container = new JPanel();
+        container.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 0, 5, 0);
+        gbc.weightx = 1.0d;
+        gbc.weighty = 1.0d;
+        gbc.fill = GridBagConstraints.BOTH;
+        container.add(pnl, gbc);
+        container.setOpaque(true);
+        container.setBackground(this.getBackground());
+        super.addTab(pnl.getTitle(), container);
     }
 
     public void setSelectedRibbonTab(String title) {

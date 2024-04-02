@@ -20,7 +20,7 @@ public class ExportSceneImageToClipboardAction extends ExportSceneImageAction {
     } 
 
     @Override
-    public void perfomSceneAction(DBGraphScene graphScene) {
+    public void performSceneAction(DBGraphScene graphScene) {
         BufferedImage img = getSceneImage();
         TransferableImage transferable = new TransferableImage(img);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(transferable, null);

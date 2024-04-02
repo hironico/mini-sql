@@ -4,17 +4,12 @@ import net.hironico.common.swing.ribbon.RibbonGroup;
 import net.hironico.common.swing.ribbon.RibbonTab;
 
 public class VisualDbRibbonTab extends RibbonTab {
-    private RibbonGroup groupView;
-    private RibbonGroup groupImage;
-    private RibbonGroup groupLayout;
+    private RibbonGroup groupView = null;
+    private RibbonGroup groupImage = null;
+    private RibbonGroup groupLayout = null;
 
     public VisualDbRibbonTab() {
         super("Visual Db");
-    }
-
-    @Override
-    protected void initialize() {
-        super.initialize();
 
         this.addGroup(getGroupView());
         this.addGroup(getGroupImage());
@@ -28,7 +23,7 @@ public class VisualDbRibbonTab extends RibbonTab {
             groupView.addButton(new ShowNavigationSceneAction(), RibbonGroup.LARGE);
             groupView.addButton(new ZoomPlusSceneAction(), RibbonGroup.SMALL);
             groupView.addButton(new ZoomMinusSceneAction(), RibbonGroup.SMALL);
-            groupView.addButton(new ZoomOriginalSceneAction(), RibbonGroup.SMALL);
+            groupView.addButton(new ZoomOriginalSceneAction(), RibbonGroup.LARGE);
         }
 
         return this.groupView;

@@ -2,7 +2,7 @@ package net.hironico.minisql.ui.visualdb;
 
 import java.awt.event.ActionEvent;
 import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
 import net.hironico.minisql.ui.MainWindow;

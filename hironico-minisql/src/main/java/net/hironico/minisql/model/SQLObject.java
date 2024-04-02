@@ -1,12 +1,13 @@
 package net.hironico.minisql.model;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
 import net.hironico.minisql.DbConfig;
 
-public class SQLObject {
+public class SQLObject implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(SQLObject.class.getName());
 
     public String schemaName;

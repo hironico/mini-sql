@@ -16,11 +16,11 @@ import javax.swing.filechooser.FileFilter;
 public class ExportSceneImageToFileAction extends ExportSceneImageAction {
 
     public ExportSceneImageToFileAction() {
-        super("Export to File", "icons8_png_64px.png");
+        super("To File", "icons8_png_64px.png");
     }
 
     @Override
-    public void perfomSceneAction(DBGraphScene graphScene) {
+    public void performSceneAction(DBGraphScene graphScene) {
         BufferedImage buffImage = getSceneImage();
 
         JFileChooser chooser = new JFileChooser();

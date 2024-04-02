@@ -6,7 +6,7 @@ public class ShowNavigationSceneAction extends AbstractSceneAction {
     }
 
     @Override
-    public void perfomSceneAction(DBGraphScene graphScene) {
+    public void performSceneAction(DBGraphScene graphScene) {
         super.visualDbPanel.showNavigation();
     }
 }

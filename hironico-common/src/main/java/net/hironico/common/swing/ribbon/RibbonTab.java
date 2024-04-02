@@ -1,5 +1,7 @@
 package net.hironico.common.swing.ribbon;
 
+import org.jdesktop.swingx.border.DropShadowBorder;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
@@ -8,6 +10,7 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
+import java.util.logging.Logger;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -17,6 +20,7 @@ import javax.swing.Box.Filler;
 
 public class RibbonTab extends JPanel {
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(RibbonTab.class.getName());
 
     private String title = "";
 
@@ -35,8 +39,8 @@ public class RibbonTab extends JPanel {
     }
 
     protected void initialize() {
+        LOGGER.info("Init ribbon tab : " + this.title);
         setLayout(new GridBagLayout());
-        setBorder(BorderFactory.createEmptyBorder());
         setOpaque(false);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -46,7 +50,6 @@ public class RibbonTab extends JPanel {
         gbc.weightx = 2.0d;
 
         Filler filler = new Box.Filler(new Dimension(10, 10), new Dimension(10, 10), new Dimension(10, 10));
-        // on-screen debug: filler.setBorder(BorderFactory.createLineBorder(Color.RED));
         add(filler, gbc);
     }
 
@@ -79,7 +82,8 @@ public class RibbonTab extends JPanel {
         Color color2 = new Color(229, 233, 238);
         GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
         g2d.setPaint(gp);
-        g2d.fillRect(0, 0, w, h);
+        g2d.fillRoundRect(0, 0, w, h, 15, 15);
+        g2d.setPaint(Color.LIGHT_GRAY);
+        g2d.drawRoundRect(0, 0, w, h, 15, 15);
     }
-
 }

@@ -102,12 +102,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jidesoft</groupId>
-            <artifactId>jide-oss</artifactId>
-            <version>3.6.18</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.fifesoft</groupId>
             <artifactId>rsyntaxtextarea</artifactId>
             <version>3.2.0</version>
