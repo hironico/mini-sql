@@ -1,5 +1,5 @@
 
-name: Maven Build
+name: mini-sql build
 
 on:
  push:
