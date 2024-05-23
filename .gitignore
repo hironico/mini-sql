@@ -1,3 +1,4 @@
 /.idea/
 /**/.flattened-pom.xml
 /**/target/
+/**/dependency-reduced-pom.xml
