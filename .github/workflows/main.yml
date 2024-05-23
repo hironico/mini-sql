@@ -18,6 +18,7 @@ jobs:
       uses: actions/setup-java@main
       with:
         java-version: 17
+        distribution: 'oracle'
 
     - name: Build project with Maven
       run: mvn -B package --file pom.xml
