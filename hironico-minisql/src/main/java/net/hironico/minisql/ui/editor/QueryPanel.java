@@ -53,6 +53,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
     private JXStatusBar stbEditorStatusBar = null;
     private JLabel lblPosition = null;
     private JLabel lblSelection = null;
+    private JLabel lblStatusMessage = null;
     private JPanel pnlResults = null;
 
     private ExecuteQueryAction executeQueryAction = null;
@@ -367,6 +368,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
             stbEditorStatusBar.setBorder(BorderFactory.createEtchedBorder());
             stbEditorStatusBar.add(getLblPosition());
             stbEditorStatusBar.add(getLblSelection());
+            stbEditorStatusBar.add(getLblStatusMessage());
         }
 
         return stbEditorStatusBar;
@@ -389,6 +391,19 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         }
 
         return lblPosition;
+    }
+
+    private JLabel getLblStatusMessage() {
+        if (lblStatusMessage == null) {
+            lblStatusMessage = new JLabel();
+            lblStatusMessage.setText("");
+        }
+
+        return lblStatusMessage;
+    }
+
+    public void setStatusMessage(String msg) {
+        getLblStatusMessage().setText(msg);
     }
 
     /**

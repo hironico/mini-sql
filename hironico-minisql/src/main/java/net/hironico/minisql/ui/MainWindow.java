@@ -169,7 +169,7 @@ public class MainWindow extends JFrame {
             this.ribbon = new Ribbon();
             this.ribbon.setOpaque(true);
             //this.ribbon.setBackground(Color.WHITE);
-            this.ribbon.setBorder(BorderFactory.createEmptyBorder(0, 5, 5, 5));
+            this.ribbon.setBorder(BorderFactory.createEmptyBorder(0, 10, 5, 10));
             this.ribbon.addRibbonTab(getHomeRibbonTab());
             this.ribbon.addRibbonTab(getExplorerRibbonTab());
             this.ribbon.addRibbonTab(getVisualDbRibbonTab());
@@ -207,6 +207,7 @@ public class MainWindow extends JFrame {
             toolsRibbonGroup.addButton(new SaveQueryAction(), RibbonGroup.SMALL);
             toolsRibbonGroup.addButton(new ExecuteQueryAction(), RibbonGroup.LARGE);
             toolsRibbonGroup.addButton(new ExecuteBatchQueryAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addButton(new CheckSQLAction(), RibbonGroup.LARGE);
             toolsRibbonGroup.addButton(new NewVisualDbTabAction(), RibbonGroup.LARGE);
         }
 

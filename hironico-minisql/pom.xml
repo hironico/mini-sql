@@ -10,6 +10,19 @@
                     <target>9</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>4.13.1</version>
+                <executions>
+                    <execution>
+                        <id>antlr</id>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -23,7 +36,7 @@
 
   <name>hironico.net minisql tools</name>
   
-  <packaging>jar</packaging>  
+  <packaging>jar</packaging>
 
   <dependencies>
     <dependency>
