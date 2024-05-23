@@ -1,0 +1,24 @@
+
+name: mini-sql build
+
+on:
+ push:
+    branches: [ master ]
+ pull_request:
+    branches: [ master ]
+
+jobs:
+  build_and_test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@main
+    - name: Set up JDK 17
+      uses: actions/setup-java@main
+      with:
+        java-version: 17
+        distribution: 'oracle'
+
+    - name: Build project with Maven
+      run: mvn -B package --file pom.xml
