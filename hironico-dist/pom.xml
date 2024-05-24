@@ -148,6 +148,8 @@
             <!-- generate a keypair using gpg or Kleopatra -->
             <!-- send the key to a keyserver supported by central repo. -->
             <!-- behind firewall use the following key server hkp://keys.openpgp.org:80 -->
+            <!-- For Github action you need to follow this tutorial : -->
+            <!-- https://itnext.io/publishing-artifacts-to-maven-central-using-github-actions-a-step-by-step-guide-fd65ef075fd4 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
