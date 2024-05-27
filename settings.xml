@@ -1,0 +1,20 @@
+<settings>
+    <servers>
+        <server>
+            <id>central</id>
+            <username>${env.MAVEN_USERNAME}</username>
+            <password>${env.MAVEN_PASSWORD}</password>
+        </server>
+    </servers>
+    <profiles>
+        <profile>
+            <id>central</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <gpg.keyname>${env.GPG_KEY_NAME}</gpg.keyname>
+            </properties>
+        </profile>
+    </profiles>
+</settings>
