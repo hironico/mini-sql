@@ -1,4 +1,4 @@
-package net.hironico.minisql.parser;
+package net.hironico.minisql.parser.plsql;
 
 import org.antlr.v4.runtime.*;
 
