@@ -4,13 +4,15 @@ import net.hironico.common.swing.ribbon.*;
 import net.hironico.minisql.App;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
-import net.hironico.minisql.ui.dbexplorer.action.*;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
-import net.hironico.minisql.ui.editor.*;
+import net.hironico.minisql.ui.dbexplorer.ribbon.DbExplorerRibbonTab;
+import net.hironico.minisql.ui.editor.ribbon.EditorRibbonTab;
+import net.hironico.minisql.ui.editor.ribbon.FileRibbonGroup;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
-import net.hironico.minisql.ui.visualdb.*;
+import net.hironico.minisql.ui.visualdb.action.NewVisualDbTabAction;
+import net.hironico.minisql.ui.visualdb.ribbon.VisualDbRibbonTab;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -24,28 +26,22 @@ import javax.swing.*;
 
 public class MainWindow extends JFrame {
 
-    public static final long serialVersionUID = -1;
-
     private static final Logger LOGGER = Logger.getLogger(MainWindow.class.getName());
 
     public static final ExecutorService executorService = Executors.newFixedThreadPool(4);
 
-    private static final Map<String, AbstractRibbonAction> appActions = new HashMap<>();
+    public static final Map<String, AbstractRibbonAction> appActions = new HashMap<>();
 
     private static final MainWindow instance = new MainWindow();
 
     private Ribbon ribbon = null;
     private RibbonTab homeRibbonTab = null;
+    private RibbonTab editorRibbonTab = null;
+    private RibbonGroup fileRibbonGroup = null;
     private RibbonGroup systemRibbonGroup = null;
     private RibbonGroup toolsRibbonGroup = null;
-    private RibbonGroup clipBoardRibbonGroup = null;
-    private RibbonGroup undoRedoRibbonGroup = null;
     private RibbonTab explorerRibbonTab = null;
-    private RibbonGroup viewRibbonGroup = null;
-    private RibbonGroup objectsRibbonGroup = null;
-    private RibbonGroup selectRibbonGroup = null;
     private RibbonTab visualDbRibbonTab = null;
-    private RibbonGroup groupView = null;
     
     private JSplitPaneNoDivider splitMain = null;
 
@@ -111,16 +107,14 @@ public class MainWindow extends JFrame {
 
         getContentPane().setLayout(new BorderLayout());
 
-        /*
         setUndecorated(true);
         getRootPane().setBorder(BorderFactory.createMatteBorder(1,1,1,1, Color.WHITE));
         RibbonWindowUI ribbonWinUI = new RibbonWindowUI();
         JLayer<Ribbon> ribbonWithWinIcons = new JLayer<>(getRibbon(), ribbonWinUI);
         ribbonWithWinIcons.setLayerEventMask(AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
         getContentPane().add(ribbonWithWinIcons, BorderLayout.PAGE_START);
-        */
 
-        getContentPane().add(getRibbon(), BorderLayout.PAGE_START);
+        // getContentPane().add(getRibbon(), BorderLayout.PAGE_START);
         getContentPane().add(getSplitMain(), BorderLayout.CENTER);
         getContentPane().add(getStatusBar(), BorderLayout.AFTER_LAST_LINE);
 
@@ -172,10 +166,18 @@ public class MainWindow extends JFrame {
             this.ribbon.setBorder(BorderFactory.createEmptyBorder(0, 10, 5, 10));
             this.ribbon.addRibbonTab(getHomeRibbonTab());
             this.ribbon.addRibbonTab(getExplorerRibbonTab());
+            this.ribbon.addRibbonTab(getEditorRibbonTab());
             this.ribbon.addRibbonTab(getVisualDbRibbonTab());
         }
 
         return this.ribbon;
+    }
+
+    private RibbonTab getExplorerRibbonTab() {
+        if (explorerRibbonTab == null) {
+            explorerRibbonTab = new DbExplorerRibbonTab();
+        }
+        return explorerRibbonTab;
     }
 
     private RibbonTab getVisualDbRibbonTab() {
@@ -188,53 +190,36 @@ public class MainWindow extends JFrame {
     private RibbonTab getHomeRibbonTab() {
         if (this.homeRibbonTab == null) {
             this.homeRibbonTab = new RibbonTab("Home");
-            
+            this.homeRibbonTab.addGroup(getFileRibbonGroup());
             this.homeRibbonTab.addGroup(getToolsRibbonGroup());
-            this.homeRibbonTab.addGroup(getClipboardRibbonGroup());
-            this.homeRibbonTab.addGroup(getUndoRedoRibbonGroup());
             this.homeRibbonTab.addGroup(getSystemRibbonGroup());
         }
 
         return this.homeRibbonTab;
     }
 
+    private RibbonTab getEditorRibbonTab() {
+        if (editorRibbonTab == null) {
+            editorRibbonTab = new EditorRibbonTab();
+        }
+
+        return editorRibbonTab;
+    }
+
+    private RibbonGroup getFileRibbonGroup() {
+        if (fileRibbonGroup == null) {
+            this.fileRibbonGroup = new FileRibbonGroup();
+        }
+        return this.fileRibbonGroup;
+    }
+
     private RibbonGroup getToolsRibbonGroup() {
         if (toolsRibbonGroup == null) {
             toolsRibbonGroup = new RibbonGroup("Tools");
-
-            toolsRibbonGroup.addButton(appActions.get(ShowQueryPanelAction.NAME), RibbonGroup.LARGE);
-            toolsRibbonGroup.addButton(new OpenQueryAction(), RibbonGroup.SMALL);
-            toolsRibbonGroup.addButton(new SaveQueryAction(), RibbonGroup.SMALL);
-            toolsRibbonGroup.addButton(new ExecuteQueryAction(), RibbonGroup.LARGE);
-            toolsRibbonGroup.addButton(new ExecuteBatchQueryAction(), RibbonGroup.LARGE);
-            toolsRibbonGroup.addButton(new CheckSQLAction(), RibbonGroup.LARGE);
             toolsRibbonGroup.addButton(new NewVisualDbTabAction(), RibbonGroup.LARGE);
         }
 
         return toolsRibbonGroup;
-    }
-
-    private RibbonGroup getClipboardRibbonGroup() {
-        if (clipBoardRibbonGroup == null) {
-            clipBoardRibbonGroup = new RibbonGroup("Clipboard");
-
-            clipBoardRibbonGroup.addButton(new PasteAction(), RibbonGroup.LARGE);
-            clipBoardRibbonGroup.addButton(new CopyAction(), RibbonGroup.SMALL);
-            clipBoardRibbonGroup.addButton(new CutAction(), RibbonGroup.SMALL);
-        }
-
-        return clipBoardRibbonGroup;
-    }
-
-    private RibbonGroup getUndoRedoRibbonGroup() {
-        if (undoRedoRibbonGroup == null) {
-            undoRedoRibbonGroup = new RibbonGroup("Undo/Redo");
-
-            undoRedoRibbonGroup.addButton(new UndoAction(), RibbonGroup.SMALL);
-            undoRedoRibbonGroup.addButton(new RedoAction(), RibbonGroup.SMALL);
-        }
-
-        return undoRedoRibbonGroup;
     }
 
     private RibbonGroup getSystemRibbonGroup() {
@@ -249,59 +234,7 @@ public class MainWindow extends JFrame {
         return this.systemRibbonGroup;
     }
 
-    private RibbonTab getExplorerRibbonTab() {
-        if (this.explorerRibbonTab == null) {
-            this.explorerRibbonTab = new RibbonTab("Explorer");
 
-            this.explorerRibbonTab.addGroup(getViewRibbonGroup());
-            this.explorerRibbonTab.addGroup(getObjectsRibbonGroup());
-            this.explorerRibbonTab.addGroup(getSelectRibbonGroup());
-        }
-
-        return this.explorerRibbonTab;
-    }
-
-    private RibbonGroup getViewRibbonGroup() {
-        if (this.viewRibbonGroup == null) {
-            this.viewRibbonGroup = new RibbonGroup("View");
-
-            DbObjectExpandAllAction expandAction = new DbObjectExpandAllAction();
-            this.viewRibbonGroup.addButton(expandAction, RibbonGroup.SMALL);
-
-            DbObjectCollapseAllAction collapseAction = new DbObjectCollapseAllAction();
-            this.viewRibbonGroup.addButton(collapseAction, RibbonGroup.SMALL);
-        }
-
-        return this.viewRibbonGroup;
-    }
-
-    private RibbonGroup getObjectsRibbonGroup() {
-        if (this.objectsRibbonGroup == null) {
-            this.objectsRibbonGroup = new RibbonGroup("Objects");
-
-            DbObjectRefreshAction refreshAction = new DbObjectRefreshAction();
-            this.objectsRibbonGroup.addButton(refreshAction, RibbonGroup.LARGE);
-
-            DbObjectShowSystAction systObjAction = new DbObjectShowSystAction();
-            this.objectsRibbonGroup.addCheckBox(systObjAction);
-
-            DbObjectStructureAction structureAction = new DbObjectStructureAction();
-            this.objectsRibbonGroup.addButton(structureAction, RibbonGroup.LARGE);
-        }
-
-        return this.objectsRibbonGroup;
-    }
-
-    private RibbonGroup getSelectRibbonGroup() {
-        if (this.selectRibbonGroup == null) {
-            this.selectRibbonGroup = new RibbonGroup("Select...");
-
-            this.selectRibbonGroup.addButton(new DbObjectSelect1kAction(), RibbonGroup.SMALL);
-            this.selectRibbonGroup.addButton(new DbObjectCountAction(), RibbonGroup.SMALL);
-        }
-
-        return selectRibbonGroup;
-    }
 
     private JPanel getStatusBar() {
         if (pnlStatusBar == null) {

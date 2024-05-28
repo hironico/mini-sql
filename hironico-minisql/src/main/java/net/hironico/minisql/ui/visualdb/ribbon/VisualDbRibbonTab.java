@@ -1,7 +1,8 @@
-package net.hironico.minisql.ui.visualdb;
+package net.hironico.minisql.ui.visualdb.ribbon;
 
 import net.hironico.common.swing.ribbon.RibbonGroup;
 import net.hironico.common.swing.ribbon.RibbonTab;
+import net.hironico.minisql.ui.visualdb.action.*;
 
 public class VisualDbRibbonTab extends RibbonTab {
     private RibbonGroup groupView = null;

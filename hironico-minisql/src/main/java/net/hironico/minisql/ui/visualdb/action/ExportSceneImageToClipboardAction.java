@@ -1,9 +1,9 @@
-package net.hironico.minisql.ui.visualdb;
+package net.hironico.minisql.ui.visualdb.action;
 
 import net.hironico.common.swing.image.TransferableImage;
+import net.hironico.minisql.ui.visualdb.DBGraphScene;
 
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.image.BufferedImage;
 import javax.swing.JOptionPane;
 

@@ -5,6 +5,8 @@ import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.model.SQLResultSetTableModel;
 import net.hironico.minisql.ui.ExecuteQueryAction;
 import net.hironico.minisql.ui.MainWindow;
+import net.hironico.minisql.ui.editor.action.OpenQueryAction;
+import net.hironico.minisql.ui.editor.action.SaveQueryAction;
 import net.hironico.minisql.ui.renderer.ClobTableCellEditor;
 import net.hironico.minisql.ui.renderer.ClobTableCellRenderer;
 import net.hironico.minisql.ui.renderer.DateTableCellRenderer;
@@ -33,8 +35,6 @@ import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.JXTable;
 
 public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListener {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = Logger.getLogger(QueryPanel.class.getName());
 
@@ -124,7 +124,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
     /**
      * Get the last used directroy when openning or saving a file into the editor.
      */
-    String getLastUserDirectory() {
+    public String getLastUserDirectory() {
         if (this.lastUsedDirectory == null) {
             this.lastUsedDirectory = System.getProperty("user.home");
         }
@@ -132,7 +132,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         return this.lastUsedDirectory;
     }
 
-    void setLastUsedDirectory(String directoryName) {
+    public void setLastUsedDirectory(String directoryName) {
         this.lastUsedDirectory = directoryName;
     }
 
@@ -281,7 +281,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         return pnlQuery;
     }
 
-    RSyntaxTextArea getTxtQuery() {
+    public RSyntaxTextArea getTxtQuery() {
         if (txtQuery == null) {
             txtQuery = new RSyntaxTextArea();
             txtQuery.setBorder(BorderFactory.createEmptyBorder());
@@ -354,7 +354,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
                 @Override
                 public void focusGained(FocusEvent e) {
                     super.focusGained(e);
-                    MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Home");
+                    MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Editor");
                 }
             });
         }
@@ -441,17 +441,18 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
 
     private static JComponent getResultComponent(SQLResultSetTableModel modelToDisplay) {
         switch (modelToDisplay.getDisplayType()) {
-            case SQLResultSetTableModel.DISPLAY_TYPE_TEXT:
+            case SQLResultSetTableModel.DISPLAY_TYPE_TEXT -> {
                 return getResultComponentText(modelToDisplay);
-
-            case SQLResultSetTableModel.DISPLAY_TYPE_JSON:
+            }
+            case SQLResultSetTableModel.DISPLAY_TYPE_JSON -> {
                 return getResultComponentJSON(modelToDisplay);
-
-            case SQLResultSetTableModel.DISPLAY_TYPE_SQL:
+            }
+            case SQLResultSetTableModel.DISPLAY_TYPE_SQL -> {
                 return getResultComponentSQL(modelToDisplay);
-
-            default:
+            }
+            default -> {
                 return getResultComponentTable(modelToDisplay);
+            }
         }
     }
 

@@ -1,5 +1,6 @@
-package net.hironico.minisql.ui.visualdb;
+package net.hironico.minisql.ui.visualdb.action;
 
+import net.hironico.minisql.ui.visualdb.DBGraphScene;
 import org.netbeans.api.visual.widget.BirdViewController;
 
 public class ToggleMagnifySceneAction extends AbstractSceneAction {

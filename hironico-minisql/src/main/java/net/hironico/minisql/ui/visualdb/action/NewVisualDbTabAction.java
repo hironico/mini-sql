@@ -1,4 +1,4 @@
-package net.hironico.minisql.ui.visualdb;
+package net.hironico.minisql.ui.visualdb.action;
 
 import java.awt.event.ActionEvent;
 import java.util.logging.Logger;
@@ -6,6 +6,7 @@ import javax.swing.*;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
 import net.hironico.minisql.ui.MainWindow;
+import net.hironico.minisql.ui.visualdb.VisualDbPanel;
 
 /**
  * Permet de créer une vue VisualDb et de l'ajouter dans l'arbre des fenêtres

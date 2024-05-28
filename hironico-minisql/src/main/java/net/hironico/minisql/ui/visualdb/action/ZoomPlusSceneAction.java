@@ -1,10 +1,6 @@
-package net.hironico.minisql.ui.visualdb;
+package net.hironico.minisql.ui.visualdb.action;
 
-import net.hironico.common.swing.ribbon.AbstractRibbonAction;
-import net.hironico.minisql.ui.MainWindow;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import net.hironico.minisql.ui.visualdb.DBGraphScene;
 
 public class ZoomPlusSceneAction extends AbstractSceneAction {
     public ZoomPlusSceneAction() {

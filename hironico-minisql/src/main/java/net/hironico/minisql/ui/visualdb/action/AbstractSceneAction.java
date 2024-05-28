@@ -1,7 +1,9 @@
-package net.hironico.minisql.ui.visualdb;
+package net.hironico.minisql.ui.visualdb.action;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
 import net.hironico.minisql.ui.MainWindow;
+import net.hironico.minisql.ui.visualdb.DBGraphScene;
+import net.hironico.minisql.ui.visualdb.VisualDbPanel;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

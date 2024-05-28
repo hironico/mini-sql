@@ -1,4 +1,6 @@
-package net.hironico.minisql.ui.visualdb;
+package net.hironico.minisql.ui.visualdb.action;
+
+import net.hironico.minisql.ui.visualdb.DBGraphScene;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
