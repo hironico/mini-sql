@@ -1,7 +1,7 @@
 package net.hironico.minisql.ui.editor.action;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
-import net.hironico.minisql.parser.PlSqlParserBaseListener;
+import net.hironico.minisql.parser.plsql.PlSqlParserBaseListener;
 import net.hironico.minisql.parser.postgresql.*;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.QueryPanel;
@@ -69,7 +69,7 @@ public class CheckSQLAction extends AbstractRibbonAction {
                 // highlight the error location or position the cursor
                 // display an error message or icon
 
-                String errMsg = String.format("Syntax error at line %d : %d", line, charPositionInLine);
+                String errMsg = String.format("<html><b>Syntax error at line %d : %d</b></html>", line, charPositionInLine);
                 LOGGER.severe(errMsg);
                 queryPanel.setStatusMessage(errMsg);
                 errors.add(errMsg);
