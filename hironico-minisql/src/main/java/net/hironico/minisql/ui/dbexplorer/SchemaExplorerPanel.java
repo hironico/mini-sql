@@ -8,9 +8,13 @@ import net.hironico.minisql.model.SQLObject;
 import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
+
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -137,8 +141,20 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
         return obj instanceof SQLObject ? (SQLObject)obj : null;
     }
 
+    public List<SQLObject> getAllSelectedSQLObjects() {
+        return Arrays.stream(getAllSelectionPaths())
+            .map(tp -> (DefaultMutableTreeTableNode) tp.getLastPathComponent())
+            .map(dmttn -> (SQLObject)dmttn.getUserObject())
+            .filter(Objects::nonNull)
+            .toList();
+    }
+
     public TreePath getSelectionPath() {
         return getTreeTableObjects().getTreeSelectionModel().getSelectionPath();
+    }
+
+    public TreePath[] getAllSelectionPaths() {
+        return getTreeTableObjects().getTreeSelectionModel().getSelectionPaths();
     }
 
     @Override

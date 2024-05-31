@@ -5,27 +5,23 @@
  */
 package net.hironico.minisql.ui.visualdb;
 
-import java.awt.BorderLayout;
-import java.awt.dnd.DropTarget;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import javax.swing.*;
-
 import net.hironico.minisql.DbConfig;
-import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.model.SQLObject;
 import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.model.SQLTable;
 import net.hironico.minisql.ui.MainWindow;
-import net.hironico.minisql.ui.tableselector.ShowTableSelectorAction;
-
 import org.jdesktop.jxlayer.JXLayer;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Le VisualDbPanel est l'outil de modélisation graphique de la base de données.
@@ -38,64 +34,17 @@ import org.jdesktop.jxlayer.JXLayer;
  * @author hironico
  * @since 2.1.0
  */
-public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.DbConfigFileListener {
+public class VisualDbPanel extends javax.swing.JPanel {
 
-    protected static final Logger logger = Logger.getLogger(VisualDbPanel.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(VisualDbPanel.class.getName());
+
     private final DBGraphScene graphScene = new DBGraphScene();
 
-    private javax.swing.JComboBox<String> cmbConnectionName;
     private JXLayer<JComponent> sceneLayer;
     private SatelliteUI satelliteUI;
 
     public VisualDbPanel() {
         initComponents();
-
-        refreshConnectionNames();
-
-        DbConfigFile.addListener(this);
-    }
-
-    /**
-     * Permet de mettre à jour la liste des connexions disponibles dans la combo
-     * SANS déclencher le itemStateChanged, sauf si le pool actuellement sélectionné
-     * a été déconnecté.
-     * @since 2.1.0
-     */
-    public void refreshConnectionNames() {
-        Collection<String> names = DbConfigFile.getConfigNames();
-
-        names.forEach(name -> {
-            if (!comboNamesContains(name)) {
-                cmbConnectionName.addItem(name);
-            }
-        });
-
-        for (int cpt = 0; cpt < cmbConnectionName.getItemCount(); cpt++) {
-            String myName = cmbConnectionName.getModel().getElementAt(cpt);
-            if (!names.contains(myName)) {
-                cmbConnectionName.removeItem(myName);
-            }
-        }
-    }
-
-    protected boolean comboNamesContains(String name) {
-        for (int cpt = 0; cpt < cmbConnectionName.getItemCount(); cpt++) {
-            String myName = cmbConnectionName.getModel().getElementAt(cpt);
-            if (myName.equals(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void configAdded(DbConfig cfg) {
-        refreshConnectionNames();
-    }
-
-    @Override
-    public void configRemoved(DbConfig cfg) {
-        refreshConnectionNames();
     }
 
     /** This method is called from within the constructor to
@@ -105,30 +54,10 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
      */
     private void initComponents() {
         JScrollPane scrollScene = new JScrollPane();
-        JToolBar mainToolBar = new JToolBar();
-        JButton btnSelectTables = new JButton();
-        cmbConnectionName = new JComboBox<>();
 
         scrollScene.setVerticalScrollBarPolicy(javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
         setLayout(new java.awt.BorderLayout());
-
-        mainToolBar.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        mainToolBar.setFloatable(false);
-        mainToolBar.setRollover(true);
-
-        btnSelectTables.setText("Select tables");
-        btnSelectTables.setFocusable(false);
-        btnSelectTables.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        btnSelectTables.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
-        btnSelectTables.addActionListener(this::btnSelectTablesActionPerformed);
-        mainToolBar.add(btnSelectTables);
-
-        cmbConnectionName.setMinimumSize(new java.awt.Dimension(100, 20));
-        cmbConnectionName.setPreferredSize(new java.awt.Dimension(100, 22));
-        mainToolBar.add(cmbConnectionName);
-
-        add(mainToolBar, java.awt.BorderLayout.NORTH);
 
         JComponent sceneView = graphScene.createView();
 
@@ -148,34 +77,7 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
         sceneLayer = new JXLayer<>(scrollScene, satelliteUI);
         this.add(sceneLayer, BorderLayout.CENTER);
 
-        SQLObjectMoveHandler.createFor(this, sceneLayer);
-    }
-
-    private void btnSelectTablesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectTablesActionPerformed
-        String connectionName = (String) cmbConnectionName.getSelectedItem();
-        if ((connectionName == null) || "".equals(connectionName.trim())) {
-            JOptionPane.showMessageDialog(VisualDbPanel.this,
-                    "Please connect first!",
-                    "Hey!",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        ShowTableSelectorAction selectionAction = new ShowTableSelectorAction(this, connectionName);
-        selectionAction.setTitle("Select the tables to display");
-        selectionAction.setSubTitle("Use the list below to select the table to display in the visual database tool. Right clic the table for selection tools.");
-        selectionAction.setSelectedTablesList(graphScene.getDisplayedTableList());
-        selectionAction.actionPerformed(null);
-
-        // verif si l'utilisateur a cliqué sur ok ou cancel
-        if (selectionAction.getUserClickButton() != JOptionPane.OK_OPTION) {
-            return;
-        }
-
-        DbConfig dbConfig = DbConfigFile.getConfig(connectionName);
-        final List<SQLTable> tables = selectionAction.getSelectedTablesList();
-
-        this.addSQLTables(tables, dbConfig);
+        SQLObjectMoveHandler.createFor(this, graphScene);
     }
 
     public void addSQLObjects(List<SQLObject> sqlObjects, DbConfig dbConfig) {
@@ -196,7 +98,7 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
             graphScene.revalidate();
             graphScene.validate();
         } catch (InterruptedException | ExecutionException ie) {
-            ie.printStackTrace();
+           LOGGER.log(Level.SEVERE, "Cannot add SQL tables to scene.", ie);
         }
     }
 

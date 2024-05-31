@@ -107,14 +107,18 @@ public class MainWindow extends JFrame {
 
         getContentPane().setLayout(new BorderLayout());
 
+        /*
+
+        //!\ bug with multi screen : cannot drag window to another screen
         setUndecorated(true);
         getRootPane().setBorder(BorderFactory.createMatteBorder(1,1,1,1, Color.WHITE));
         RibbonWindowUI ribbonWinUI = new RibbonWindowUI();
         JLayer<Ribbon> ribbonWithWinIcons = new JLayer<>(getRibbon(), ribbonWinUI);
         ribbonWithWinIcons.setLayerEventMask(AWTEvent.MOUSE_EVENT_MASK | AWTEvent.MOUSE_MOTION_EVENT_MASK);
         getContentPane().add(ribbonWithWinIcons, BorderLayout.PAGE_START);
+        */
 
-        // getContentPane().add(getRibbon(), BorderLayout.PAGE_START);
+        getContentPane().add(getRibbon(), BorderLayout.PAGE_START);
         getContentPane().add(getSplitMain(), BorderLayout.CENTER);
         getContentPane().add(getStatusBar(), BorderLayout.AFTER_LAST_LINE);
 
