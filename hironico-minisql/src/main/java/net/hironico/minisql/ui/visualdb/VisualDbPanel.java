@@ -7,6 +7,8 @@ package net.hironico.minisql.ui.visualdb;
 
 import java.awt.BorderLayout;
 import java.awt.dnd.DropTarget;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -129,6 +131,16 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
         add(mainToolBar, java.awt.BorderLayout.NORTH);
 
         JComponent sceneView = graphScene.createView();
+
+        sceneView.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+
+                MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Visual Db");
+            }
+        });
+
         scrollScene.setViewportView(sceneView);
 
         satelliteUI = new SatelliteUI(graphScene);
@@ -137,7 +149,7 @@ public class VisualDbPanel extends javax.swing.JPanel implements DbConfigFile.Db
         this.add(sceneLayer, BorderLayout.CENTER);
 
         SQLObjectMoveHandler.createFor(this, sceneLayer);
-    }// </editor-fold>//GEN-END:initComponents
+    }
 
     private void btnSelectTablesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSelectTablesActionPerformed
         String connectionName = (String) cmbConnectionName.getSelectedItem();
