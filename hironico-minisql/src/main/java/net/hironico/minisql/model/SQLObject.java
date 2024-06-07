@@ -13,21 +13,17 @@ public class SQLObject implements Serializable {
     public String schemaName;
     public String name;
     public SQLObjectTypeEnum type;
+    public String color;
+
     public enum DDLActionEnum {
         CREATE, DROP
     }
 
     public String getDDL(DDLActionEnum action) {
-        switch(action) {
-            case CREATE:
-                return getDDLCreate();
-
-            case DROP:
-                return getDDLDrop();
-
-            default:
-                return "";
-        }
+        return switch (action) {
+            case CREATE -> getDDLCreate();
+            case DROP -> getDDLDrop();
+        };
     }
 
     public String getDDLCreate() {

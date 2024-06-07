@@ -57,6 +57,10 @@ public class DbConfig implements Cloneable {
     @JacksonXmlProperty(localName = "batch-statement-separator", isAttribute = true)
     public String batchStatementSeparator = "GO";
 
+    @JsonProperty("color")
+    @JacksonXmlProperty(localName = "color", isAttribute = true)
+    public String color;
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }

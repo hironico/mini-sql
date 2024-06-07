@@ -12,22 +12,14 @@ import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.JPasswordField;
-import javax.swing.JToolBar;
+import javax.swing.*;
 
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.DbConfig;
+import org.jdesktop.swingx.JXColorSelectionButton;
+import org.jdesktop.swingx.JXLabel;
 
 public class ConfigPanel extends JPanel {
-
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = Logger.getLogger(ConfigPanel.class.getName());
 
@@ -50,6 +42,8 @@ public class ConfigPanel extends JPanel {
     private JLabel lblStatementSeparator;
     private JTextField txtStatementSeparator;
     private JButton btnTestConnection = null;
+    private JXLabel txtColor = null;
+    private JXColorSelectionButton colorChooser = null;
 
     public ConfigPanel() {
         super();
@@ -88,6 +82,9 @@ public class ConfigPanel extends JPanel {
         getTxtPassword().setText(DbConfig.decryptPassword(cfg.password));
         getTxtDriverClassName().setText(cfg.driverClassName);
         getTxtStatementSeparator().setText(cfg.batchStatementSeparator);
+        Color conColor = cfg.color == null ? Color.BLUE : Color.decode(cfg.color);
+        getColorChooser().getChooser().setColor(conColor);
+        getColorChooser().setBackground(conColor);
     }
 
     protected void initialize() {
@@ -152,10 +149,18 @@ public class ConfigPanel extends JPanel {
         add(getLblStatementSeparator(), gc);
 
         gc.gridy = 12;
+        gc.insets.top = 5;
+        add(getTxtStatementSeparator(), gc);
+
+        gc.gridy = 13;
+        gc.insets.top = 5;
+        add(getTxtColor(), gc);
+
+        gc.gridy = 14;
         gc.anchor = GridBagConstraints.NORTH;
         gc.weighty = 1.0;
         gc.insets.top = 0;
-        add(getTxtStatementSeparator(), gc);
+        add(getColorChooser(), gc);
     }
 
     protected JToolBar getToolbar() {
@@ -243,6 +248,9 @@ public class ConfigPanel extends JPanel {
         cfg.password = DbConfig.encryptPassword(String.copyValueOf(getTxtPassword().getPassword()));
         cfg.driverClassName = getTxtDriverClassName().getText();
         cfg.batchStatementSeparator = getTxtStatementSeparator().getText();
+        Color bg = getColorChooser().getBackground();
+        cfg.color = String.format("#%02x%02x%02x", bg.getRed(), bg.getGreen(), bg.getBlue());
+
         return cfg;
     }
 
@@ -446,5 +454,21 @@ public class ConfigPanel extends JPanel {
         }
 
         return txtStatementSeparator;
+    }
+
+    protected JXLabel getTxtColor() {
+        if (txtColor == null) {
+            txtColor = new JXLabel("Connection color:");
+        }
+        return txtColor;
+    }
+
+    protected JXColorSelectionButton getColorChooser() {
+        if (this.colorChooser == null) {
+            this.colorChooser = new JXColorSelectionButton();
+            this.colorChooser.setText("Connection color");
+        }
+
+        return colorChooser;
     }
 }
