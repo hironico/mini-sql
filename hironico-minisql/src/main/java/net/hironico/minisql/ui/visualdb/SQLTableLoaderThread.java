@@ -32,6 +32,7 @@ public class SQLTableLoaderThread implements Callable<List<SQLTable>> {
             try {
                 LOGGER.info("Loading table columns for: " + table.name);
                 table.loadMetaData(dbConfig);
+                table.color = dbConfig.color;
             } catch (SQLException sqle) {
                 LOGGER.log(Level.SEVERE, sqle.getMessage(), sqle);
             }

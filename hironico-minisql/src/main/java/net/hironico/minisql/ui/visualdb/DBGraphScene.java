@@ -1,19 +1,19 @@
 package net.hironico.minisql.ui.visualdb;
 
-import java.awt.Image;
+import java.awt.*;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import javax.swing.*;
 
 import net.hironico.common.swing.image.ImageIconUtils;
 import net.hironico.minisql.model.*;
-import org.netbeans.api.visual.vmd.VMDGraphScene;
-import org.netbeans.api.visual.vmd.VMDNodeWidget;
-import org.netbeans.api.visual.vmd.VMDPinWidget;
+import org.netbeans.api.visual.action.ActionFactory;
+import org.netbeans.api.visual.vmd.*;
 import org.netbeans.api.visual.widget.Widget;
 
 /**
@@ -32,12 +32,14 @@ public class DBGraphScene extends VMDGraphScene {
      */
     protected ImageIcon iconTable;
     /**
-     * Liste des tables qui sont actuellement en cours d'affihage dans la scène.
+     * Liste des tables qui sont actuellement en cours d'affichage dans la scène.
      * Cette property est mise à jour par la méthode createScene().
      * @see #createScene(java.util.List)
      * @since 2.1.0
      */
     private final List<SQLTable> displayedTableList = new ArrayList<>();
+
+    private final Map<String, String> nodeColors = new HashMap<>();
 
     /**
      * Ce constructeur charge les icones des éléments graphiques de la scène.
@@ -65,7 +67,7 @@ public class DBGraphScene extends VMDGraphScene {
 
     /**
      * Permet de retirer tous les noeuds de la scène. Cela signifie aussi de retirer
-     * tous les liens et tous les colonnes associées aux tables. C'est automatique
+     * tous les liens et toutes les colonnes associées aux tables. C'est automatique
      * avec une scène de type VMDGraphScene.
      * @since 2.1.0
      */
@@ -96,11 +98,15 @@ public class DBGraphScene extends VMDGraphScene {
             }
         });
 
+        // get the initial coordinates from the mouse pointer.
+        Point dropPoint = MouseInfo.getPointerInfo().getLocation();
+        SwingUtilities.convertPointFromScreen(dropPoint, this.getView());
+        AtomicInteger coordX = new AtomicInteger(dropPoint.x);
+        AtomicInteger coordY = new AtomicInteger(dropPoint.y);
 
         Runnable run = () -> {
-
             displayedTableList.forEach(table -> {
-                String nodeId = createNode(this, (int) (Math.random() * 400), (int) (Math.random() * 400), table);
+                String nodeId = createNode(coordX.get(), coordY.get(), table);
                 if (nodeId != null) { // null means already exists
                     HashMap<String, List<Widget>> pinByCategories = new HashMap<>();
                     table.getColumns().forEach(column -> {
@@ -124,6 +130,10 @@ public class DBGraphScene extends VMDGraphScene {
 
                     VMDNodeWidget nodeWidget = (VMDNodeWidget) findWidget(nodeId);
                     nodeWidget.sortPins(pinByCategories);
+
+                    // update coord for next node added
+                    coordX.addAndGet(100);
+                    coordY.addAndGet(100);
                 }
             });
 
@@ -131,7 +141,7 @@ public class DBGraphScene extends VMDGraphScene {
             displayedTableList.forEach(table -> table.getForeignKeys().values().forEach(fkList -> fkList.forEach(fk -> {
                 String sourcePinId = String.format("%s.%s.%s", fk.fkSchemaName, fk.fkTableName, fk.fkColumnName);
                 String targetPinId = String.format("%s.%s.%s", fk.pkSchemaName, fk.pkTableName, fk.pkColumnName);
-                createEdge(this, sourcePinId, targetPinId);
+                createEdge(sourcePinId, targetPinId);
             })));
 
             revalidate();
@@ -142,24 +152,24 @@ public class DBGraphScene extends VMDGraphScene {
         SwingUtilities.invokeLater(run);
     }
 
-    private String createNode(VMDGraphScene scene, int x, int y, SQLObject sqlObject) {
+    private String createNode(int x, int y, SQLObject sqlObject) {
         String nodeId = String.format("%s.%s", sqlObject.schemaName, sqlObject.name);
 
-        if (scene.getNodes().contains(nodeId)) {
+        if (this.getNodes().contains(nodeId)) {
             LOGGER.warning(String.format("Scene already contains %s", nodeId));
             return null;
         }
 
-        VMDNodeWidget widget = (VMDNodeWidget) scene.addNode(nodeId);
+        // see attachNodeWidget override in this class
+        nodeColors.put(nodeId, sqlObject.color);
+
+        VMDNodeWidget widget = (VMDNodeWidget) this.addNode(nodeId);
         widget.setPreferredLocation(new Point(x, y));
 
-        Image image = null;
-        switch (sqlObject.type) {
-            case TABLE:
-            case VIEW:
-                image = iconTable == null ? null : iconTable.getImage();
-                break;
-        }
+        Image image = switch (sqlObject.type) {
+            case TABLE, VIEW -> iconTable == null ? null : iconTable.getImage();
+            default -> null;
+        };
 
         // TODO change the background color for a view
 
@@ -168,28 +178,28 @@ public class DBGraphScene extends VMDGraphScene {
         return nodeId;
     }
 
-    private void createEdge(VMDGraphScene scene, String sourcePinID, String targetPinID) {
+    private void createEdge(String sourcePinID, String targetPinID) {
         String edgeIDStr = String.format("%s<->%s", sourcePinID, targetPinID);
 
-        if (scene.getEdges().contains(edgeIDStr)) {
+        if (this.getEdges().contains(edgeIDStr)) {
             LOGGER.warning(String.format("This edge already exists %s", edgeIDStr));
-            scene.removeEdge(edgeIDStr);
+            this.removeEdge(edgeIDStr);
         }
 
-        if (!scene.getPins().contains(sourcePinID)) {
+        if (!this.getPins().contains(sourcePinID)) {
             LOGGER.warning(String.format("Source pin is not found: %s", sourcePinID));
             return;
         }
 
-        if (!scene.getPins().contains(targetPinID)) {
+        if (!this.getPins().contains(targetPinID)) {
             LOGGER.warning(String.format("Target pin is not found: %s", targetPinID));
             return;
         }
 
         LOGGER.info(String.format("Creating edge: %s", edgeIDStr));
-        scene.addEdge(edgeIDStr);
-        scene.setEdgeSource(edgeIDStr, sourcePinID);
-        scene.setEdgeTarget(edgeIDStr, targetPinID);
+        this.addEdge(edgeIDStr);
+        this.setEdgeSource(edgeIDStr, sourcePinID);
+        this.setEdgeTarget(edgeIDStr, targetPinID);
     }
 
     public void zoomMinus() {
@@ -204,6 +214,29 @@ public class DBGraphScene extends VMDGraphScene {
 
     public void zoomOriginal() {
         this.setZoomFactor(1.0d);
+    }
+
+    @Override
+    protected Widget attachNodeWidget(String node) {
+        LOGGER.info("Attaching node: " + node);
+
+        String colorCode = nodeColors.get(node);
+        VMDColorScheme colorScheme = colorCode == null ? VMDFactory.getOriginalScheme() : new DbColorScheme(colorCode);
+        return this.attachNodeWidget(node, colorScheme);
+    }
+
+    protected Widget attachNodeWidget (String node, VMDColorScheme scheme) {
+        VMDNodeWidget widget = new VMDNodeWidget (this, scheme);
+
+        // mainLayer is 2nd child in this scene
+        Widget mainLayer = getChildren().get(1);
+        mainLayer.addChild (widget);
+
+        widget.getHeader ().getActions ().addAction (createObjectHoverAction ());
+        widget.getActions ().addAction (createSelectAction ());
+        widget.getActions ().addAction (ActionFactory.createMoveAction());
+
+        return widget;
     }
 }
 

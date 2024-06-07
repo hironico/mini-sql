@@ -80,6 +80,13 @@ public class VisualDbPanel extends javax.swing.JPanel {
         SQLObjectMoveHandler.createFor(this, graphScene);
     }
 
+    /**
+     * Add SQL objects to the DBGraphScene. We filter each object by SQLObjectTypeEnum to call
+     * the adequate method for adding thing to DBGraphScene. It allows to filter out not yet supported
+     * object types while keepoing the api simple and consistent
+     * @param sqlObjects a list of SQLObject to add
+     * @param dbConfig the config where the sql objects are coming from. Used to load meta data before displaying.
+     */
     public void addSQLObjects(List<SQLObject> sqlObjects, DbConfig dbConfig) {
         List<SQLTable> tables = sqlObjects.stream()
                 .filter(o -> o.type == SQLObjectTypeEnum.TABLE)
@@ -93,7 +100,6 @@ public class VisualDbPanel extends javax.swing.JPanel {
         SQLTableLoaderThread loaderThread = new SQLTableLoaderThread(tables, dbConfig);
         Future<List<SQLTable>> fut = MainWindow.executorService.submit(loaderThread);
         try {
-            graphScene.cleanUpScene();
             graphScene.createScene(fut.get());
             graphScene.revalidate();
             graphScene.validate();
