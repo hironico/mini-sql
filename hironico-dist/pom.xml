@@ -4,11 +4,11 @@
     <parent>
         <groupId>net.hironico</groupId>
         <artifactId>parent</artifactId>
-        <version>2.27.1</version>
+        <version>2.27.2</version>
     </parent>
 
     <artifactId>hironico-minisql-dist</artifactId>
-    <version>2.27.1</version>
+    <version>2.27.2</version>
 
     <packaging>jar</packaging>
 
