@@ -9,8 +9,7 @@ import javax.swing.SwingUtilities;
 /**
  *  The ComponentResizer allows you to resize a component by dragging a border
  *  of the component.
- *  Source :
- *  http://www.camick.com/java/source/ComponentResizer.java
+ *  Source : http://www.camick.com/java/source/ComponentResizer.java
  */
 public class ComponentResizer extends MouseAdapter
 {
@@ -170,9 +169,8 @@ public class ComponentResizer extends MouseAdapter
     }
 
     /**
-     *  Remove listeners from the specified component
-     *
-     *  @param component  the component the listeners are removed from
+     *  Remove listeners from the specified components
+     *  @param components the components to remove the listener from
      */
     public void deregisterComponent(Component... components)
     {
@@ -184,9 +182,8 @@ public class ComponentResizer extends MouseAdapter
     }
 
     /**
-     *  Add the required listeners to the specified component
-     *
-     *  @param component  the component the listeners are added to
+     *  Add the required listeners to the specified components
+     * @param components the components to remove the listener from
      */
     public void registerComponent(Component... components)
     {

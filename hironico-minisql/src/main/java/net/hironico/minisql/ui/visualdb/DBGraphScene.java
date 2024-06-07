@@ -58,7 +58,7 @@ public class DBGraphScene extends VMDGraphScene {
     /**
      * Fournit un accès en lecture à la liste des tables qui sont actuellement
      * en cours d'édition dans cette scène.
-     * @return List<SQLTable> liste des tables affichées.
+     * @return liste des tables affichées.
      * @since 2.1.0
      */
     public List<SQLTable> getDisplayedTableList() {

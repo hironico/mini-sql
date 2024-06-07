@@ -53,7 +53,7 @@ public class DbUtils {
      * @param dbConfig the config to connect to
      * @param sql the common to get result from
      * @param propSeparator used to split properties (aka key value pairs)
-     * @param,kvSeparator used to split key and value for each property
+     * @param kvSeparator used to split key and value for each property
      * @return list of mapped properties to a column
      * @throws Exception in case of any problem
      */

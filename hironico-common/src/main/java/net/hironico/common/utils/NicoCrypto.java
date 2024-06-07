@@ -36,7 +36,7 @@ public class NicoCrypto {
     }
 
     /**
-     * Loads a text file with Base&ç key data then returns a SecretKey object initialized withi this key.
+     * Loads a text file with Base key data then returns a SecretKey object initialized with this key.
      */
     public static SecretKey load(File keyFile) throws Exception {
         if (keyFile == null || !keyFile.exists()) {

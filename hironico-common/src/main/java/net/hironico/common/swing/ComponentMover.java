@@ -10,18 +10,15 @@ import javax.swing.SwingUtilities;
  *  moved can be a high level Window (ie. Window, Frame, Dialog) in which case
  *  the Window is moved within the desktop. Or the Component can belong to a
  *  Container in which case the Component is moved within the Container.
- *
  *  When moving a Window, the listener can be added to a child Component of
  *  the Window. In this case attempting to move the child will result in the
  *  Window moving. For example, you might create a custom "Title Bar" for an
  *  undecorated Window and moving of the Window is accomplished by moving the
  *  title bar only. Multiple components can be registered as "window movers".
- *
  *  Components can be registered when the class is created. Additional
  *  components can be added at any time using the registerComponent() method.
- *
  *  Source:
- *  http://www.camick.com/java/source/ComponentMover.java
+ *  <a href="http://www.camick.com/java/source/ComponentMover.java">...</a>
  */
 public class ComponentMover extends MouseAdapter
 {
@@ -58,7 +55,7 @@ public class ComponentMover extends MouseAdapter
      *  will be passed to the first ancestor of this specified class.
      *
      *  @param destinationClass  the Class of the ancestor component
-     *  @param component         the Components to be registered for forwarding
+     *  @param components         the Components to be registered for forwarding
      *                           drag events to the ancestor Component.
      */
     public ComponentMover(Class destinationClass, Component... components)
@@ -171,7 +168,7 @@ public class ComponentMover extends MouseAdapter
     /**
      *  Remove listeners from the specified component
      *
-     *  @param component  the component the listeners are removed from
+     *  @param components  the component the listeners are removed from
      */
     public void deregisterComponent(Component... components)
     {
@@ -182,7 +179,7 @@ public class ComponentMover extends MouseAdapter
     /**
      *  Add the required listeners to the specified component
      *
-     *  @param component  the component the listeners are added to
+     *  @param components  the component the listeners are added to
      */
     public void registerComponent(Component... components)
     {
