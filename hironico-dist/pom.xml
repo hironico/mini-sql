@@ -10,6 +10,8 @@
     <artifactId>hironico-minisql-dist</artifactId>
     <version>2.27.2</version>
 
+    <name>hironico.net distribution builder</name>
+
     <packaging>jar</packaging>
 
     <build>
