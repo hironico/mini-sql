@@ -28,6 +28,8 @@ public class DbConfigFile {
 
     protected static List<DbConfig> all = new ArrayList<>();
 
+    protected static Boolean decoratedWindow = Boolean.FALSE;
+
     public interface DbConfigFileListener {
         void configAdded(DbConfig config);
         void configRemoved(DbConfig config);
@@ -35,7 +37,13 @@ public class DbConfigFile {
 
     private static final List<DbConfigFileListener> listeners = new ArrayList<>();
 
+    private static final DbConfigFile instance = new DbConfigFile();
+
     private DbConfigFile() {
+    }
+
+    public static DbConfigFile getInstance() {
+        return instance;
     }
 
     public static void addListener(DbConfigFileListener listener) {
@@ -130,6 +138,16 @@ public class DbConfigFile {
     public void setAllConfigs(List<DbConfig> configs) {
         LOGGER.info("Setting db config list: " + configs.size() + " configs.");
         DbConfigFile.all = configs;
+    }
+
+    @JsonProperty("decorated-window")
+    @JacksonXmlProperty(localName = "decorated-window")
+    public Boolean getDecoratedWindow() {
+        return this.decoratedWindow;
+    }
+
+    public void setDecoratedWindow(Boolean decoratedWindow) {
+        this.decoratedWindow = decoratedWindow == null ? Boolean.FALSE : decoratedWindow;
     }
 
     public static File getConfigFile() {

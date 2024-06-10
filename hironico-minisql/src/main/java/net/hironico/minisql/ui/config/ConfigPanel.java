@@ -1,474 +1,111 @@
 package net.hironico.minisql.ui.config;
 
-import java.awt.GridBagLayout;
-import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.sql.Connection;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.jdesktop.swingx.JXTree;
 
 import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import java.awt.*;
 
-import net.hironico.minisql.DbConfigFile;
-import net.hironico.minisql.DbConfig;
-import org.jdesktop.swingx.JXColorSelectionButton;
-import org.jdesktop.swingx.JXLabel;
-
+/**
+ * Panel to display the whole mini sql configuration : ui and connections
+ */
 public class ConfigPanel extends JPanel {
 
-    private static final Logger LOGGER = Logger.getLogger(ConfigPanel.class.getName());
+    private JXTree treeMenu = null;
+    private JScrollPane scrollMenu = null;
 
-    private JToolBar toolbar;
-    private JComboBox<String> cmbConnectionList;
-    private JButton btnNew;
-    private JButton btnSave;
-    private JButton btnDelete;
-    private JButton btnDuplicate;
-    private JLabel lblName;
-    private JTextField txtName;
-    private JLabel lblJdbcUrl;
-    private JTextField txtJdbcUrl;
-    private JLabel lblUser;
-    private JTextField txtUser;
-    private JLabel lblPassword;
-    private JPasswordField txtPassword;
-    private JLabel lblDriverClassName;
-    private JTextField txtDriverClassName;
-    private JLabel lblStatementSeparator;
-    private JTextField txtStatementSeparator;
-    private JButton btnTestConnection = null;
-    private JXLabel txtColor = null;
-    private JXColorSelectionButton colorChooser = null;
+    private CardLayout cardLayout = null;
+    private JPanel mainPanel = null;
+
+    private final String CARD_GENERAL = "General";
+    private final String CARD_CONNECTIONS = "Connections";
+
+    private GeneralConfigPanel generalConfigPanel = null;
+    private DbConfigPanel dbConfigPanel = null;
 
     public ConfigPanel() {
         super();
         initialize();
-        loadAllConfigs();
     }
 
-    protected void loadAllConfigs() {
-        JComboBox<String> cmb = getCmbConnectionList();
-        cmb.removeAllItems();
-        for (String name : DbConfigFile.getConfigNames()) {
-            cmb.addItem(name);
-        }
+    private void initialize() {
+        setLayout(new BorderLayout());
+
+        add(getScrollMenu(), BorderLayout.WEST);
+        add(getMainPanel(), BorderLayout.CENTER);
     }
 
-    protected void clearForm() {
-        getTxtName().setText("");
-        getTxtJdbcUrl().setText("");
-        getTxtUser().setText("");
-        getTxtPassword().setText("");
-        getTxtDriverClassName().setText("");
-        getTxtStatementSeparator().setText("");
-    }
+    private JPanel getMainPanel() {
+        if (this.mainPanel == null) {
+            this.mainPanel = new JPanel();
+            this.cardLayout = new CardLayout(5, 5);
+            this.mainPanel.setLayout(cardLayout);
 
-    protected void loadSelectedConfig(String name) {
-        DbConfig cfg = DbConfigFile.getConfig(name);
-        if (cfg == null) {
-            return;
+            this.mainPanel.add(getGeneralConfigPanel(), CARD_GENERAL);
+            this.mainPanel.add(getDbConfigPanel(), CARD_CONNECTIONS);
         }
 
-        clearForm();
-
-        getTxtName().setText(cfg.name);
-        getTxtJdbcUrl().setText(cfg.jdbcUrl);
-        getTxtUser().setText(cfg.user);
-        getTxtPassword().setText(DbConfig.decryptPassword(cfg.password));
-        getTxtDriverClassName().setText(cfg.driverClassName);
-        getTxtStatementSeparator().setText(cfg.batchStatementSeparator);
-        Color conColor = cfg.color == null ? Color.BLUE : Color.decode(cfg.color);
-        getColorChooser().getChooser().setColor(conColor);
-        getColorChooser().setBackground(conColor);
+        return this.mainPanel;
     }
 
-    protected void initialize() {
-        setLayout(new GridBagLayout());
-        setBorder(BorderFactory.createEmptyBorder(-2, 5, 5, 5));
-
-        setOpaque(true);
-        // setBackground(new Color(238, 243, 250));
-        setBackground(Color.WHITE);
-
-        GridBagConstraints gc = new GridBagConstraints();
-        gc.gridx = 0;
-        gc.gridy = 0;
-        gc.weightx = 1.0;
-        gc.insets = new Insets(0, 0, 0, 0);
-        gc.fill = GridBagConstraints.HORIZONTAL;
-
-        add(getToolbar(), gc);
-
-        gc.gridy = 1;
-        gc.insets.top = 5;
-        add(getLblName(), gc);
-
-        gc.gridy = 2;
-        gc.insets.top = 0;
-        add(getTxtName(), gc);
-
-        gc.gridy = 3;
-        gc.insets.top = 5;
-        add(getLblJdbcUrl(), gc);
-
-        gc.gridy = 4;
-        gc.insets.top = 0;
-        add(getTxtJdbcUrl(), gc);
-
-        gc.gridy = 5;
-        gc.insets.top = 5;
-        add(getLblUser(), gc);
-
-        gc.gridy = 6;
-        gc.insets.top = 0;
-        add(getTxtUser(), gc);
-
-        gc.gridy = 7;
-        gc.insets.top = 5;
-        add(getLblPassword(), gc);
-
-        gc.gridy = 8;
-        gc.insets.top = 0;
-        add(getTxtPassword(), gc);
-
-        gc.gridy = 9;
-        gc.insets.top = 5;
-        add(getLblDriverClassName(), gc);
-
-        gc.gridy = 10;
-        gc.insets.top = 0;
-        add(getTxtDriverClassName(), gc);
-
-        gc.gridy = 11;
-        gc.insets.top = 5;
-        add(getLblStatementSeparator(), gc);
-
-        gc.gridy = 12;
-        gc.insets.top = 5;
-        add(getTxtStatementSeparator(), gc);
-
-        gc.gridy = 13;
-        gc.insets.top = 5;
-        add(getTxtColor(), gc);
-
-        gc.gridy = 14;
-        gc.anchor = GridBagConstraints.NORTH;
-        gc.weighty = 1.0;
-        gc.insets.top = 0;
-        add(getColorChooser(), gc);
-    }
-
-    protected JToolBar getToolbar() {
-        if (toolbar == null) {
-            toolbar = new JToolBar();
-
-            toolbar.add(getBtnNew());
-            toolbar.add(getBtnDuplicate());
-            toolbar.add(getCmbConnectionList());
-            toolbar.add(getBtnSave());
-            toolbar.addSeparator();
-            toolbar.add(getBtnTestConnection());
-            toolbar.addSeparator();
-            toolbar.add(getBtnDelete());
+    private JScrollPane getScrollMenu() {
+        if (scrollMenu == null) {
+            scrollMenu = new JScrollPane(getTreeMenu());
         }
 
-        return toolbar;
+        return scrollMenu;
     }
 
-    protected JButton getBtnTestConnection() {
-        if (btnTestConnection == null) {
-            btnTestConnection = new JButton();
-            btnTestConnection.setText("Test");
-            btnTestConnection.addActionListener(new ActionListener() {
+    private JXTree getTreeMenu() {
+        if (treeMenu == null) {
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode();
+            DefaultMutableTreeNode general = new DefaultMutableTreeNode("General");
+            DefaultMutableTreeNode connections = new DefaultMutableTreeNode("Connections");
 
+            root.add(general);
+            root.add(connections);
+
+            treeMenu = new JXTree(root);
+            treeMenu.setRootVisible(false);
+            treeMenu.getSelectionModel().setSelectionPath(new TreePath(general.getPath()));
+            treeMenu.addTreeSelectionListener(new TreeSelectionListener() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    DbConfig cfg = ConfigPanel.this.saveDbConfig();
-                    try (Connection con = cfg.getConnection()) {
-                        JOptionPane.showMessageDialog(ConfigPanel.this, "It works !", "Yeah...",
-                                JOptionPane.INFORMATION_MESSAGE);
-                    } catch (Exception ex) {
-                        LOGGER.log(Level.SEVERE, "PRoblem while testing connection.", ex);
-                        JOptionPane.showMessageDialog(ConfigPanel.this,
-                                "Problem while testing connection.\n" + ex.getMessage(), "Error...",
-                                JOptionPane.ERROR_MESSAGE);
+                public void valueChanged(TreeSelectionEvent e) {
+                    TreePath tp = getTreeMenu().getSelectionPath();
+                    if (tp == null) {
+                        return;
                     }
+
+                    if (cardLayout == null) {
+                        return;
+                    }
+
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                    String cardName = (String)node.getUserObject();
+                    cardLayout.show(getMainPanel(), cardName);
                 }
             });
         }
 
-        return btnTestConnection;
+        return treeMenu;
     }
 
-    protected JButton getBtnNew() {
-        if (btnNew == null) {
-            btnNew = new JButton("New");
-            btnNew.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String name = JOptionPane.showInputDialog(ConfigPanel.this, "Please enter new configuration name:");
-                    if (name == null) {
-                        return;
-                    }
-
-                    DbConfig cfg = DbConfigFile.getConfig(name);
-
-                    if (cfg != null) {
-                        cmbConnectionList.setSelectedItem(name);
-                        return;
-                    }
-
-                    DbConfigFile.addConfig(name);
-                    ConfigPanel.this.loadAllConfigs();
-                }
-            });
+    private GeneralConfigPanel getGeneralConfigPanel() {
+        if (generalConfigPanel == null) {
+            generalConfigPanel = new GeneralConfigPanel();
         }
 
-        return btnNew;
+        return generalConfigPanel;
     }
 
-    private DbConfig saveDbConfig() {
-        String name = getTxtName().getText();
-        DbConfig cfg = DbConfigFile.getConfig(name);
-        if (cfg == null) {
-            JOptionPane.showMessageDialog(ConfigPanel.this,
-                    "Error: This config name is unknown. This should not have happened: " + name, "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return null;
+    private DbConfigPanel getDbConfigPanel() {
+        if (dbConfigPanel == null) {
+            dbConfigPanel = new DbConfigPanel();
         }
 
-        cfg.jdbcUrl = getTxtJdbcUrl().getText();
-        cfg.user = getTxtUser().getText();
-        cfg.password = DbConfig.encryptPassword(String.copyValueOf(getTxtPassword().getPassword()));
-        cfg.driverClassName = getTxtDriverClassName().getText();
-        cfg.batchStatementSeparator = getTxtStatementSeparator().getText();
-        Color bg = getColorChooser().getBackground();
-        cfg.color = String.format("#%02x%02x%02x", bg.getRed(), bg.getGreen(), bg.getBlue());
-
-        return cfg;
-    }
-
-    protected JButton getBtnSave() {
-        if (btnSave == null) {
-            btnSave = new JButton("Save");
-
-            btnSave.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    saveDbConfig();
-                }
-            });
-        }
-
-        return btnSave;
-    }
-
-    protected JButton getBtnDelete() {
-        if (btnDelete == null) {
-            btnDelete = new JButton("Delete");
-
-            btnDelete.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String name = getTxtName().getText();
-                    DbConfig cfg = DbConfigFile.getConfig(name);
-                    if (cfg == null) {
-                        JOptionPane.showMessageDialog(ConfigPanel.this,
-                                "Error: This config name is unknown. This should not have happened: " + name, "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    int resp = JOptionPane.showConfirmDialog(ConfigPanel.this,
-                            "Delete this configuration ?\nThis operation cannot be undone.", "Warning",
-                            JOptionPane.YES_NO_OPTION);
-                    if (resp != JOptionPane.YES_OPTION) {
-                        return;
-                    }
-
-                    DbConfigFile.removeConfig(name);
-
-                    ConfigPanel.this.loadAllConfigs();
-                }
-            });
-        }
-
-        return btnDelete;
-    }
-
-    protected JButton getBtnDuplicate() {
-        if (btnDuplicate == null) {
-            btnDuplicate = new JButton("Duplicate");
-
-            btnDuplicate.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    String sourceConfig = (String) getCmbConnectionList().getSelectedItem();
-                    if (sourceConfig == null) {
-                        return;
-                    }
-
-                    String name = JOptionPane.showInputDialog(ConfigPanel.this, "Please enter new configuration name:");
-                    if (name == null) {
-                        return;
-                    }
-
-                    DbConfig cfg = DbConfigFile.getConfig(name);
-
-                    if (cfg != null) {
-                        cmbConnectionList.setSelectedItem(name);
-                        return;
-                    }
-
-                    cfg = DbConfigFile.duplicate(sourceConfig, name);
-                    ConfigPanel.this.loadAllConfigs();
-                    getCmbConnectionList().setSelectedItem(name);
-                }
-            });
-        }
-
-        return btnDuplicate;
-    }
-
-    protected JComboBox<String> getCmbConnectionList() {
-        if (cmbConnectionList == null) {
-            cmbConnectionList = new JComboBox<String>();
-
-            cmbConnectionList.addItemListener(new ItemListener() {
-
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    if (e.getStateChange() == ItemEvent.SELECTED) {
-                        loadSelectedConfig((String) e.getItem());
-                    }
-                }
-            });
-        }
-
-        return cmbConnectionList;
-    }
-
-    protected JLabel getLblName() {
-        if (lblName == null) {
-            lblName = new JLabel("Connection name:");
-        }
-
-        return lblName;
-    }
-
-    protected JTextField getTxtName() {
-        if (txtName == null) {
-            txtName = new JTextField();
-            txtName.setEditable(false);
-        }
-
-        return txtName;
-    }
-
-    protected JLabel getLblJdbcUrl() {
-        if (lblJdbcUrl == null) {
-            lblJdbcUrl = new JLabel("JDBC URL:");
-        }
-
-        return lblJdbcUrl;
-    }
-
-    protected JTextField getTxtJdbcUrl() {
-        if (txtJdbcUrl == null) {
-            txtJdbcUrl = new JTextField();
-        }
-
-        return txtJdbcUrl;
-    }
-
-    protected JLabel getLblUser() {
-        if (lblUser == null) {
-            lblUser = new JLabel("User name:");
-        }
-
-        return lblUser;
-    }
-
-    protected JTextField getTxtUser() {
-        if (txtUser == null) {
-            txtUser = new JTextField();
-        }
-
-        return txtUser;
-    }
-
-    protected JLabel getLblPassword() {
-        if (lblPassword == null) {
-            lblPassword = new JLabel("Password:");
-        }
-
-        return lblPassword;
-    }
-
-    protected JPasswordField getTxtPassword() {
-        if (txtPassword == null) {
-            txtPassword = new JPasswordField();
-        }
-
-        return txtPassword;
-    }
-
-    protected JLabel getLblDriverClassName() {
-        if (lblDriverClassName == null) {
-            lblDriverClassName = new JLabel();
-            lblDriverClassName.setText("Driver class name:");
-        }
-
-        return lblDriverClassName;
-    }
-
-    protected JTextField getTxtDriverClassName() {
-        if (txtDriverClassName == null) {
-            txtDriverClassName = new JTextField();
-        }
-
-        return txtDriverClassName;
-    }
-
-    protected JLabel getLblStatementSeparator() {
-        if (lblStatementSeparator == null) {
-            lblStatementSeparator = new JLabel("SQL statement separator (for batch mode only):");
-        }
-
-        return lblStatementSeparator;
-    }
-
-    protected JTextField getTxtStatementSeparator() {
-        if (txtStatementSeparator == null) {
-            txtStatementSeparator = new JTextField();
-            txtStatementSeparator.setToolTipText("Separator used to segregate statements to be executed one by one in a batch. Only valid for batch execution mode.");
-        }
-
-        return txtStatementSeparator;
-    }
-
-    protected JXLabel getTxtColor() {
-        if (txtColor == null) {
-            txtColor = new JXLabel("Connection color:");
-        }
-        return txtColor;
-    }
-
-    protected JXColorSelectionButton getColorChooser() {
-        if (this.colorChooser == null) {
-            this.colorChooser = new JXColorSelectionButton();
-            this.colorChooser.setText("Connection color");
-        }
-
-        return colorChooser;
+        return dbConfigPanel;
     }
 }

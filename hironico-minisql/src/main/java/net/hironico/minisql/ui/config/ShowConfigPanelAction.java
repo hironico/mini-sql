@@ -7,8 +7,6 @@ import net.hironico.common.swing.ribbon.AbstractRibbonAction;
 
 public class ShowConfigPanelAction extends AbstractRibbonAction {
 
-    private static final long serialVersionUID = 2881804828604120909L;
-
     public static final String NAME = "Config";
 
     public ShowConfigPanelAction() {
