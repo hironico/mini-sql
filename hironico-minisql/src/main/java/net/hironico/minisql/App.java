@@ -94,12 +94,13 @@ public class App {
     private static void startGui() {
         SwingUtilities.invokeLater(() -> {
             try {
+                // now try to setup the LnF
                 UIManager.setLookAndFeel(new FlatLightLaf());
 
                 if( SystemInfo.isLinux ) {
                     // enable custom window decorations
-                    JFrame.setDefaultLookAndFeelDecorated( true );
-                    JDialog.setDefaultLookAndFeelDecorated( true );
+                    JFrame.setDefaultLookAndFeelDecorated( false );
+                    JDialog.setDefaultLookAndFeelDecorated( false );
                 }
 
                 if( SystemInfo.isMacOS ) {

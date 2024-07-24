@@ -1,5 +1,7 @@
 package net.hironico.minisql.ui.history;
 
+import com.formdev.flatlaf.util.SystemInfo;
+import com.formdev.flatlaf.util.UIScale;
 import net.hironico.minisql.ui.CopyAllAction;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.QueryPanel;
@@ -198,8 +200,6 @@ public class QueryHistoryPanel extends JPanel {
                     return;
                 }
 
-
-
                 QueryHistoryEntry entry = getSelectedQueryHistoryEntry();
                 getTxtPreview().setText(entry == null ? "" : entry.query);
                 getLblInfos().setText(entry == null ? "" : localeDateFormat.format(new Date(entry.timestamp)));
@@ -246,7 +246,8 @@ public class QueryHistoryPanel extends JPanel {
             CopyAllAction action = new CopyAllAction(getTxtPreview());
             btnCopy = new JButton(action);
             btnCopy.setToolTipText("Copy to clipboard");
-            btnCopy.setPreferredSize(new Dimension(24,24));
+            int scaledSize = UIScale.scale(32);
+            btnCopy.setPreferredSize(new Dimension(scaledSize,scaledSize));
             btnCopy.setText("");
             btnCopy.setIcon(action.getSmallIcon());
         }
@@ -268,6 +269,18 @@ public class QueryHistoryPanel extends JPanel {
             txtPreview = new RSyntaxTextArea();
             txtPreview.setEditable(false);
             txtPreview.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_SQL);
+
+            // fix the scaled font size for HiDPI screens depending on the OS
+            float fontSize = 11f; // windows
+            if (SystemInfo.isLinux) {
+                fontSize = SystemInfo.isKDE ? 13f : 15f;
+            }
+            if (SystemInfo.isMacOS) {
+                fontSize = 13f;
+            }
+            float fontScaledSize = UIScale.scale(fontSize);
+            Font scaledFont = txtPreview.getFont().deriveFont(fontScaledSize);
+            txtPreview.setFont(scaledFont);
         }
 
         return txtPreview;

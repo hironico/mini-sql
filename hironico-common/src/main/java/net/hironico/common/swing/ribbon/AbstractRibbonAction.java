@@ -1,5 +1,6 @@
 package net.hironico.common.swing.ribbon;
 
+import com.formdev.flatlaf.util.UIScale;
 import net.hironico.common.swing.image.ImageIconUtils;
 
 import javax.swing.AbstractAction;
@@ -19,8 +20,10 @@ public abstract class AbstractRibbonAction extends AbstractAction {
             String fullIconName = String.format("%s%s", BASE_ICON_PATH, iconName);
             ImageIcon icon = ImageIconUtils.createImageIcon(fullIconName, "");
             if (icon != null) {
-                putValue(AbstractAction.LARGE_ICON_KEY, ImageIconUtils.getScaledImage(icon, 32, 32));
-                putValue(AbstractAction.SMALL_ICON, ImageIconUtils.getScaledImage(icon, 16, 16));
+                int scaledLargeIconSize = UIScale.scale(32);
+                int scaledSmallIconSize = UIScale.scale(16);
+                putValue(AbstractAction.LARGE_ICON_KEY, ImageIconUtils.getScaledImage(icon, scaledLargeIconSize, scaledLargeIconSize));
+                putValue(AbstractAction.SMALL_ICON, ImageIconUtils.getScaledImage(icon, scaledSmallIconSize, scaledSmallIconSize));
             }
         }
     }

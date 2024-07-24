@@ -1,5 +1,7 @@
 package net.hironico.minisql.ui.editor;
 
+import com.formdev.flatlaf.util.SystemInfo;
+import com.formdev.flatlaf.util.UIScale;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.model.SQLResultSetTableModel;
@@ -357,6 +359,18 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
                     MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Editor");
                 }
             });
+
+            // fix the scaled font size for HiDPI screens depending on the OS
+            float fontSize = 11f; // windows
+            if (SystemInfo.isLinux) {
+                fontSize = SystemInfo.isKDE ? 13f : 15f;
+            }
+            if (SystemInfo.isMacOS) {
+                fontSize = 13f;
+            }
+            float fontScaledSize = UIScale.scale(fontSize);
+            Font scaledFont = txtQuery.getFont().deriveFont(fontScaledSize);
+            txtQuery.setFont(scaledFont);
         }
 
         return txtQuery;

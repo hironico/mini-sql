@@ -2,6 +2,7 @@ package net.hironico.common.swing.ribbon;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
+import com.formdev.flatlaf.util.UIScale;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -12,13 +13,9 @@ import javax.swing.border.Border;
 @SuppressWarnings("restriction")
 public class Ribbon extends JTabbedPane {
 
-    private static final long serialVersionUID = 1L;
-
     private AbstractRibbonAction exitAction = null;
 
-    public static class RibbonAction extends AbstractRibbonAction {
-
-        private static final long serialVersionUID = 1L;
+    private static class RibbonAction extends AbstractRibbonAction {
 
         public RibbonAction(String title) {
             super(title);
@@ -33,8 +30,9 @@ public class Ribbon extends JTabbedPane {
 
     public Ribbon() {
         super();
-        setMaximumSize(new Dimension(4096, 148));
-        setPreferredSize(new Dimension(1024, 148));
+        int scaledHeight = UIScale.scale(148);
+        setMaximumSize(new Dimension(4096, scaledHeight));
+        setPreferredSize(new Dimension(1024, scaledHeight));
         this.putClientProperty(FlatClientProperties.TABBED_PANE_SHOW_CONTENT_SEPARATOR, false);
     }
 
