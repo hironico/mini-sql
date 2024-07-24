@@ -9,8 +9,6 @@ import javax.swing.*;
 
 public class RibbonGroup extends JPanel {
 
-    private static final long serialVersionUID = 1L;
-
     private static final Logger LOGGER = Logger.getLogger(RibbonGroup.class.getName());
 
     protected String title;
