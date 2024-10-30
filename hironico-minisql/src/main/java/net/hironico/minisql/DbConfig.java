@@ -13,6 +13,8 @@ import javax.crypto.SecretKey;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -61,6 +63,10 @@ public class DbConfig implements Cloneable {
     @JacksonXmlProperty(localName = "color", isAttribute = true)
     public String color;
 
+    @JsonProperty("useQuotedIdentifiers")
+    @JacksonXmlProperty(localName = "useQuotedIdentifiers", isAttribute = true)
+    public Boolean useQuotedIdentifiers = Boolean.FALSE;
+
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
@@ -70,35 +76,36 @@ public class DbConfig implements Cloneable {
      * @return true if can open a new connection with the current parameters.
      */
     public boolean test() {
-        try (Connection con = getConnection()) {
+        try {
+            Connection _con = getConnection();
+            _con.close();
             return true;
         } catch (Throwable t) {
             return false;
         }
     }
-    public Connection getConnection() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException {
+    public Connection getConnection() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         LOGGER.finest("Get connection: Loading driver class: " + this.driverClassName);
-        Class.forName(this.driverClassName).newInstance();
+        Class.forName(this.driverClassName).getConstructor().newInstance();
         Properties props = new Properties();
         props.put("user", this.user);
         props.put("password", DbConfig.decryptPassword(this.password));
 
         if (this.jdbcUrl.contains("oracle")) {
-            props = addOracleProperties(props);
+            addOracleProperties(props);
         }
 
         return DriverManager.getConnection(this.jdbcUrl, props);
     }
 
-    private Properties addOracleProperties(Properties props) {
-        props.put("v$session.osuser", System.getProperty("user.name").toString());
+    private void addOracleProperties(Properties props) {
+        props.put("v$session.osuser", System.getProperty("user.name"));
         try {
             props.put("v$session.machine", InetAddress.getLocalHost().getCanonicalHostName());
         } catch (Exception ex) {
             // nop
         }
         props.put("v$session.program", "Hironico MiniSQL");
-        return props;
     }
 
     public static String encryptPassword(String clearPassword) {

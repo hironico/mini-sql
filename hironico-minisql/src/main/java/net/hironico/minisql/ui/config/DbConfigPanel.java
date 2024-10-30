@@ -47,6 +47,7 @@ public class DbConfigPanel extends JPanel {
     private JButton btnTestConnection = null;
     private JXLabel txtColor = null;
     private JXColorSelectionButton colorChooser = null;
+    private JCheckBox chkUsequotedIdentifiers = null;
 
     public DbConfigPanel() {
         super();
@@ -69,6 +70,7 @@ public class DbConfigPanel extends JPanel {
         getTxtPassword().setText("");
         getTxtDriverClassName().setText("");
         getTxtStatementSeparator().setText("");
+        getChkUseQuotedIdentifiers().setSelected(false);
     }
 
     protected void loadSelectedConfig(String name) {
@@ -88,6 +90,7 @@ public class DbConfigPanel extends JPanel {
         Color conColor = cfg.color == null ? Color.BLUE : Color.decode(cfg.color);
         getColorChooser().getChooser().setColor(conColor);
         getColorChooser().setBackground(conColor);
+        getChkUseQuotedIdentifiers().setSelected(cfg.useQuotedIdentifiers);
     }
 
     protected void initialize() {
@@ -160,10 +163,14 @@ public class DbConfigPanel extends JPanel {
         add(getTxtColor(), gc);
 
         gc.gridy = 14;
+        gc.insets.top = 5;
+        add(getColorChooser(), gc);
+
+        gc.gridy = 15;
         gc.anchor = GridBagConstraints.NORTH;
         gc.weighty = 1.0;
         gc.insets.top = 0;
-        add(getColorChooser(), gc);
+        add(getChkUseQuotedIdentifiers(), gc);
     }
 
     protected JToolBar getToolbar() {
@@ -192,11 +199,14 @@ public class DbConfigPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     DbConfig cfg = DbConfigPanel.this.saveDbConfig();
-                    try (Connection con = cfg.getConnection()) {
-                        JOptionPane.showMessageDialog(DbConfigPanel.this, "It works !", "Yeah...",
-                                JOptionPane.INFORMATION_MESSAGE);
+                    try {
+                        assert cfg != null;
+                        try (Connection con = cfg.getConnection()) {
+                            JOptionPane.showMessageDialog(DbConfigPanel.this, "It works !", "Yeah...",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        }
                     } catch (Exception ex) {
-                        LOGGER.log(Level.SEVERE, "PRoblem while testing connection.", ex);
+                        LOGGER.log(Level.SEVERE, "Problem while testing connection.", ex);
                         JOptionPane.showMessageDialog(DbConfigPanel.this,
                                 "Problem while testing connection.\n" + ex.getMessage(), "Error...",
                                 JOptionPane.ERROR_MESSAGE);
@@ -253,6 +263,7 @@ public class DbConfigPanel extends JPanel {
         cfg.batchStatementSeparator = getTxtStatementSeparator().getText();
         Color bg = getColorChooser().getBackground();
         cfg.color = String.format("#%02x%02x%02x", bg.getRed(), bg.getGreen(), bg.getBlue());
+        cfg.useQuotedIdentifiers = getChkUseQuotedIdentifiers().isSelected();
 
         return cfg;
     }
@@ -473,5 +484,12 @@ public class DbConfigPanel extends JPanel {
         }
 
         return colorChooser;
+    }
+
+    private JCheckBox getChkUseQuotedIdentifiers() {
+        if (chkUsequotedIdentifiers == null) {
+            chkUsequotedIdentifiers = new JCheckBox("Use quoted identfiers");
+        }
+        return chkUsequotedIdentifiers;
     }
 }

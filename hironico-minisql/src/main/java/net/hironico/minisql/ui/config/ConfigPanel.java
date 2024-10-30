@@ -32,7 +32,7 @@ public class ConfigPanel extends JPanel {
     }
 
     private void initialize() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(5, 0));
 
         add(getScrollMenu(), BorderLayout.WEST);
         add(getMainPanel(), BorderLayout.CENTER);
@@ -69,24 +69,22 @@ public class ConfigPanel extends JPanel {
             root.add(connections);
 
             treeMenu = new JXTree(root);
+            treeMenu.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
             treeMenu.setRootVisible(false);
             treeMenu.getSelectionModel().setSelectionPath(new TreePath(general.getPath()));
-            treeMenu.addTreeSelectionListener(new TreeSelectionListener() {
-                @Override
-                public void valueChanged(TreeSelectionEvent e) {
-                    TreePath tp = getTreeMenu().getSelectionPath();
-                    if (tp == null) {
-                        return;
-                    }
-
-                    if (cardLayout == null) {
-                        return;
-                    }
-
-                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent();
-                    String cardName = (String)node.getUserObject();
-                    cardLayout.show(getMainPanel(), cardName);
+            treeMenu.addTreeSelectionListener(e -> {
+                TreePath tp = getTreeMenu().getSelectionPath();
+                if (tp == null) {
+                    return;
                 }
+
+                if (cardLayout == null) {
+                    return;
+                }
+
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent();
+                String cardName = (String)node.getUserObject();
+                cardLayout.show(getMainPanel(), cardName);
             });
         }
 

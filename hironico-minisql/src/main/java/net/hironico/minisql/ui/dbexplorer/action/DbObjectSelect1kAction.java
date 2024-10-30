@@ -13,7 +13,6 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = Logger.getLogger(DbObjectSelect1kAction.class.getName());
 
@@ -25,8 +24,11 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
     public static final String NAME = "1k rows";
 
     private static final String oraSelect = "SELECT * FROM %s.%s WHERE rownum <= 1000";
+    private static final String oraSelectQuoted = "SELECT * FROM \"%s\".\"%s\" WHERE rownum <= 1000";
     private static final String sybSelect = "SELECT top 1000 * FROM %s.%s";
+    private static final String sybSelectQuoted = "SELECT top 1000 * FROM \"%s\".\"%s\"";
     private static final String pgsqlSelect = "SELECT * FROM %s.%s LIMIT 1000";
+    private static final String pgsqlSelectQuoted = "SELECT * FROM \"%s\".\"%s\" LIMIT 1000";
 
     public DbObjectSelect1kAction() {
         super(NAME, "icons8_k_64px.png");
@@ -55,7 +57,7 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
         QueryPanel pnl = showNewQueryPanel();
 
         if (SQLObjectTypeEnum.isTableOrView(obj.type)) {
-            String query = this.getSelectQuery(dbVendor);
+            String query = this.getSelectQuery(dbVendor, cfg.useQuotedIdentifiers);
             query = String.format(query, obj.schemaName, obj.name);
             pnl.setQueryText(query);
             pnl.setDividerLocation(0.25d);
@@ -77,23 +79,16 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
 
         return null;
     }
-    private String getSelectQuery(DB_VENDOR dbVendor) {
+    private String getSelectQuery(DB_VENDOR dbVendor, boolean useQuotedIdentifiers) {
         if (dbVendor == null) {
             return null;
         }
 
-        switch (dbVendor) {
-            case ORACLE:
-                return oraSelect;
-
-            case SYBASE:
-                return sybSelect;
-
-            case POSTGRES:
-                return pgsqlSelect;
-
-            default:
-                return null;
-        }
+        return switch (dbVendor) {
+            case ORACLE -> useQuotedIdentifiers ? oraSelectQuoted : oraSelect;
+            case SYBASE -> useQuotedIdentifiers ? sybSelectQuoted : sybSelect;
+            case POSTGRES -> useQuotedIdentifiers ? pgsqlSelectQuoted : pgsqlSelect;
+            default -> null;
+        };
     }
 }
