@@ -10,8 +10,6 @@ import net.hironico.minisql.ui.editor.QueryPanel;
 
 public class ShowQueryPanelAction extends AbstractRibbonAction {
 
-    private static final long serialVersionUID = 1L;
-
     public static final String NAME = "New query";
 
     public ShowQueryPanelAction() {
