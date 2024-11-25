@@ -1,5 +1,6 @@
 package net.hironico.minisql.ctrl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -8,6 +9,8 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.model.SQLObject;
@@ -15,6 +18,8 @@ import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.model.SQLResultSetTableModel;
 
 public class MetadataResultCallable implements Callable<List<SQLResultSetTableModel>> {
+
+    private static final Logger LOGGER = Logger.getLogger(MetadataResultCallable.class.getName());
 
     private final String schemaName;
     private final String objectName;
@@ -102,8 +107,10 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
                 break;
             }
 
-        } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException sqle) {
-            sqle.printStackTrace();
+        } catch (InvocationTargetException | SQLException | ClassNotFoundException | InstantiationException |
+                 IllegalAccessException | NoSuchMethodException sqle) {
+            LOGGER.log(Level.SEVERE, "SAQ Exception occurred while loading driver.", sqle);
+            throw new RuntimeException(sqle);
         }
 
         return result;
