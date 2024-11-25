@@ -89,6 +89,7 @@ public class MainWindow extends JFrame {
          });
 
         setMinimumSize(new Dimension(1024, 768));
+        setPreferredSize(new Dimension(1280, 1024));
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -136,8 +137,12 @@ public class MainWindow extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try {
                 Thread.sleep(50);
-                getSplitMain().setDividerLocation(0.25d);
-                getSplitEditor().setDividerLocation(0.75d);
+
+                Dimension size = MainWindow.getInstance().getSize();
+                getSplitMain().setDividerLocation(size.width / 4);
+
+                size = getSplitMain().getRightComponent().getSize();
+                getSplitEditor().setDividerLocation(size.width * 3 / 4);
             } catch (Exception ex) {
                 //ignored
             }
