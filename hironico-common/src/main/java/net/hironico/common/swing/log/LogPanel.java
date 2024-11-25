@@ -1,5 +1,7 @@
 package net.hironico.common.swing.log;
 
+import com.formdev.flatlaf.util.SystemInfo;
+import com.formdev.flatlaf.util.UIScale;
 import net.hironico.common.swing.SortedComboBoxModel;
 import net.hironico.common.utils.StreamUtils;
 
@@ -7,8 +9,6 @@ import java.awt.*;
 
 import java.util.Arrays;
 import java.util.Optional;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
@@ -23,6 +23,8 @@ import static java.util.logging.Level.*;
  * @see SwingHandler
  */
 public class LogPanel extends JPanel {
+    private static final Logger LOGGER = Logger.getLogger(LogPanel.class.getName());
+
     private JPanel pnlTools = null;
     private JComboBox<String> cmbLogName = null;
     private JButton btnRefresh = null;
@@ -142,18 +144,26 @@ public class LogPanel extends JPanel {
             txtLog.setEditable(false);
 
             try {
-                Font font = new Font("Consolas", Font.PLAIN, 12);
-                txtLog.setFont(font);
+
+                float fontSize = 11f; // windows
+                if (SystemInfo.isLinux) {
+                    fontSize = SystemInfo.isKDE ? 13f : 15f;
+                }
+                if (SystemInfo.isMacOS) {
+                    fontSize = 13f;
+                }
+                float fontScaledSize = UIScale.scale(fontSize);
+                Font font = new Font("Consolas", Font.PLAIN, (int)fontSize);
+                Font scaledFont = font.deriveFont(fontScaledSize);
+                txtLog.setFont(scaledFont);
             } catch (Exception ex) {
-                System.out.println("Cannot set font for Swing Logger !");
-                ex.printStackTrace();
+                LOGGER.severe("Cannot set font for Swing Logger !");
             }
 
             try {
                 LogManager.getLogManager().getLogger("").addHandler(getSwingHandler());
             } catch (Exception ex) {
-                System.out.println("Cannot create LOG handler to swing!");
-                ex.printStackTrace();
+                LOGGER.severe("Cannot create LOG handler to swing!");
             }
         }
 
@@ -165,7 +175,7 @@ public class LogPanel extends JPanel {
             try {
                 swingHandler = new SwingHandler(txtLog, maxRows);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOGGER.log(SEVERE, ex.getMessage(), ex);
             }
         }
 
