@@ -6,7 +6,6 @@ import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ctrl.MetadataResultCallable;
 import net.hironico.minisql.ctrl.QueryResultCallable;
 import net.hironico.minisql.model.SQLObject;
-import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.model.SQLResultSetTableModel;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.QueryPanel;
@@ -25,7 +24,6 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 public class DbObjectStructureAction extends AbstractDbExplorerAction {
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = Logger.getLogger(DbObjectRefreshAction.class.getName());
 
@@ -73,10 +71,32 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
             showSequenceStructure(obj, configToUse);
             break;
 
+        case ENUM:
+            showEnumStructure(obj, configToUse);
+            break;
+
         default:
             LOGGER.warning("Object structure required for non supported SQL object type: " + obj.type);
             break;
         }
+    }
+
+    private Future<List<SQLResultSetTableModel>> executeDialectSpecificQuery(String filename, final SQLObject obj, DbConfig config)
+    throws Exception {
+        String sql = null;
+        try (InputStream is = getClass().getClassLoader().getResourceAsStream(filename)) {
+            if (is == null) {
+                throw new Exception("Cannot open dialect specific query file: " + filename);
+            }
+            sql = new String(is.readAllBytes());
+        }
+
+        sql = sql.replace("?SCHEMA?", String.format("'%s'", obj.schemaName));
+        sql = sql.replace("?NAME?", String.format("'%s'", obj.name));
+        sql = sql.replace("?USER?", String.format("'%s'", config.user));
+
+        QueryResultCallable queryCall = new QueryResultCallable(sql, config);
+        return MainWindow.executorService.submit(queryCall);
     }
 
     private void showTableStructure(final SQLObject obj, DbConfig config) {
@@ -105,31 +125,15 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
         return MainWindow.executorService.submit(queryCall);
     }
 
-    private Future<List<SQLResultSetTableModel>> getFunctionStructurePostgresql(final SQLObject obj, DbConfig config) {
-        String sql = null;
-        try (InputStream is = getClass().getClassLoader().getResourceAsStream("net/hironico/minisql/metadata/postgresql/pg_get_functiondef.sql")) {
-            sql = new String(is.readAllBytes());
-        } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Cannot load the postgresql query for listing functions.", ex);
-            return null;
-        }
-
-        sql = sql.replace("?1", String.format("'%s'", obj.schemaName));
-        sql = sql.replace("?2", String.format("'%s'", obj.name));
-
-        QueryResultCallable queryCall = new QueryResultCallable(sql, config);
-        return MainWindow.executorService.submit(queryCall);
-    }
-
     private void showFunctionStructure(final SQLObject obj, DbConfig config) {
         Thread threadQuery = new Thread( () -> {
             if (config.jdbcUrl.startsWith("jdbc:postgresql")) {
-                Future<List<SQLResultSetTableModel>> futText = this.getFunctionTextPostgresql(obj, config);
-                Future<List<SQLResultSetTableModel>> futStructure = this.getFunctionStructurePostgresql(obj, config);
-
                 List<SQLResultSetTableModel> modelListToDisplay = new ArrayList<>();
+
                 try {
-                    assert futStructure != null;
+                    Future<List<SQLResultSetTableModel>> futText = this.getFunctionTextPostgresql(obj, config);
+                    Future<List<SQLResultSetTableModel>> futStructure = executeDialectSpecificQuery("net/hironico/minisql/metadata/postgresql/pg_get_functiondef.sql", obj, config);
+
                     List<SQLResultSetTableModel> resultStructure = futStructure.get();
                     resultStructure = resultStructure.stream().map(r -> {
                         try {
@@ -139,7 +143,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                         } catch (Exception ex) {
                             return r;
                         }
-                    }).collect(Collectors.toList());
+                    }).toList();
                     modelListToDisplay.addAll(resultStructure);
 
                     List<SQLResultSetTableModel> textList = futText.get();
@@ -148,7 +152,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
                         m.setTitle("SQL text");
                     });
                     modelListToDisplay.addAll(textList);
-                } catch (InterruptedException | ExecutionException ie) {
+                } catch (Exception ie) {
                     LOGGER.log(Level.SEVERE, "Error while getting the procedure text.", ie);
                     modelListToDisplay = Collections.emptyList();
                 }
@@ -278,6 +282,30 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
         Thread threadQuery = new Thread(runDisplayResult);
         threadQuery.start();
+    }
+
+    private void showEnumStructure(final SQLObject obj, final DbConfig config) {
+        if (!config.jdbcUrl.startsWith("jdbc:postgresql")) {
+            JOptionPane.showMessageDialog(MainWindow.getInstance(),
+                    "Enum structure display is not supported for this dataserver.",
+                    "Not supported...",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        Runnable run = () -> {
+            try {
+                Future<List<SQLResultSetTableModel>> fut = executeDialectSpecificQuery("net/hironico/minisql/metadata/postgresql/pg_get_enumdef.sql", obj, config);
+                List<SQLResultSetTableModel> modelList = fut.get();
+                displayResults(modelList, obj);
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(MainWindow.getInstance(),
+                        "Unable to get the Enum structure.\n" + ex.getMessage(),
+                        "Ohoh...",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        };
+
+        Thread runThread = new Thread(run);
+        runThread.start();
     }
 
     private void displayResults(List<SQLResultSetTableModel> modelListToDisplay, SQLObject objectToDisplay) {

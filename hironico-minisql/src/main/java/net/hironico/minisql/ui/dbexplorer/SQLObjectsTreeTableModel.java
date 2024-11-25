@@ -19,6 +19,7 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
     private DefaultMutableTreeTableNode viewsNode;
     private DefaultMutableTreeTableNode procsNode;
     private DefaultMutableTreeTableNode sequencesNode;
+    private DefaultMutableTreeTableNode enumsNode;
 
     private boolean showSystemObjects = Boolean.FALSE;
 
@@ -50,23 +51,19 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
             return userObject;
         }
 
-        if (!(userObject instanceof SQLObject)) {
-            LOGGER.severe("Unknow user object in the tree table of the object explorer: " + userObject.getClass().getName());
+        if (!(userObject instanceof SQLObject sqlObj)) {
+            LOGGER.severe("Unknown user object in the tree table of the object explorer: " + userObject.getClass().getName());
             return null;
         }
 
-        SQLObject sqlObj = (SQLObject)userObject;
-        switch(col) {
-            case 0:
-                return sqlObj.name;
-
-            case 1:
-                return sqlObj.type;
-
-            default:
+        return switch (col) {
+            case 0 -> sqlObj.name;
+            case 1 -> sqlObj.type;
+            default -> {
                 LOGGER.warning("Invalid column for common object tree table model: " + col);
-                return null;
-        }
+                yield null;
+            }
+        };
     }
 
     private void addRootNodes() {
@@ -74,6 +71,7 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         this.addViewsRootNode();
         this.addProcsRootNode();
         this.addSequencesRootNode();
+        this.addEnumsRootNode();
     }
 
     private void addTablesRootNode() {
@@ -100,6 +98,12 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         this.insertNodeInto(sequencesNode, root, 3);
     }
 
+    private void addEnumsRootNode() {
+        DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode)getRoot();
+        enumsNode = new DefaultMutableTreeTableNode("Enums");
+        this.insertNodeInto(enumsNode, root, 3);
+    }
+
     public void clear() {
         this.clear(null);
     }
@@ -121,6 +125,11 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
 
         if (objectFilter == null || objectFilter == SQLObjectTypeEnum.SEQUENCE) {
             List<MutableTreeTableNode> nodes = StreamUtils.stream(this.sequencesNode.children()).collect(Collectors.toList());
+            nodes.forEach(this::removeNodeFromParent);
+        }
+
+        if (objectFilter == null || objectFilter == SQLObjectTypeEnum.ENUM) {
+            List<MutableTreeTableNode> nodes = StreamUtils.stream(this.enumsNode.children()).collect(Collectors.toList());
             nodes.forEach(this::removeNodeFromParent);
         }
     }
@@ -195,8 +204,11 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
                 // tables and materialized views structures
                 break;
 
+            case ENUM:
+                return this.enumsNode;
+
             default:
-                LOGGER.severe("Unsupported object type: " + myObj.type.toString());
+                LOGGER.severe("Unsupported object type: " + myObj.type);
                 break;
         }
 
@@ -212,7 +224,7 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
             obj.type = SQLObjectTypeEnum.valueOfStr(infos[2]);
             return obj;
         } catch (IllegalArgumentException iae) {
-            // silently return null for non supported object type
+            // silently return null for unsupported object type
             return null;
         }
     }

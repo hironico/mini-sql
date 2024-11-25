@@ -228,7 +228,7 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
             this.btnConnectionConfig.setBorderPainted(false);
             this.btnConnectionConfig.setContentAreaFilled(false);
             ShowConfigPanelAction action = new ShowConfigPanelAction();
-            this.btnConnectionConfig.setPreferredSize(new Dimension(16,16));
+            // this.btnConnectionConfig.setPreferredSize(new Dimension(16,16));
             this.btnConnectionConfig.addActionListener(action);
             this.btnConnectionConfig.setIcon(action.getSmallIcon());
         }
