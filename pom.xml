@@ -3,6 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.hironico</groupId>
     <artifactId>parent</artifactId>
+
+    <!-- change version using command/ mvn versions:set -DnewVersion=2.28.0 -->
     <version>2.28.0</version>
 
     <name>${project.groupId}:${project.artifactId}</name>
