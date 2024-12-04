@@ -9,7 +9,7 @@
     <artifactId>hironico-minisql</artifactId>
   <version>2.28.0</version>
 
-    <name>hironico.net minisql tools</name>
+    <name>hironico.net minisql application</name>
 
     <packaging>jar</packaging>
 

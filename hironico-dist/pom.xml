@@ -10,7 +10,7 @@
     <artifactId>hironico-minisql-dist</artifactId>
     <version>2.28.0</version>
 
-    <name>hironico.net mini-sql distributionr</name>
+    <name>hironico.net mini-sql distribution</name>
 
     <description>
         The Hironico Mini SQL tool is packaged with all required dependencies into a single JAR.
