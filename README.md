@@ -7,15 +7,47 @@ Mini SQL aim to be :
 - full of essential functionnalities
 
 # Database support 
-Current supported database management systems are :
+
+Virtually, Mini SQL can connect to any JDBC compliant database server. 
+For your convenience, we included in the distribution three major vendors:
 - Oracle
 - TDS based : Sybase / IQ and MSSQL server
 - Postgres
 
- # About database vendor drivers
- Virtually, Mini SQL can connect to any JDBC compliant database server. 
- However, we included in the distribution only major vendors.
- If you need to include a driver that is not in the provided distribution, clone this project and add the maven dependency for your driver in the 
- root project pom.xml file. Then Build the project using maven so a binary distribution with the newly added driver will be produced.
+If you need to include a driver that is not in the provided distribution, clone this project and add the maven dependency for your driver in the 
+root project pom.xml file. Then Build the project using maven so a binary distribution with the newly added driver will be produced.
  
- On the contrary you may remove the database drivers you do not need in order to lighten the distribution jar.
+On the contrary you may remove the database drivers you do not need in order to lighten the distribution jar.
+
+# Development
+
+## Recommended settings
+The project needs to sign the JARs artifacts before publishing. The maven install goal
+needs a gpg public key named "hironico".
+
+- create or import the hironico pgp key.
+
+``gpg --import your_key.pgp``
+
+- modify the `$HOME/.m2/settings.xml` file to add a profile with `gpg.keyname` property :
+
+````
+<settings>
+  <profiles>
+      <profile>
+          <id>gpg_default</id>
+          <activation>
+              <activeByDefault>true</activeByDefault>
+          </activation>
+          <properties>
+              <gpg.keyname>hironico</gpg.keyname>
+          </properties>
+      </profile>
+  </profiles>
+</settings>
+````
+## Alternative settings
+
+You can use environment variables and then use the provided settings.xml.
+This file is used in CI pipelines to build and publish the distribution. 
+Do not change it please.
