@@ -12,8 +12,8 @@ import oracle.sql.TIMESTAMPTZ;
 
 public class DateTableCellRenderer implements TableCellRenderer {
 
-    private DateTimeFormatter formatter;
-    private TableCellRenderer delegate;
+    private final DateTimeFormatter formatter;
+    private final TableCellRenderer delegate;
 
     public DateTableCellRenderer(TableCellRenderer delegate) {
         this(delegate, "yyyy-MM-dd HH:mm:ss");
@@ -29,6 +29,7 @@ public class DateTableCellRenderer implements TableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
 
+        // oracle SQL TIMESTAMPZ
         if (value instanceof TIMESTAMPTZ) {
             TIMESTAMPTZ tz = (TIMESTAMPTZ)value;
             System.out.println(tz.toString());
