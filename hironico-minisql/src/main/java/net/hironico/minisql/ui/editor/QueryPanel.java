@@ -9,10 +9,7 @@ import net.hironico.minisql.ui.ExecuteQueryAction;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.action.OpenQueryAction;
 import net.hironico.minisql.ui.editor.action.SaveQueryAction;
-import net.hironico.minisql.ui.renderer.ClobTableCellEditor;
-import net.hironico.minisql.ui.renderer.ClobTableCellRenderer;
-import net.hironico.minisql.ui.renderer.DateTableCellRenderer;
-import net.hironico.minisql.ui.renderer.RowHighlightRenderer;
+import net.hironico.minisql.ui.renderer.*;
 import net.hironico.common.swing.JSplitPaneNoDivider;
 import net.hironico.common.swing.table.FilterableTable;
 import net.hironico.common.utils.json.JSONFile;
@@ -559,6 +556,8 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
             Class<?> clazz = modelToDisplay.getColumnClass(index);
             String className = clazz.getName().toUpperCase();
 
+            LOGGER.info("Classname: " + className);
+
             TableCellRenderer rendererDelegate = new RowHighlightRenderer(table.getDefaultRenderer(clazz));
 
             if (className.contains("CLOB")) {
@@ -570,6 +569,9 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
             } else if (className.contains("TIME")) {
                 DateTableCellRenderer dateRenderer = new DateTableCellRenderer(rendererDelegate);
                 table.setDefaultRenderer(clazz, dateRenderer);
+            } else if (className.contains("DECIMAL")) {
+                DecimalTableCellRenderer decimalRenderer = new DecimalTableCellRenderer(rendererDelegate);
+                table.setDefaultRenderer(clazz, decimalRenderer);
             } else {
                 table.setDefaultRenderer(clazz, rendererDelegate);
             }
