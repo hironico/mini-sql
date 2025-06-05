@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.io.FileNotFoundException;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.logging.Level;
@@ -44,10 +45,8 @@ public class App {
 
                 Manifest manifest = new Manifest(resources.nextElement().openStream());
 
-                System.out.println("Manifest found: " + manifest.toString());
-                manifest.getEntries().keySet().forEach(k -> {
-                    System.out.println("> " + k);
-                });
+                LOGGER.fine(String.format("Manifest found: %s", manifest));
+                manifest.getEntries().keySet().forEach(k -> LOGGER.fine(String.format("> %s", k)));
 
                 // check that this is your manifest and do what you need or get the next one
                 Attributes attribs = manifest.getMainAttributes();
@@ -66,15 +65,9 @@ public class App {
         File dir = new File(".");
         LOGGER.info("Startup directory: " + dir.getAbsolutePath());
 
-        FilenameFilter filter = new FilenameFilter() {
+        FilenameFilter filter = (dir1, name) -> name.startsWith("ojdbc") && name.endsWith(".jar");
 
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.startsWith("ojdbc") && name.endsWith(".jar");
-            }
-        };
-
-        for (String name : dir.list(filter)) {
+        for (String name : Objects.requireNonNull(dir.list(filter))) {
             File jarFile = new File(dir.getAbsolutePath() + File.separator + name);
             LOGGER.info("Including file into classpath: " + jarFile.getAbsolutePath());
             DynamicFileLoader.addFile(jarFile);
@@ -183,6 +176,9 @@ public class App {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Cannot add jar files to classpath.", ex);
         }
+
+        // have the name of the application in the macos menu if applicable
+        System.setProperty("apple.awt.application.name", "Mini SQL");
 
         // load config file
         App.loadConfig();
