@@ -4,7 +4,7 @@ Mini SQL is a database agnostic frontend that aims to be very small yet powerful
 Mini SQL aim to be :
 - very lightweight (core program is less than one MB)
 - very fast 
-- full of essential functionnalities
+- full of essential functionalities
 
 # Database support 
 
