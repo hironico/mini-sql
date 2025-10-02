@@ -1,7 +1,9 @@
 package net.hironico.minisql;
 
 import java.io.File;
+import java.util.logging.Logger;
 
+import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
@@ -10,9 +12,9 @@ import static org.junit.Assert.*;
 
 import net.hironico.common.utils.json.JSONFile;
 
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+//@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestDbConfigFile {
-
+    private static final Logger LOG = Logger.getLogger(TestDbConfigFile.class.getName());
     private static final String testDbConfigJsonFile = "./src/test/resources/test-dbconfig.json";
 
     @Test
@@ -29,6 +31,6 @@ public class TestDbConfigFile {
         assertNotNull(configFileContent);
         assertFalse(configFileContent.isEmpty());
 
-        System.out.println(configFileContent);
+        LOG.info(configFileContent);
     }
 }

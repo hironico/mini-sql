@@ -2,17 +2,17 @@
  * Copyright (c) 2017 The JNanoID Authors
  * Copyright (c) 2017 Aventrix LLC
  * Copyright (c) 2017 Andrey Sitnik
- *
+ * <p>
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
  * subject to the following conditions:
- *
+ * <p>
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- *
+ * <p>
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
@@ -25,6 +25,7 @@ package com.aventrix.jnanoid;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 
@@ -39,7 +40,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -77,7 +77,7 @@ public class NanoIdUtilsTest {
 
         for (int i = 0; i < idCount; i++) {
             final String id = NanoIdUtils.randomNanoId();
-            if (ids.contains(id) == false) {
+            if (!ids.contains(id)) {
                 ids.add(id);
             } else {
                 fail("Non-unique ID generated: " + id);
@@ -181,7 +181,7 @@ public class NanoIdUtilsTest {
         //Verify the distribution of characters is pretty even
         for (final Long charCount : charCounts.values()) {
             final double distribution = (charCount * alphabet.length / (double) (idCount * idSize));
-            assertThat(distribution, Matchers.closeTo(1.0, 0.05));
+            MatcherAssert.assertThat("distribution verify failed", distribution, Matchers.closeTo(1.0, 0.05));
         }
 
     }

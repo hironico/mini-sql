@@ -1,18 +1,18 @@
 {
   "dbConfigList": [
     {
-      "name": "DEV8",
-      "jdbcUrl": "jdbc:oracle:thin:@ldap://DCGVA:389/TAPEV08_PDB,cn=OracleContext,dc=corp,dc=ubp,dc=ch",
+      "name": "DB1",
+      "jdbcUrl": "jdbc:oracle:thin:@ldap://ldap.corp.com:389/ORACLE_DB1_PDB,cn=OracleContext,dc=corp,dc=com",
       "driverClassName": "oracle.jdbc.OracleDriver",
-      "user": "aaa",
+      "user": "db1user",
       "password": "U5PXGj8TeMJbM5mmGHWZoA==",
       "batchStatementSeparator": "GO"
     },
     {
-      "name": "DEV9",
-      "jdbcUrl": "jdbc:oracle:thin:@ldap://DCGVA:389/TAPEV09_PDB,cn=OracleContext,dc=corp,dc=ubp,dc=ch",
+      "name": "DB2",
+      "jdbcUrl": "jdbc:oracle:thin:@ldap://ldap.corp.com:389/ORACLE_DB2_PDB,cn=OracleContext,dc=corp,dc=com",
       "driverClassName": "oracle.jdbc.OracleDriver",
-      "user": "aaa",
+      "user": "db2user",
       "password": "U5PXGj8TeMJbM5mmGHWZoA==",
       "batchStatementSeparator": "GO"
     }
