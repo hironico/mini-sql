@@ -10,7 +10,8 @@
     <name>${project.groupId}:${project.artifactId}</name>
 
     <description>
-        The Hironico Mini SQL tool is packaged with all required dependencies into a single JAR.
+        The Hironico Mini SQL is a database query tool that aims to be as small as possible but full of features for
+        the daily work. The application is packaged with all required dependencies into a single runnable JAR file.
         It contains standard drivers for Oracle, Postgresql, MSSQL and Sybase databases but you can refer
         to specific JDBC drivers in the tool configuration.
     </description>
@@ -163,7 +164,7 @@
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.8.0</version>
+                <version>0.9.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
@@ -182,7 +183,7 @@
         <dependency>
             <groupId>com.oracle.database.xml</groupId>
             <artifactId>xdb</artifactId>
-            <version>23.5.0.24.07</version>
+            <version>23.9.0.25.07</version>
         </dependency>
 
         <dependency>
