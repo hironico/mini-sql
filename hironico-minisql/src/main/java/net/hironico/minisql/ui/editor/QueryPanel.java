@@ -17,8 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.Logger;
@@ -593,5 +592,41 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
     @Override
     public void configRemoved(DbConfig config) {
         this.getCmbConfig().removeItem(config.name);
+    }
+
+    public void loadFile(File file) {
+        this.setLastUsedDirectory(file.getAbsolutePath());
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            StringBuilder sb = new StringBuilder();
+            String line = br.readLine();
+            while (line != null) {
+                sb.append(line).append("\n");
+                line = br.readLine();
+            }
+            this.setQueryText(sb.toString());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error while reading the file:\n" + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void saveFile(File saveFile) {
+        String lastDir = saveFile.getAbsolutePath();
+        this.setLastUsedDirectory(lastDir);
+
+        if (saveFile.exists()) {
+            int confirm = JOptionPane.showConfirmDialog(this, "File exists. Overwrite ?", "Confirm...",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(saveFile))) {
+            bw.write(this.getTxtQuery().getText());
+            bw.flush();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error while writing to the file:\n" + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
