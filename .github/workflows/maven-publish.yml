@@ -32,11 +32,8 @@ jobs:
         gpg_private_key: ${{ secrets.MAVEN_GPG_SECRET_KEY }}
         passphrase: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
-    - name: Build with Maven
-      run: mvn --batch-mode --file pom.xml clean install
-
     - name: Publish to Central Maven Repo
-      run: mvn --batch-mode deploy --file ./hironico-dist/pom.xml -s settings.xml
+      run: mvn --batch-mode deploy -s settings.xml
       env:
         PGP_KEY_NAME: ${{ secrets.MAVEN_GPG_KEY_NAME }}
         MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
