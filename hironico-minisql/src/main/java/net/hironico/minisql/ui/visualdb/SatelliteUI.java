@@ -65,8 +65,11 @@ public class SatelliteUI extends AbstractLayerUI<JComponent> implements Scene.Sc
         super.paintLayer(g, layer);
 
         if (satelliteVisible) {
-            Graphics2D gr = (Graphics2D) g;
             Rectangle bounds = graphScene.getBounds();
+
+            if (bounds == null) {
+                return;
+            }
 
             double sx = bounds.width > 0 ? (double) size.width / bounds.width : 0.0;
             double sy = bounds.width > 0 ? (double) size.height / bounds.height : 0.0;
@@ -82,15 +85,15 @@ public class SatelliteUI extends AbstractLayerUI<JComponent> implements Scene.Sc
             location.x = layer.getView().getWidth() - size.width - 1;
             location.y = 0;
 
-            gr.setColor(Color.lightGray);
-            gr.fillRect(location.x, location.y, location.x + size.width - 1, location.y + size.height - 1);
+            ((Graphics2D) g).setColor(Color.lightGray);
+            ((Graphics2D) g).fillRect(location.x, location.y, location.x + size.width - 1, location.y + size.height - 1);
             
-            AffineTransform previousTransform = gr.getTransform();
-            gr.translate(location.x, location.y);
-            gr.scale(scale, scale);
+            AffineTransform previousTransform = ((Graphics2D) g).getTransform();
+            ((Graphics2D) g).translate(location.x, location.y);
+            ((Graphics2D) g).scale(scale, scale);
 
-            graphScene.paint(gr);
-            gr.setTransform(previousTransform);
+            graphScene.paint((Graphics2D) g);
+            ((Graphics2D) g).setTransform(previousTransform);
 
             JComponent component = graphScene.getView();
             double zoomFactor = graphScene.getZoomFactor();
@@ -104,10 +107,10 @@ public class SatelliteUI extends AbstractLayerUI<JComponent> implements Scene.Sc
                 window.translate(location.x, location.y);
 //            Area area = new Area (new Rectangle (vx, vy, vw, vh));
 //            area.subtract (new Area (window));
-                gr.setColor(new Color(200, 200, 200, 128));
-                gr.fill(window);
-                gr.setColor(Color.BLACK);
-                gr.drawRect(window.x, window.y, window.width - 1, window.height - 1);
+                ((Graphics2D) g).setColor(new Color(200, 200, 200, 128));
+                ((Graphics2D) g).fill(window);
+                ((Graphics2D) g).setColor(Color.BLACK);
+                ((Graphics2D) g).drawRect(window.x, window.y, window.width - 1, window.height - 1);
             }
 
             BorderFactory.createEtchedBorder().paintBorder(layer, g, location.x, location.y, location.x + size.width - 1, location.y + size.height - 1);
@@ -157,7 +160,7 @@ public class SatelliteUI extends AbstractLayerUI<JComponent> implements Scene.Sc
 
         if ((x >= location.x) && (x <= (location.x + size.width))
                 && (y >= location.y) && (y <= (location.y + size.height))) {
-            if ((e.getModifiers() & MouseEvent.MOUSE_PRESSED) > 0) {
+            if ((e.getModifiersEx() & MouseEvent.MOUSE_PRESSED) > 0) {
                 moveVisibleRect(new Point(x, y));
             }
             e.consume(); // pour ne pas interragir avec ce qu'il y a dessous !
@@ -171,6 +174,10 @@ public class SatelliteUI extends AbstractLayerUI<JComponent> implements Scene.Sc
         }
         double zoomFactor = graphScene.getZoomFactor();
         Rectangle bounds = graphScene.getBounds();
+
+        if (bounds == null) {
+            return;
+        }
 
         double sx = bounds.width > 0 ? (double) size.width / bounds.width : 0.0;
         double sy = bounds.width > 0 ? (double) size.height / bounds.height : 0.0;
