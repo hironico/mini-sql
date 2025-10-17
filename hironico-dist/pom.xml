@@ -4,11 +4,11 @@
     <parent>
         <groupId>net.hironico</groupId>
         <artifactId>parent</artifactId>
-        <version>2.28.2</version>
+        <version>2.29.2</version>
     </parent>
 
     <artifactId>hironico-minisql-dist</artifactId>
-    <version>2.28.2</version>
+    <version>2.29.2</version>
 
     <name>hironico.net mini-sql distribution</name>
 
