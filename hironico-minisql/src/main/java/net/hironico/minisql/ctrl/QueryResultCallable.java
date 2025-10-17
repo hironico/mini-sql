@@ -116,7 +116,7 @@ public class QueryResultCallable implements Callable<List<SQLResultSetTableModel
     }
 
     /**
-     * Asynch notification of the query being executed.
+     * Asynchronous notification of the query being executed.
      */
     private void fireQueryExecuted() {
         Runnable runNotif = () -> QueryResultCallable.this.historyListeners.forEach(listener -> listener.queryExecuted(QueryResultCallable.this.sqlQuery));

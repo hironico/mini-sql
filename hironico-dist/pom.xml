@@ -76,6 +76,7 @@
                                     <exclude>com.ibm.mq</exclude>
                                     <exclude>org.bouncycastle</exclude>
                                     <exclude>javax.jms:javax.jms-api</exclude>
+                                    <exclude>net.hironico:hironico-minisql-dist</exclude>
                                 </excludes>
                             </artifactSet>
 

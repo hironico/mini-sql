@@ -1,14 +1,13 @@
 package net.hironico.common.swing.ribbon;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.ui.FlatTabbedPaneUI;
 import com.formdev.flatlaf.util.UIScale;
 
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-
-import javax.swing.*;
-import javax.swing.border.Border;
+import java.util.Arrays;
+import java.util.List;
 
 @SuppressWarnings("restriction")
 public class Ribbon extends JTabbedPane {
@@ -49,7 +48,7 @@ public class Ribbon extends JTabbedPane {
         return exitAction;
     }
 
-    public void addRibbonTab(RibbonTab pnl) {
+    public void addRibbonTab(RibbonTab ribbonTab) {
         JPanel container = new JPanel();
         container.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -57,19 +56,32 @@ public class Ribbon extends JTabbedPane {
         gbc.weightx = 1.0d;
         gbc.weighty = 1.0d;
         gbc.fill = GridBagConstraints.BOTH;
-        container.add(pnl, gbc);
+        container.add(ribbonTab, gbc);
         container.setOpaque(true);
         container.setBackground(this.getBackground());
-        super.addTab(pnl.getTitle(), container);
+        super.addTab(ribbonTab.getTitle(), container);
     }
 
-    public void setSelectedRibbonTab(String title) {
+    /**
+     * Selects the ribbon tab whose name is given in parameter.
+     * Returns the RibbonTab found and null if no ribbon tab is found.
+     * If more than one ribbon tab have the same name, then the first one is returned.
+     * @param title the title of the ribbon tab we want to select
+     * @ return RibbonTab instance found or null if none found for that title
+     */
+    public RibbonTab setSelectedRibbonTab(String title) {
         for  (int index = 0; index < super.getTabCount(); index++) {
             if (super.getTitleAt(index).equals(title)) {
                 super.setSelectedIndex(index);
-                return;
+                if (super.getComponentAt(index) instanceof JPanel pnl) {
+                    java.util.List<Component> ribbonTab = Arrays.stream(pnl.getComponents()).filter(c -> c instanceof RibbonTab).toList();
+                    return ribbonTab.isEmpty() ? null : (RibbonTab) ribbonTab.get(0);
+                }
             }
         }
+
+        // not found
+        return null;
     }
 
     public void setSelectedRibbonTab(RibbonTab tab) {

@@ -1,7 +1,5 @@
 package net.hironico.common.swing.ribbon;
 
-import org.jdesktop.swingx.border.DropShadowBorder;
-
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
@@ -12,14 +10,12 @@ import java.awt.GridBagLayout;
 import java.awt.RenderingHints;
 import java.util.logging.Logger;
 
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.Box.Filler;
 
 public class RibbonTab extends JPanel {
-    private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(RibbonTab.class.getName());
 
     private String title = "";
@@ -85,5 +81,14 @@ public class RibbonTab extends JPanel {
         g2d.fillRoundRect(0, 0, w, h, 15, 15);
         g2d.setPaint(Color.LIGHT_GRAY);
         g2d.drawRoundRect(0, 0, w, h, 15, 15);
+    }
+
+    /**
+     * Override this method to adapt the display of the ribbon tab. For instance, one could
+     * update the various toggle button and checkboxes depending of the application state.
+     * By default, this method does nothing.
+     */
+    public void updateDisplay() {
+
     }
 }

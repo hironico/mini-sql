@@ -7,6 +7,11 @@ import java.util.logging.Logger;
 
 import javax.swing.*;
 
+/**
+ * RibbonGroup is a JPanel with actionable components : JButton, JCheckBox and ToggleButton.
+ * You can keep control of these components by using the addXXX() methods and act accordingly depending
+ * of application state or events. This is used by components who want to reflect their state in the ribbon.
+ */
 public class RibbonGroup extends JPanel {
 
     private static final Logger LOGGER = Logger.getLogger(RibbonGroup.class.getName());
@@ -34,10 +39,11 @@ public class RibbonGroup extends JPanel {
      * of the configuration other than with this toggle should be reflected in the ribbon's component.
      * @param action the action to perform
      */
-    public void addCheckBox(AbstractRibbonAction action) {
+    public JCheckBox addCheckBox(AbstractRibbonAction action) {
         final JCheckBox chk = new JCheckBox(action);
         chk.setMinimumSize(new Dimension(24,24));
         addActionComponent(chk, SMALL);
+        return chk;
     }
 
     public void addButton(AbstractRibbonAction action, int size) {
