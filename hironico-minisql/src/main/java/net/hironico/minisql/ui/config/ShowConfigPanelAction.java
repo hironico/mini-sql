@@ -16,7 +16,7 @@ public class ShowConfigPanelAction extends AbstractRibbonAction {
     @Override
     public void actionPerformed(ActionEvent evt) {
         if (!MainWindow.getInstance().hasOneEditorNamed("Config")) {
-            MainWindow.getInstance().displayCloseableComponent(new ConfigPanel(), "Config");
+            MainWindow.getInstance().addNewEditorTab(new ConfigPanel(), "Config");
         } else {
             MainWindow.getInstance().setSelectedEditor("Config");
         }

@@ -29,10 +29,10 @@ public class ShowLogAction extends AbstractRibbonAction {
     @Override
     public void actionPerformed(ActionEvent arg0) {
         MainWindow win = MainWindow.getInstance();
-        int index = win.getTabIndexOfTitle("Log", true);
+        int index = win.getEditorTabIndexOf("Log", true);
         
         if (index < 0) {
-            win.displayCloseableComponent(getLogPanel(), "Log");
+            win.addNewEditorTab(getLogPanel(), "Log");
         } 
 	}
 

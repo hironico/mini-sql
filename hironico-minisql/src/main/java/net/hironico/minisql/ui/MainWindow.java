@@ -3,14 +3,19 @@ package net.hironico.minisql.ui;
 import net.hironico.common.swing.ribbon.*;
 import net.hironico.minisql.App;
 import net.hironico.minisql.DbConfigFile;
+import net.hironico.minisql.ui.batch.BatchPanel;
+import net.hironico.minisql.ui.batch.action.NewBatchAction;
+import net.hironico.minisql.ui.batch.ribbon.BatchRibbonTab;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
 import net.hironico.minisql.ui.dbexplorer.ribbon.DbExplorerRibbonTab;
+import net.hironico.minisql.ui.editor.QueryPanel;
 import net.hironico.minisql.ui.editor.ribbon.EditorRibbonTab;
 import net.hironico.minisql.ui.editor.ribbon.FileRibbonGroup;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
 import net.hironico.common.swing.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
+import net.hironico.minisql.ui.visualdb.VisualDbPanel;
 import net.hironico.minisql.ui.visualdb.action.NewVisualDbTabAction;
 import net.hironico.minisql.ui.visualdb.ribbon.VisualDbRibbonTab;
 
@@ -42,6 +47,7 @@ public class MainWindow extends JFrame {
     private RibbonGroup toolsRibbonGroup = null;
     private RibbonTab explorerRibbonTab = null;
     private RibbonTab visualDbRibbonTab = null;
+    private RibbonTab batchRibbonTab = null;
     
     private JSplitPaneNoDivider splitMain = null;
 
@@ -66,6 +72,10 @@ public class MainWindow extends JFrame {
         initialize();
     }
 
+    /**
+     * Get the application main window instance.
+     * @return MainWindow of the application.
+     */
     public static MainWindow getInstance() {
         return instance;
     }
@@ -142,7 +152,7 @@ public class MainWindow extends JFrame {
                 getSplitMain().setDividerLocation(size.width / 4);
 
                 size = getSplitMain().getRightComponent().getSize();
-                getSplitEditor().setDividerLocation(size.width * 3 / 4);
+                getSplitEditor().setDividerLocation(size.width * 5 / 6);
             } catch (Exception ex) {
                 //ignored
             }
@@ -167,6 +177,10 @@ public class MainWindow extends JFrame {
         addAction(new ShowQueryPanelAction());
     }
 
+    /**
+     * Gets the application ribbon to interact with
+     * @return the Ribbon of the application
+     */
     public Ribbon getRibbon() {
         if(this.ribbon == null) {
             this.ribbon = new Ribbon();
@@ -177,6 +191,7 @@ public class MainWindow extends JFrame {
             this.ribbon.addRibbonTab(getExplorerRibbonTab());
             this.ribbon.addRibbonTab(getEditorRibbonTab());
             this.ribbon.addRibbonTab(getVisualDbRibbonTab());
+            this.ribbon.addRibbonTab(getBatchRibbonTab());
         }
 
         return this.ribbon;
@@ -215,6 +230,14 @@ public class MainWindow extends JFrame {
         return editorRibbonTab;
     }
 
+    private RibbonTab getBatchRibbonTab() {
+        if (batchRibbonTab == null) {
+            batchRibbonTab = new BatchRibbonTab();
+        }
+
+        return batchRibbonTab;
+    }
+
     private RibbonGroup getFileRibbonGroup() {
         if (fileRibbonGroup == null) {
             this.fileRibbonGroup = new FileRibbonGroup();
@@ -226,6 +249,7 @@ public class MainWindow extends JFrame {
         if (toolsRibbonGroup == null) {
             toolsRibbonGroup = new RibbonGroup("Tools");
             toolsRibbonGroup.addButton(new NewVisualDbTabAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addButton(new NewBatchAction(), RibbonGroup.LARGE);
         }
 
         return toolsRibbonGroup;
@@ -242,8 +266,6 @@ public class MainWindow extends JFrame {
 
         return this.systemRibbonGroup;
     }
-
-
 
     private JPanel getStatusBar() {
         if (pnlStatusBar == null) {
@@ -336,23 +358,46 @@ public class MainWindow extends JFrame {
         if (tabEditors == null) {
             tabEditors = new JTabbedPane();
             tabEditors.setBorder(BorderFactory.createEmptyBorder(-3, 0, -2, -3));
+
+            tabEditors.addChangeListener(evt -> {
+                Component comp = tabEditors.getSelectedComponent();
+                if (comp instanceof QueryPanel queryPanel) {
+                    queryPanel.updateRibbon();
+                }
+                if (comp instanceof BatchPanel batchPanel) {
+                    batchPanel.updateRibbon();
+                }
+                if (comp instanceof VisualDbPanel visualDbPanel) {
+                    visualDbPanel.updateRibbon();
+                }
+            });
         }
 
         return tabEditors;
     }
 
-    public boolean hasOneEditorNamed(String name) {
+    /**
+     * Searches for the given title and returns trus if it finds at leat one in the editor tabs.
+     * @param title the title we want to check it is existing in the editor abs
+     * @return true isf the editor tabs have one given title, false if not found.
+     */
+    public boolean hasOneEditorNamed(String title) {
         for (int index = 0; index < getTabEditors().getTabCount(); index++) {
-            if (name.equalsIgnoreCase(getTabEditors().getTitleAt(index))) {
+            if (title.equalsIgnoreCase(getTabEditors().getTitleAt(index))) {
                 return true;
             }
         }
         return false;
     }
 
-    public void setSelectedEditor(String name) {
+    /**
+     * Selects the first editor tab whose title is equals to the given title.
+     * Does nothing if title is not found.
+     * @param title the title for tab component when want to select
+     */
+    public void setSelectedEditor(String title) {
         for (int index = 0; index < getTabEditors().getTabCount(); index++) {
-            if (name.equalsIgnoreCase(getTabEditors().getTitleAt(index))) {
+            if (title.equalsIgnoreCase(getTabEditors().getTitleAt(index))) {
                 getTabEditors().setSelectedIndex(index);
                 return;
             }
@@ -364,18 +409,25 @@ public class MainWindow extends JFrame {
      * @param comp the component to display in the editors tab
      * @param title the tab title
      */
-    public void displayCloseableComponent(JComponent comp, String title) {
+    public void addNewEditorTab(JComponent comp, String title) {
         Runnable run = () -> {
             JTabbedPane tabResults = getTabEditors();
             tabResults.add(comp, title);
             tabResults.setSelectedIndex(tabResults.getTabCount() - 1);
             tabResults.setTabComponentAt(tabResults.getTabCount() - 1, new CloseableTabComponent(tabResults, title));
+
+            if (comp instanceof QueryPanel queryPanel) {
+                queryPanel.updateRibbon();
+            }
         };
 
         SwingUtilities.invokeLater(run);
     }
 
-    public void closeCurrentTab() {
+    /**
+     * Removes the current editor tab. If no selection then does nothing.
+     */
+    public void removeCurrentEditorTab() {
         int selectedIndex = getTabEditors().getSelectedIndex();
         if (selectedIndex < 0) {
             return;
@@ -383,7 +435,13 @@ public class MainWindow extends JFrame {
         getTabEditors().removeTabAt(selectedIndex);
     }
 
-    public void setTabComponentTitle(JComponent comp, String title) {
+    /**
+     * Defines the title of the given editor component. It searches for the component in the editor tabs
+     * and set the title for the first encountered. If not found does nothing.
+     * @param comp the Component in the editor tabs when want to set the title for the tab.
+     * @param title title to set.
+     */
+    public void setEditorTabTitle(JComponent comp, String title) {
         int count = getTabEditors().getTabCount();
         for (int index = 0; index < count; index++) {
             Component myComp = getTabEditors().getComponentAt(index);
@@ -396,7 +454,11 @@ public class MainWindow extends JFrame {
         }
     }
 
-    public Component getCurrentTabComponent() {
+    /**
+     * Get the component of the currently selected editor tab
+     * @return Component instance of the current editor tab, and null if none selected
+     */
+    public Component getCurrentEditorTabComponent() {
         int selectedIndex = getTabEditors().getSelectedIndex();
         if (selectedIndex < 0) {
             return null;
@@ -405,7 +467,13 @@ public class MainWindow extends JFrame {
         return getTabEditors().getComponentAt(selectedIndex);
     }
 
-    public int getTabIndexOfTitle(String title, boolean autoSelect) {
+    /**
+     * Returns the index of the first editor tab with given title. Can be selected automatically if found.
+     * @param title the title with search for an editor
+     * @param autoSelect set to true to select the found editor if any
+     * @return index of the editor whose title is equals to the given one and -1 if not found
+     */
+    public int getEditorTabIndexOf(String title, boolean autoSelect) {
         for (int index = 0; index < getTabEditors().getTabCount(); index++) {
             if (title.equals(getTabEditors().getTitleAt(index))) {
                 if (autoSelect) {

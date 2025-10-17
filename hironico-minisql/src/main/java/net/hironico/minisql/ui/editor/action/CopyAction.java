@@ -14,7 +14,7 @@ public class CopyAction extends AbstractRibbonAction {
     }
 
     public void actionPerformed(ActionEvent evt) {
-        Component comp = MainWindow.getInstance().getCurrentTabComponent();
+        Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
         if (!(comp instanceof QueryPanel)) {
             return;
         }

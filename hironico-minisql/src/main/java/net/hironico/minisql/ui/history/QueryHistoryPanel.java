@@ -165,7 +165,7 @@ public class QueryHistoryPanel extends JPanel {
                             return;
                         }
 
-                        Component comp = MainWindow.getInstance().getCurrentTabComponent();
+                        Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
                         if (comp instanceof QueryPanel) {
                             QueryPanel queryPanel = (QueryPanel)comp;
                             String newSql = String.format("%s\n\n%s",queryPanel.getQueryText(), selectedEntry.query);

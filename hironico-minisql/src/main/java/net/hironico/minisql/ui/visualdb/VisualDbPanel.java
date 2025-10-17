@@ -5,6 +5,7 @@
  */
 package net.hironico.minisql.ui.visualdb;
 
+import net.hironico.common.swing.ribbon.RibbonTab;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.model.SQLObject;
 import net.hironico.minisql.model.SQLObjectTypeEnum;
@@ -120,5 +121,10 @@ public class VisualDbPanel extends javax.swing.JPanel {
 
     public void showNavigation() {
         satelliteUI.setSatellitevisible(true);
+    }
+
+    public void updateRibbon() {
+        RibbonTab ribbonTab = MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Visual Db");
+        ribbonTab.updateDisplay();
     }
 }

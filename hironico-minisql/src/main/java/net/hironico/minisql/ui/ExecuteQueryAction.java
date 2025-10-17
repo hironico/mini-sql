@@ -13,18 +13,13 @@ public class ExecuteQueryAction extends AbstractQueryAction {
 
     @Override
     public void actionPerformed(ActionEvent evt) {
-        Component comp = MainWindow.getInstance().getCurrentTabComponent();
-        QueryPanel queryPanel = null;
-        if (!(comp instanceof QueryPanel)) {
-            return;
-        } else {
-            queryPanel = (QueryPanel)comp;
+        Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
+        if (comp instanceof QueryPanel queryPanel) {
+            ExecuteQueryAction.executeQueryAsync(queryPanel);
         }
-
-        ExecuteQueryAction.executeQueryAsync(queryPanel);
     }
 
     public static void executeQueryAsync(QueryPanel queryPanel) {
-        AbstractQueryAction.executeQueryAsync(queryPanel, false);
+        AbstractQueryAction.executeQueryAsync(queryPanel);
     }
 }

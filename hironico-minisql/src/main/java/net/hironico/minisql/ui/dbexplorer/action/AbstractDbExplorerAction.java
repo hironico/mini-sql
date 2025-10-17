@@ -26,7 +26,7 @@ public abstract class AbstractDbExplorerAction extends AbstractRibbonAction {
         DbConfig cfg = DbConfigFile.getConfig(title);
         pnl.setConfig(cfg);
 
-        MainWindow.getInstance().displayCloseableComponent(pnl, title);
+        MainWindow.getInstance().addNewEditorTab(pnl, title);
 
         return pnl;
     }

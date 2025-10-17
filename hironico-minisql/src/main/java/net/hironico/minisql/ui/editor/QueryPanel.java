@@ -2,6 +2,7 @@ package net.hironico.minisql.ui.editor;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import com.formdev.flatlaf.util.UIScale;
+import net.hironico.common.swing.ribbon.RibbonTab;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.model.SQLResultSetTableModel;
@@ -9,6 +10,7 @@ import net.hironico.minisql.ui.ExecuteQueryAction;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.action.OpenQueryAction;
 import net.hironico.minisql.ui.editor.action.SaveQueryAction;
+import net.hironico.minisql.ui.editor.ribbon.EditorRibbonTab;
 import net.hironico.minisql.ui.renderer.*;
 import net.hironico.common.swing.JSplitPaneNoDivider;
 import net.hironico.common.swing.table.FilterableTable;
@@ -51,12 +53,15 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
     private JXStatusBar stbEditorStatusBar = null;
     private JLabel lblPosition = null;
     private JLabel lblSelection = null;
+    private JLabel lblBatchMode = null;
     private JLabel lblStatusMessage = null;
     private JPanel pnlResults = null;
 
     private ExecuteQueryAction executeQueryAction = null;
     private SaveQueryAction saveQueryAction = null;
     private OpenQueryAction openQueryAction = null;
+
+    private boolean batchMode = false;
 
     public QueryPanel() {
         initialize();
@@ -166,7 +171,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
             }
             cmbConfig.addItemListener(e -> {
                 if (ItemEvent.SELECTED == e.getStateChange()) {
-                    MainWindow.getInstance().setTabComponentTitle(QueryPanel.this, (String) cmbConfig.getSelectedItem());
+                    MainWindow.getInstance().setEditorTabTitle(QueryPanel.this, (String) cmbConfig.getSelectedItem());
                 }
             });
         }
@@ -298,7 +303,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
                     }
 
                     if (e.getKeyCode() == KeyEvent.VK_F4 && e.isControlDown()) {
-                        MainWindow.getInstance().closeCurrentTab();
+                        MainWindow.getInstance().removeCurrentEditorTab();
                     }
 
                     if (e.getKeyCode() == KeyEvent.VK_S && e.isControlDown()) {
@@ -314,7 +319,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
                     if (e.getKeyCode() == KeyEvent.VK_N && e.isControlDown()) {
                         QueryPanel pnl = new QueryPanel();
                         pnl.setConfig(QueryPanel.this.getConfig());
-                        MainWindow.getInstance().displayCloseableComponent(pnl, QueryPanel.this.getConfig().name);
+                        MainWindow.getInstance().addNewEditorTab(pnl, QueryPanel.this.getConfig().name);
                     }
 
                     // CTrl + 1,2,3...,9,0
@@ -352,7 +357,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
                 @Override
                 public void focusGained(FocusEvent e) {
                     super.focusGained(e);
-                    MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Editor");
+                    QueryPanel.this.updateRibbon();
                 }
             });
 
@@ -378,6 +383,7 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
             stbEditorStatusBar.setBorder(BorderFactory.createEtchedBorder());
             stbEditorStatusBar.add(getLblPosition());
             stbEditorStatusBar.add(getLblSelection());
+            stbEditorStatusBar.add(getLblBatchMode());
             stbEditorStatusBar.add(getLblStatusMessage());
         }
 
@@ -391,6 +397,19 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
         }
 
         return lblSelection;
+    }
+
+    private String getBatchModeStatusText() {
+        return String.format("<html>Batch mode: <b>%s</b></html>", this.batchMode ? "ON" : "OFF");
+    }
+
+    private JLabel getLblBatchMode() {
+        if (lblBatchMode == null) {
+            lblBatchMode = new JLabel(getBatchModeStatusText());
+            lblBatchMode.setToolTipText("Creates SQL statements executed separately using the statement separator in connection config.");
+        }
+
+        return lblBatchMode;
     }
 
     private JLabel getLblPosition() {
@@ -628,5 +647,19 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
             JOptionPane.showMessageDialog(this, "Error while writing to the file:\n" + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    public boolean isBatchMode() {
+        return batchMode;
+    }
+
+    public void setBatchMode(boolean batchMode) {
+        this.batchMode = batchMode;
+        getLblBatchMode().setText(getBatchModeStatusText());
+    }
+
+    public void updateRibbon() {
+        RibbonTab ribbonTab = MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Editor");
+        ribbonTab.updateDisplay();
     }
 }

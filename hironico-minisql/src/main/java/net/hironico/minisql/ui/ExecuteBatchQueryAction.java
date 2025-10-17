@@ -7,20 +7,17 @@ import javax.swing.*;
 
 public class ExecuteBatchQueryAction extends AbstractQueryAction {
     public ExecuteBatchQueryAction() {
-        super("Execute Batch", "icons8_play_property_64px.png");
-        putValue(Action.SHORT_DESCRIPTION, "Execute query of currently selected editor in BATCH mode using batch separator in db config.");
+        super("Batch mode", null);
+        putValue(Action.SHORT_DESCRIPTION, "Set the currently selected editor in BATCH mode for query execution.");
     }
 
     @Override
     public void actionPerformed(ActionEvent evt) {
-        Component comp = MainWindow.getInstance().getCurrentTabComponent();
-        QueryPanel queryPanel = null;
-        if (!(comp instanceof QueryPanel)) {
-            return;
-        } else {
-            queryPanel = (QueryPanel)comp;
+        if (evt.getSource() instanceof JCheckBox chk) {
+            Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
+            if (comp instanceof QueryPanel queryPanel) {
+                queryPanel.setBatchMode(chk.isSelected());
+            }
         }
-
-        ExecuteQueryAction.executeQueryAsync(queryPanel, true);
     }
 }

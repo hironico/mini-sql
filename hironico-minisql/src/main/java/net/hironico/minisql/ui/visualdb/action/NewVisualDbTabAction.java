@@ -28,7 +28,7 @@ public class NewVisualDbTabAction extends AbstractRibbonAction {
             @Override
             public void run() {
                 VisualDbPanel panel = new VisualDbPanel();
-                MainWindow.getInstance().displayCloseableComponent(panel, "Visual Db");
+                MainWindow.getInstance().addNewEditorTab(panel, "Visual Db");
             }
         };
         

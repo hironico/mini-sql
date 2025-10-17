@@ -4,15 +4,10 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.QueryPanel;
-
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
 
 public class SaveQueryAction extends AbstractRibbonAction {
 
@@ -25,7 +20,7 @@ public class SaveQueryAction extends AbstractRibbonAction {
     @Override
     public void actionPerformed(ActionEvent evt) {
 
-        Component comp = MainWindow.getInstance().getCurrentTabComponent();
+        Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
         QueryPanel queryPanel = null;
         if (!(comp instanceof QueryPanel)) {
             return;

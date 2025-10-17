@@ -17,11 +17,11 @@ public class OpenQueryAction extends AbstractRibbonAction {
 
     @Override
     public void actionPerformed(ActionEvent evt) {
-        Component comp = MainWindow.getInstance().getCurrentTabComponent();
+        Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
         QueryPanel queryPanel = null;
         if (!(comp instanceof QueryPanel)) {
             queryPanel = new QueryPanel();
-            MainWindow.getInstance().displayCloseableComponent(queryPanel, "New Query");
+            MainWindow.getInstance().addNewEditorTab(queryPanel, "New Query");
         } else {
             queryPanel = (QueryPanel)comp;
         }

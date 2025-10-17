@@ -27,7 +27,7 @@ public class ShowQueryPanelAction extends AbstractRibbonAction {
 
         QueryPanel queryPanel = new QueryPanel();
         queryPanel.setConfig(DbConfigFile.getConfig(conName));
-        MainWindow.getInstance().displayCloseableComponent(queryPanel, "New query");
+        MainWindow.getInstance().addNewEditorTab(queryPanel, "New query");
         queryPanel.setResultsComponent(new JPanel());
         lastOpenedQueryPanel = queryPanel;
     }

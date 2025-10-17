@@ -19,7 +19,7 @@ public class RedoAction extends AbstractRibbonAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Component comp = MainWindow.getInstance().getCurrentTabComponent();
+        Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
         if (!(comp instanceof QueryPanel)) {
             return;
         }

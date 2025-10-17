@@ -311,6 +311,6 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
     private void displayResults(List<SQLResultSetTableModel> modelListToDisplay, SQLObject objectToDisplay) {
         JComponent resultComp = QueryPanel.getResultComponentTab(modelListToDisplay);
         String tabTitle = objectToDisplay.schemaName + "." + objectToDisplay.name + " (" + objectToDisplay.type + ")";
-        MainWindow.getInstance().displayCloseableComponent(resultComp, tabTitle);
+        MainWindow.getInstance().addNewEditorTab(resultComp, tabTitle);
     }
 }

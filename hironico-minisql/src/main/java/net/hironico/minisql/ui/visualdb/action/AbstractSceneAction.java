@@ -17,7 +17,7 @@ public abstract class AbstractSceneAction extends AbstractRibbonAction {
 
     @Override
     public final void actionPerformed(ActionEvent e) {
-        Component comp = MainWindow.getInstance().getCurrentTabComponent();
+        Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
         if (comp instanceof VisualDbPanel) {
             visualDbPanel = (VisualDbPanel) comp;
             DBGraphScene graphScene = visualDbPanel.getGraphScene();

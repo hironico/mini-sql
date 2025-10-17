@@ -25,7 +25,7 @@ public abstract class AbstractQueryAction extends AbstractRibbonAction {
         super(name, icon);
     }
 
-    public static void executeQueryAsync(QueryPanel queryPanel, boolean batchMode) {
+    public static void executeQueryAsync(QueryPanel queryPanel) {
 
         String sql = queryPanel.getQueryText();
         int resultDisplayType = queryPanel.getResultDisplayType();
@@ -34,7 +34,7 @@ public abstract class AbstractQueryAction extends AbstractRibbonAction {
 
         queryPanel.setResultsComponent(new JLabel("Executing query, please wait."));
 
-        QueryResultCallable queryCall = new QueryResultCallable(sql, queryPanel.getConfig(), batchMode);
+        QueryResultCallable queryCall = new QueryResultCallable(sql, queryPanel.getConfig(), queryPanel.isBatchMode());
         queryCall.addQueryHistoryListener(QueryHistory.getInstance());
         final Future<List<SQLResultSetTableModel>> futureResults = MainWindow.executorService.submit(queryCall);
 
