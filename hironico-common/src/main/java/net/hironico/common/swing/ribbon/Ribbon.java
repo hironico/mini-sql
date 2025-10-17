@@ -67,7 +67,7 @@ public class Ribbon extends JTabbedPane {
      * Returns the RibbonTab found and null if no ribbon tab is found.
      * If more than one ribbon tab have the same name, then the first one is returned.
      * @param title the title of the ribbon tab we want to select
-     * @ return RibbonTab instance found or null if none found for that title
+     * @return RibbonTab instance found or null if none found for that title
      */
     public RibbonTab setSelectedRibbonTab(String title) {
         for  (int index = 0; index < super.getTabCount(); index++) {
