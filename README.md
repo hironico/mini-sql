@@ -5,6 +5,7 @@ Mini SQL aim to be :
 - very lightweight (core program is less than one MB)
 - very fast 
 - full of essential functionalities
+- pleasant to use user interface (thanks [icons8](https://icons8.com) the creators of fantastic Pichon)
 
 # Database support 
 
