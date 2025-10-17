@@ -1,0 +1,1 @@
+SELECT count(*) from "public"."authenticator_config_entry"

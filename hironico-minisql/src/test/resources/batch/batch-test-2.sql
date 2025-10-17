@@ -1,0 +1,1 @@
+SELECT * FROM "public"."authenticator_config_entry" LIMIT 1000

@@ -1,0 +1,1 @@
+SELECT * FROM "public"."associated_policy" LIMIT 1000
