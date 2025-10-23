@@ -1,4 +1,4 @@
-package net.hironico.common.swing;
+package net.hironico.common.swing.tabbedpane;
 
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -17,13 +17,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class CloseableTabComponent extends JPanel {
-
-    private static final long serialVersionUID = 1L;
-
-    private JTabbedPane tab;
+    private final JTabbedPane tab;
 
     private JLabel lbl;
-    private JButton btn;
 
     private JPopupMenu menu;
     private JMenuItem itemClose;
@@ -48,7 +44,7 @@ public class CloseableTabComponent extends JPanel {
         lbl.setBorder(BorderFactory.createEmptyBorder());
         add(lbl);
 
-        btn = new JButton("x");
+        JButton btn = new JButton("x");
         btn.setOpaque(false);
         btn.setBorder(BorderFactory.createEmptyBorder(0, 3, 2, 0));
         btn.setContentAreaFilled(false);

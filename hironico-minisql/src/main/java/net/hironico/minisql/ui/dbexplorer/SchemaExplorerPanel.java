@@ -1,5 +1,6 @@
 package net.hironico.minisql.ui.dbexplorer;
 
+import net.hironico.common.swing.JRoundedPanel;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ctrl.ObjectListCallable;
@@ -27,7 +28,7 @@ import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 
-public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfigFileListener {
+public class SchemaExplorerPanel extends JRoundedPanel implements DbConfigFile.DbConfigFileListener {
     private static final Logger LOGGER = Logger.getLogger(SchemaExplorerPanel.class.getName());
 
     private DbConfig dbConfig = null;
@@ -170,7 +171,7 @@ public class SchemaExplorerPanel extends JPanel implements DbConfigFile.DbConfig
     private void initialize() {
         setLayout(new GridBagLayout());
 
-        setBackground(new Color(236, 243, 250));
+        setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
         setOpaque(true);
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 

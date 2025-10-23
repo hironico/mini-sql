@@ -2,6 +2,7 @@ package net.hironico.minisql.ui.editor;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import com.formdev.flatlaf.util.UIScale;
+import net.hironico.common.swing.JRoundedPanel;
 import net.hironico.common.swing.ribbon.RibbonTab;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
@@ -34,7 +35,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.JXTable;
 
-public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListener {
+public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFileListener {
 
     private static final Logger LOGGER = Logger.getLogger(QueryPanel.class.getName());
 
@@ -69,6 +70,10 @@ public class QueryPanel extends JPanel implements DbConfigFile.DbConfigFileListe
     }
 
     private void initialize() {
+        setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
+        setOpaque(true);
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
         setLayout(new BorderLayout());
         add(getToolbar(), BorderLayout.NORTH);
         add(getSplitQuery(), BorderLayout.CENTER);

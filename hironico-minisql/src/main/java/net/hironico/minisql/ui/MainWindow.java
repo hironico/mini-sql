@@ -1,6 +1,5 @@
 package net.hironico.minisql.ui;
 
-import com.formdev.flatlaf.FlatClientProperties;
 import net.hironico.common.swing.ribbon.*;
 import net.hironico.minisql.App;
 import net.hironico.minisql.DbConfigFile;
@@ -8,13 +7,14 @@ import net.hironico.minisql.ui.batch.BatchPanel;
 import net.hironico.minisql.ui.batch.action.NewBatchAction;
 import net.hironico.minisql.ui.batch.ribbon.BatchRibbonTab;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
+import net.hironico.common.swing.tabbedpane.JTabbedPaneNoContentSeparator;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
 import net.hironico.minisql.ui.dbexplorer.ribbon.DbExplorerRibbonTab;
 import net.hironico.minisql.ui.editor.QueryPanel;
 import net.hironico.minisql.ui.editor.ribbon.EditorRibbonTab;
 import net.hironico.minisql.ui.editor.ribbon.FileRibbonGroup;
 import net.hironico.minisql.ui.history.QueryHistoryPanel;
-import net.hironico.common.swing.CloseableTabComponent;
+import net.hironico.common.swing.tabbedpane.CloseableTabComponent;
 import net.hironico.common.swing.JSplitPaneNoDivider;
 import net.hironico.minisql.ui.visualdb.VisualDbPanel;
 import net.hironico.minisql.ui.visualdb.action.NewVisualDbTabAction;
@@ -52,12 +52,13 @@ public class MainWindow extends JFrame {
     
     private JSplitPaneNoDivider splitMain = null;
 
-    private JTabbedPane tabExplorer = null;
+    private JTabbedPaneNoContentSeparator tabExplorer = null;
     private SchemaExplorerPanel schemaExplorerPanel = null;
 
-    private JTabbedPane tabEditors = null;
+    private JTabbedPaneNoContentSeparator tabEditors = null;
     private JSplitPaneNoDivider splitEditor = null;
-    private JTabbedPane tabTools = null;
+
+    private JTabbedPaneNoContentSeparator tabTools = null;
     private QueryHistoryPanel pnlHistory = null;
 
     private JPanel pnlStatusBar = null;
@@ -305,10 +306,9 @@ public class MainWindow extends JFrame {
         return splitMain;
     }
 
-    private JTabbedPane getTabExplorer() {
+    private JTabbedPaneNoContentSeparator getTabExplorer() {
         if (this.tabExplorer == null) {
-            this.tabExplorer = new JTabbedPane();
-            this.tabExplorer.putClientProperty(FlatClientProperties.TABBED_PANE_SHOW_CONTENT_SEPARATOR, false);
+            this.tabExplorer = new JTabbedPaneNoContentSeparator();
             this.tabExplorer.setBorder(BorderFactory.createEmptyBorder(0,10,5,5));
             this.tabExplorer.addTab("Explorer", getSchemaExplorerPanel());
         }
@@ -338,10 +338,10 @@ public class MainWindow extends JFrame {
         return splitEditor;
     }
 
-    private JTabbedPane getTabTools() {
+    private JTabbedPaneNoContentSeparator getTabTools() {
         if (tabTools == null) {
-            tabTools = new JTabbedPane();
-            tabTools.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+            tabTools = new JTabbedPaneNoContentSeparator();
+            tabTools.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
             tabTools.addTab("History", getPnlHistory());
         }
 
@@ -356,13 +356,16 @@ public class MainWindow extends JFrame {
         return pnlHistory;
     }
 
-    private JTabbedPane getTabEditors() {
+    private JTabbedPaneNoContentSeparator getTabEditors() {
         if (tabEditors == null) {
-            tabEditors = new JTabbedPane();
-            tabEditors.setBorder(BorderFactory.createEmptyBorder(-3, 0, -2, -3));
+            tabEditors = new JTabbedPaneNoContentSeparator();
+
+            tabEditors.addTab("SQL query", new QueryPanel());
+
+            // tabEditors.setBorder(BorderFactory.createEmptyBorder(-3, 0, -2, -3));
 
             tabEditors.addChangeListener(evt -> {
-                Component comp = tabEditors.getSelectedComponent();
+                Component comp = tabEditors.getWrappedSelectedComponent();
                 if (comp instanceof QueryPanel queryPanel) {
                     queryPanel.updateRibbon();
                 }

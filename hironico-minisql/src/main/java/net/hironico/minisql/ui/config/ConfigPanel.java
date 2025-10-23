@@ -1,5 +1,6 @@
 package net.hironico.minisql.ui.config;
 
+import net.hironico.common.swing.JRoundedPanel;
 import org.jdesktop.swingx.JXTree;
 
 import javax.swing.*;
@@ -12,7 +13,7 @@ import java.awt.*;
 /**
  * Panel to display the whole mini sql configuration : ui and connections
  */
-public class ConfigPanel extends JPanel {
+public class ConfigPanel extends JRoundedPanel {
 
     private JXTree treeMenu = null;
     private JScrollPane scrollMenu = null;
@@ -32,6 +33,10 @@ public class ConfigPanel extends JPanel {
     }
 
     private void initialize() {
+        setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
+        setOpaque(true);
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
         setLayout(new BorderLayout(5, 0));
 
         add(getScrollMenu(), BorderLayout.WEST);

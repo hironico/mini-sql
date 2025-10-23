@@ -1,16 +1,16 @@
 package net.hironico.common.swing.ribbon;
 
-import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.util.UIScale;
+import net.hironico.common.swing.JRoundedPanel;
+import net.hironico.common.swing.tabbedpane.JTabbedPaneNoContentSeparator;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.Arrays;
-import java.util.List;
 
 @SuppressWarnings("restriction")
-public class Ribbon extends JTabbedPane {
+public class Ribbon extends JTabbedPaneNoContentSeparator {
 
     private AbstractRibbonAction exitAction = null;
 
@@ -32,7 +32,6 @@ public class Ribbon extends JTabbedPane {
         int scaledHeight = UIScale.scale(148);
         setMaximumSize(new Dimension(4096, scaledHeight));
         setPreferredSize(new Dimension(1024, scaledHeight));
-        this.putClientProperty(FlatClientProperties.TABBED_PANE_SHOW_CONTENT_SEPARATOR, false);
     }
 
     /**
@@ -49,17 +48,7 @@ public class Ribbon extends JTabbedPane {
     }
 
     public void addRibbonTab(RibbonTab ribbonTab) {
-        JPanel container = new JPanel();
-        container.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 0, 5, 0);
-        gbc.weightx = 1.0d;
-        gbc.weighty = 1.0d;
-        gbc.fill = GridBagConstraints.BOTH;
-        container.add(ribbonTab, gbc);
-        container.setOpaque(true);
-        container.setBackground(this.getBackground());
-        super.addTab(ribbonTab.getTitle(), container);
+        addTab(ribbonTab.getTitle(), ribbonTab);
     }
 
     /**
@@ -81,6 +70,7 @@ public class Ribbon extends JTabbedPane {
         }
 
         // not found
+
         return null;
     }
 

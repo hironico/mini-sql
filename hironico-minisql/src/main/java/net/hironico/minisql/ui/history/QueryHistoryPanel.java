@@ -2,6 +2,7 @@ package net.hironico.minisql.ui.history;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import com.formdev.flatlaf.util.UIScale;
+import net.hironico.common.swing.JRoundedPanel;
 import net.hironico.minisql.ui.CopyAllAction;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.QueryPanel;
@@ -25,9 +26,7 @@ import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTextField;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
-public class QueryHistoryPanel extends JPanel {
-    private static final long serialVersionUID = -1L;
-
+public class QueryHistoryPanel extends JRoundedPanel {
     private static final DateFormat localeDateFormat = DateFormat.getDateTimeInstance();
 
     private JToolBar searchBar = null;
@@ -49,8 +48,9 @@ public class QueryHistoryPanel extends JPanel {
     }
 
     protected void initialize() {
+        setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
         setOpaque(true);
-        setBackground(new Color(236, 243, 250));
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
 
         setLayout(new GridBagLayout());
 

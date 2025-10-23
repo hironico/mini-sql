@@ -1,5 +1,7 @@
 package net.hironico.common.swing.ribbon;
 
+import net.hironico.common.swing.JRoundedPanel;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GradientPaint;
@@ -15,13 +17,15 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.Box.Filler;
 
-public class RibbonTab extends JPanel {
+public class RibbonTab extends JRoundedPanel {
     private static final Logger LOGGER = Logger.getLogger(RibbonTab.class.getName());
 
     private String title = "";
 
     public RibbonTab(String title) {
         super();
+        this.setGradientBackground(true);
+        this.setBorderColor(Color.LIGHT_GRAY);
         this.title = title;
         initialize();
     }
@@ -65,26 +69,6 @@ public class RibbonTab extends JPanel {
         JSeparator vertSep = new JSeparator(JSeparator.VERTICAL);
         gbc.gridx++;
         this.add(vertSep, gbc);
-    }
-
-    /**
-     * Overrides the default tab paint with a rounded border and a gradient fill
-     * @param g the <code>Graphics</code> object to use for painting
-     */
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        int w = getWidth();
-        int h = getHeight();
-        Color color1 = Color.WHITE;
-        Color color2 = new Color(229, 233, 238);
-        GradientPaint gp = new GradientPaint(0, 0, color1, 0, h, color2);
-        g2d.setPaint(gp);
-        g2d.fillRoundRect(0, 0, w, h, 15, 15);
-        g2d.setPaint(Color.LIGHT_GRAY);
-        g2d.drawRoundRect(0, 0, w, h, 15, 15);
     }
 
     /**

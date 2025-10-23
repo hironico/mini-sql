@@ -1,5 +1,6 @@
 package net.hironico.minisql.ui.batch;
 
+import net.hironico.common.swing.JRoundedPanel;
 import net.hironico.common.swing.ribbon.RibbonTab;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
@@ -18,7 +19,7 @@ import java.util.logging.Logger;
  * The tree table displays files with columns: FileName, Edit, Run, Result.
  * Edit and Run columns are rendered as buttons for user interaction.
  */
-public class BatchPanel extends JPanel {
+public class BatchPanel extends JRoundedPanel {
     private static final Logger LOGGER = Logger.getLogger(BatchPanel.class.getName());
     
     private JXTreeTable treeTable;
@@ -33,6 +34,10 @@ public class BatchPanel extends JPanel {
     }
 
     private void initialize() {
+        setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
+        setOpaque(true);
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
         setLayout(new BorderLayout());
         
         // Create the tree table model
