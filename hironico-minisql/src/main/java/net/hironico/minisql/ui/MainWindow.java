@@ -309,7 +309,7 @@ public class MainWindow extends JFrame {
     private JTabbedPaneNoContentSeparator getTabExplorer() {
         if (this.tabExplorer == null) {
             this.tabExplorer = new JTabbedPaneNoContentSeparator();
-            this.tabExplorer.setBorder(BorderFactory.createEmptyBorder(0,10,5,5));
+            this.tabExplorer.setBorder(BorderFactory.createEmptyBorder(0,10,0,0));
             this.tabExplorer.addTab("Explorer", getSchemaExplorerPanel());
         }
 
@@ -416,8 +416,8 @@ public class MainWindow extends JFrame {
      */
     public void addNewEditorTab(JComponent comp, String title) {
         Runnable run = () -> {
-            JTabbedPane tabResults = getTabEditors();
-            tabResults.add(comp, title);
+            JTabbedPaneNoContentSeparator tabResults = getTabEditors();
+            tabResults.addTab(title, comp);
             tabResults.setSelectedIndex(tabResults.getTabCount() - 1);
             tabResults.setTabComponentAt(tabResults.getTabCount() - 1, new CloseableTabComponent(tabResults, title));
 
@@ -464,12 +464,7 @@ public class MainWindow extends JFrame {
      * @return Component instance of the current editor tab, and null if none selected
      */
     public Component getCurrentEditorTabComponent() {
-        int selectedIndex = getTabEditors().getSelectedIndex();
-        if (selectedIndex < 0) {
-            return null;
-        }
-
-        return getTabEditors().getComponentAt(selectedIndex);
+        return getTabEditors().getWrappedSelectedComponent();
     }
 
     /**
