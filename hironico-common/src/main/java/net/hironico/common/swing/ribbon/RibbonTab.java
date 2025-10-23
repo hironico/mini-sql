@@ -67,6 +67,10 @@ public class RibbonTab extends JPanel {
         this.add(vertSep, gbc);
     }
 
+    /**
+     * Overrides the default tab paint with a rounded border and a gradient fill
+     * @param g the <code>Graphics</code> object to use for painting
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
