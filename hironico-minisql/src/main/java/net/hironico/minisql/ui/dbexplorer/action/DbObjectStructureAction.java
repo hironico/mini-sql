@@ -1,5 +1,6 @@
 package net.hironico.minisql.ui.dbexplorer.action;
 
+import net.hironico.common.swing.JRoundedPanel;
 import net.hironico.minisql.App;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
@@ -10,6 +11,7 @@ import net.hironico.minisql.model.SQLResultSetTableModel;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.editor.QueryPanel;
 
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -20,8 +22,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import javax.swing.JComponent;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 public class DbObjectStructureAction extends AbstractDbExplorerAction {
 
@@ -311,6 +312,14 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
     private void displayResults(List<SQLResultSetTableModel> modelListToDisplay, SQLObject objectToDisplay) {
         JComponent resultComp = QueryPanel.getResultComponentTab(modelListToDisplay);
         String tabTitle = objectToDisplay.schemaName + "." + objectToDisplay.name + " (" + objectToDisplay.type + ")";
+
+        // resultComp.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
+        JRoundedPanel pnl = new JRoundedPanel();
+        pnl.setGradientBackground(false);
+        pnl.setLayout(new BorderLayout());
+        pnl.add(resultComp, BorderLayout.CENTER);
+
         MainWindow.getInstance().addNewEditorTab(resultComp, tabTitle);
     }
 }
