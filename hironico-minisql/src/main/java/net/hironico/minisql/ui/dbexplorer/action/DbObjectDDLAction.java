@@ -3,7 +3,6 @@ package net.hironico.minisql.ui.dbexplorer.action;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.model.SQLObject;
-import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.model.SQLTable;
 import net.hironico.minisql.model.SQLView;
 import net.hironico.minisql.ui.MainWindow;
@@ -29,7 +28,7 @@ public class DbObjectDDLAction extends AbstractDbExplorerAction {
 
     @Override
     public void actionPerformed(ActionEvent event) {
-        SchemaExplorerPanel explorerPanel = MainWindow.getInstance().getSchemaExcplorerPanel();
+        SchemaExplorerPanel explorerPanel = MainWindow.getInstance().getSchemaExplorerPanel();
         SQLObject obj = explorerPanel.getSelectedSQLObject();
         DbConfig cfg = DbConfigFile.getConfig(explorerPanel.getSelectedConnectionName());
         try {

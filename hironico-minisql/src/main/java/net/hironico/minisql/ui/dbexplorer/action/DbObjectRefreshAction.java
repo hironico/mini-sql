@@ -15,6 +15,6 @@ public class DbObjectRefreshAction extends AbstractDbExplorerAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        MainWindow.getInstance().getSchemaExcplorerPanel().refreshSelectedObject();
+        MainWindow.getInstance().getSchemaExplorerPanel().refreshSelectedObject();
     }
 }

@@ -12,7 +12,7 @@ public class DbObjectCollapseAllAction extends AbstractDbExplorerAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        SchemaExplorerPanel explorerPanel = MainWindow.getInstance().getSchemaExcplorerPanel();
+        SchemaExplorerPanel explorerPanel = MainWindow.getInstance().getSchemaExplorerPanel();
         explorerPanel.collapseAll();
     }
 }

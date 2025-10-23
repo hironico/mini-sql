@@ -14,6 +14,6 @@ public class DbObjectShowSystAction extends AbstractDbExplorerAction {
     @Override
     public void actionPerformed(ActionEvent e) {
         JCheckBox chk = (JCheckBox)e.getSource();
-        MainWindow.getInstance().getSchemaExcplorerPanel().setShowSystemObjects(chk.isSelected());
+        MainWindow.getInstance().getSchemaExplorerPanel().setShowSystemObjects(chk.isSelected());
     }
 }

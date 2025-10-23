@@ -87,7 +87,7 @@ public class SQLObjectMoveHandler extends TransferHandler {
 
         boolean success = false;
         try {
-            String dbConfigName = MainWindow.getInstance().getSchemaExcplorerPanel().getSelectedConnectionName();
+            String dbConfigName = MainWindow.getInstance().getSchemaExplorerPanel().getSelectedConnectionName();
             DbConfig dbConfig = DbConfigFile.getConfig(dbConfigName);
 
             SQLObject[] importedData = (SQLObject[])t.getTransferData(objectArrayFlavor);
@@ -122,7 +122,7 @@ public class SQLObjectMoveHandler extends TransferHandler {
             @Override
             public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
 
-                List<SQLObject> objList = MainWindow.getInstance().getSchemaExcplorerPanel().getAllSelectedSQLObjects();
+                List<SQLObject> objList = MainWindow.getInstance().getSchemaExplorerPanel().getAllSelectedSQLObjects();
                 return objList.toArray(new SQLObject[0]);
             }
         };

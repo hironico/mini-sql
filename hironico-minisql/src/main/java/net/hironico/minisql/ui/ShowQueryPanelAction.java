@@ -20,7 +20,7 @@ public class ShowQueryPanelAction extends AbstractRibbonAction {
     }
 
     public void actionPerformed(ActionEvent evt) {
-        String conName = MainWindow.getInstance().getSchemaExcplorerPanel().getSelectedConnectionName();
+        String conName = MainWindow.getInstance().getSchemaExplorerPanel().getSelectedConnectionName();
         if (conName == null) {
             return;
         }

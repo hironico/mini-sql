@@ -1,5 +1,6 @@
 package net.hironico.minisql.ui;
 
+import com.formdev.flatlaf.FlatClientProperties;
 import net.hironico.common.swing.ribbon.*;
 import net.hironico.minisql.App;
 import net.hironico.minisql.DbConfigFile;
@@ -307,14 +308,15 @@ public class MainWindow extends JFrame {
     private JTabbedPane getTabExplorer() {
         if (this.tabExplorer == null) {
             this.tabExplorer = new JTabbedPane();
-
-            this.tabExplorer.addTab("Explorer", getSchemaExcplorerPanel());
+            this.tabExplorer.putClientProperty(FlatClientProperties.TABBED_PANE_SHOW_CONTENT_SEPARATOR, false);
+            this.tabExplorer.setBorder(BorderFactory.createEmptyBorder(0,10,5,5));
+            this.tabExplorer.addTab("Explorer", getSchemaExplorerPanel());
         }
 
         return this.tabExplorer;
     }
 
-    public SchemaExplorerPanel getSchemaExcplorerPanel() {
+    public SchemaExplorerPanel getSchemaExplorerPanel() {
         if (this.schemaExplorerPanel == null) {
             this.schemaExplorerPanel = new SchemaExplorerPanel();
         }

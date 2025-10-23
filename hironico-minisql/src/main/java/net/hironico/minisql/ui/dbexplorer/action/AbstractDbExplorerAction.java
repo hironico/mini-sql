@@ -16,7 +16,7 @@ public abstract class AbstractDbExplorerAction extends AbstractRibbonAction {
     }
 
     protected SchemaExplorerPanel getExplorerPanel() {
-        return MainWindow.getInstance().getSchemaExcplorerPanel();
+        return MainWindow.getInstance().getSchemaExplorerPanel();
     }
 
     protected QueryPanel showNewQueryPanel() {

@@ -11,7 +11,7 @@ public class DbObjectExpandAllAction extends AbstractDbExplorerAction {
     }
     @Override
     public void actionPerformed(ActionEvent e) {
-        SchemaExplorerPanel pnl = MainWindow.getInstance().getSchemaExcplorerPanel();
+        SchemaExplorerPanel pnl = MainWindow.getInstance().getSchemaExplorerPanel();
         pnl.expandAll();
     }
 }

@@ -27,12 +27,12 @@ public class DbObjectExecuteProcAction extends AbstractDbExplorerAction {
     }
 
     public void actionPerformed(ActionEvent evt) {
-        DbConfig configToUse = DbConfigFile.getConfig(MainWindow.getInstance().getSchemaExcplorerPanel().getSelectedConnectionName());
+        DbConfig configToUse = DbConfigFile.getConfig(MainWindow.getInstance().getSchemaExplorerPanel().getSelectedConnectionName());
         if (configToUse == null) {
             return;
         }
 
-        SQLObject obj = MainWindow.getInstance().getSchemaExcplorerPanel().getSelectedSQLObject();
+        SQLObject obj = MainWindow.getInstance().getSchemaExplorerPanel().getSelectedSQLObject();
         if (obj == null) {
             return;
         }
