@@ -1,6 +1,6 @@
 SELECT distinct t.typname
-FROM pg_catalog.pg_enum e
-LEFT JOIN pg_catalog.pg_type t on t.OID = e.ENUMTYPID
-LEFT JOIN pg_catalog.pg_roles r on r.OID = t.TYPOWNER
-WHERE r.ROLNAME = '?USER?'
-order by typname
+FROM   pg_enum e
+JOIN   pg_type t ON e.enumtypid = t.oid
+JOIN   pg_namespace n ON t.typnamespace = n.oid
+WHERE  n.nspname = '?SCHEMA?'
+ORDER BY t.typname

@@ -111,9 +111,9 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
             try (InputStream is = getClass().getClassLoader().getResourceAsStream("net/hironico/minisql/metadata/postgresql/pg_get_enums.sql")) {
                 assert is != null;
                 sql = new String(is.readAllBytes());
-                sql = sql.replace("?USER?", configToUse.user);
+                sql = sql.replace("?SCHEMA?", schemaName);
             } catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Cannot load the postgresql query for listing functions.", ex);
+                LOGGER.log(Level.SEVERE, "Cannot load the postgresql query for listing enums.", ex);
             }
             Statement stmt = con.createStatement();
             ResultSet rs = stmt.executeQuery(sql);
@@ -123,7 +123,7 @@ public class ObjectListCallable implements Callable<List<String[]>>, Supplier<Li
                 row[1] = rs.getString(1);
                 row[2] = SQLObjectTypeEnum.ENUM.toString();
 
-                LOGGER.fine("Sequence found: " + String.join(" ; ", row));
+                LOGGER.fine("Enum found: " + String.join(" ; ", row));
 
                 result.add(row);
             }
