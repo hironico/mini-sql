@@ -84,6 +84,7 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         if (toolbar == null) {
             toolbar = new JToolBar();
             toolbar.setFloatable(false);
+            toolbar.setBorder(BorderFactory.createEmptyBorder());
             toolbar.add(getCmbConfig());
             toolbar.addSeparator();
             toolbar.add(this.getToggleTable());

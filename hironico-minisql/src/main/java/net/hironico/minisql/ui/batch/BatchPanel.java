@@ -63,6 +63,7 @@ public class BatchPanel extends JRoundedPanel {
         if (toolbar == null) {
             toolbar = new JToolBar();
             toolbar.setFloatable(false);
+            toolbar.setBorder(BorderFactory.createEmptyBorder());
             toolbar.add(getCmbConfig());
         }
 
