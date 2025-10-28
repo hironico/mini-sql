@@ -10,10 +10,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
-public class SelectFileAction extends AbstractRibbonAction {
+public class AddFileBatchAction extends AbstractRibbonAction {
 
-    public SelectFileAction() {
-        super("Select file", "icons8-add-file-64.png");
+    public AddFileBatchAction() {
+        super("Add file", "icons8-add-file-64.png");
     }
 
     @Override

@@ -5,9 +5,13 @@ import net.hironico.common.swing.ribbon.RibbonTab;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.ui.MainWindow;
+import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 
 import javax.swing.*;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.io.File;
@@ -148,6 +152,19 @@ public class BatchPanel extends JRoundedPanel {
             LOGGER.severe("Cannot load files from empty or null file list. Empty directory?");
         }
         treeTable.expandAll();
+    }
+
+    /**
+     * Removes the currently selected rows from the batch. If selection is a folder then
+     * all underlying files are also removed.
+     */
+    public void removeSelection() {
+        TreePath[] pathsToRemove = treeTable.getTreeSelectionModel().getSelectionPaths();
+        BatchFileTreeTableModel model = (BatchFileTreeTableModel) treeTable.getTreeTableModel();
+        for(TreePath tp : pathsToRemove) {
+            DefaultMutableTreeTableNode node = (DefaultMutableTreeTableNode) tp.getLastPathComponent();
+            node.removeFromParent();
+        }
     }
     
     private void configureColumns() {

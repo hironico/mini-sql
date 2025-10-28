@@ -12,10 +12,10 @@ import java.io.File;
 /**
  * Select a folder and load all the files in this folder into the batch execution tab
  */
-public class SelectFolderAction extends AbstractRibbonAction {
+public class AddFolderBatchAction extends AbstractRibbonAction {
 
-    public SelectFolderAction() {
-        super("Select folder", "icons8-add-folder-64.png");
+    public AddFolderBatchAction() {
+        super("Add folder", "icons8-add-folder-64.png");
     }
 
     @Override

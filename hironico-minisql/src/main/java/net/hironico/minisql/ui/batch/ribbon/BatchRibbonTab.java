@@ -4,8 +4,6 @@ import net.hironico.common.swing.ribbon.RibbonGroup;
 import net.hironico.common.swing.ribbon.RibbonTab;
 import net.hironico.minisql.ui.batch.action.*;
 
-import javax.swing.*;
-
 /**
  * Ribbon tab to hold all the batch execution actions on the Batch Execution Tab
  */
@@ -23,8 +21,8 @@ public class BatchRibbonTab extends RibbonTab {
         if (fileSelectionGroup == null) {
             fileSelectionGroup = new RibbonGroup("Files selection");
 
-            fileSelectionGroup.addButton(new SelectFolderAction(), RibbonGroup.SMALL);
-            fileSelectionGroup.addButton(new SelectFileAction(), RibbonGroup.SMALL);
+            fileSelectionGroup.addButton(new AddFolderBatchAction(), RibbonGroup.SMALL);
+            fileSelectionGroup.addButton(new AddFileBatchAction(), RibbonGroup.SMALL);
             fileSelectionGroup.addButton(new ClearFilesAction(), RibbonGroup.LARGE);
         }
 
