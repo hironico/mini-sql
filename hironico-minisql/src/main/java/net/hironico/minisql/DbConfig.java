@@ -86,7 +86,7 @@ public class DbConfig implements Cloneable {
     }
     public Connection getConnection() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
         LOGGER.finest("Get connection: Loading driver class: " + this.driverClassName);
-        Class.forName(this.driverClassName).getConstructor().newInstance();
+        
         Properties props = new Properties();
         props.put("user", this.user);
         props.put("password", DbConfig.decryptPassword(this.password));
@@ -94,8 +94,48 @@ public class DbConfig implements Cloneable {
         if (this.jdbcUrl.contains("oracle")) {
             addOracleProperties(props);
         }
+        
+        // Try to load the driver using the custom driver class loader first (for dynamically loaded drivers)
+        ClassLoader driverClassLoader = getDriverClassLoader();
+        
+        try {
+            // Load driver class from custom class loader
+            Class<?> driverClass = Class.forName(this.driverClassName, true, driverClassLoader);
+            java.sql.Driver driver = (java.sql.Driver) driverClass.getConstructor().newInstance();
+            
+            LOGGER.finest("Loaded driver using custom driver class loader: " + this.driverClassName);
+            
+            // Bypass DriverManager and connect directly using the driver instance
+            // This is necessary because DriverManager has security restrictions with custom class loaders
+            Connection conn = driver.connect(this.jdbcUrl, props);
+            
+            if (conn == null) {
+                throw new SQLException("Driver returned null connection for URL: " + this.jdbcUrl);
+            }
+            
+            return conn;
+            
+        } catch (ClassNotFoundException e) {
+            // Fall back to default class loader and DriverManager
+            LOGGER.finest("Driver not found in custom class loader, trying system class loader");
+            Class.forName(this.driverClassName).getConstructor().newInstance();
+            return DriverManager.getConnection(this.jdbcUrl, props);
+        }
+    }
 
-        return DriverManager.getConnection(this.jdbcUrl, props);
+    /**
+     * Get the driver class loader from DriverConfigPanel.
+     * This allows loading drivers that were dynamically added through the UI.
+     */
+    private ClassLoader getDriverClassLoader() {
+        try {
+            Class<?> driverConfigPanelClass = Class.forName("net.hironico.minisql.ui.config.DriverConfigPanel");
+            java.lang.reflect.Method method = driverConfigPanelClass.getDeclaredMethod("getDriverClassLoader");
+            return (ClassLoader) method.invoke(null);
+        } catch (Exception e) {
+            LOGGER.finest("Could not get custom driver class loader, using system class loader");
+            return ClassLoader.getSystemClassLoader();
+        }
     }
 
     private void addOracleProperties(Properties props) {

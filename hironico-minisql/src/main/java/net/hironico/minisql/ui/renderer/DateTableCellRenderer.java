@@ -8,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
-import oracle.sql.TIMESTAMPTZ;
 
 public class DateTableCellRenderer implements TableCellRenderer {
 
@@ -28,12 +27,6 @@ public class DateTableCellRenderer implements TableCellRenderer {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
-
-        // oracle SQL TIMESTAMPZ
-        if (value instanceof TIMESTAMPTZ) {
-            TIMESTAMPTZ tz = (TIMESTAMPTZ)value;
-            System.out.println(tz.toString());
-        }
 
         if (value instanceof Date) {
             Timestamp valueDate = (Timestamp)value;

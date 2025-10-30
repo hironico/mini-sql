@@ -30,6 +30,8 @@ public class DbConfigFile {
 
     protected static Boolean decoratedWindow = Boolean.FALSE;
 
+    protected static List<String> driverJarPaths = new ArrayList<>();
+
     public interface DbConfigFileListener {
         void configAdded(DbConfig config);
         void configRemoved(DbConfig config);
@@ -150,6 +152,28 @@ public class DbConfigFile {
         this.decoratedWindow = decoratedWindow == null ? Boolean.FALSE : decoratedWindow;
     }
 
+    @JsonProperty("driverJarPaths")
+    @JacksonXmlElementWrapper(localName = "driver-jar-paths")
+    @JacksonXmlProperty(localName = "driver-jar-path")
+    public List<String> getDriverJarPaths() {
+        return driverJarPaths;
+    }
+
+    public void setDriverJarPaths(List<String> driverJarPaths) {
+        DbConfigFile.driverJarPaths = driverJarPaths == null ? new ArrayList<>() : driverJarPaths;
+        LOGGER.info("Loaded " + DbConfigFile.driverJarPaths.size() + " driver JAR paths.");
+    }
+
+    public void addDriverJarPath(String path) {
+        if (path != null && !driverJarPaths.contains(path)) {
+            driverJarPaths.add(path);
+        }
+    }
+
+    public void removeDriverJarPath(String path) {
+        driverJarPaths.remove(path);
+    }
+
     public static File getConfigFile() {
         return new File(System.getProperty("user.home") + File.separator + "minisql-config.xml");
     }
@@ -179,5 +203,54 @@ public class DbConfigFile {
         final StringBuffer allNames = new StringBuffer();
         DbConfigFile.all.forEach(cfg -> allNames.append(" ").append(cfg.name));
         LOGGER.info("Found: " + DbConfigFile.all.size() + " DB configurations: " + allNames);
+        
+        // Automatically load all configured driver JARs
+        loadAllDriverJars();
+    }
+    
+    /**
+     * Load all configured driver JAR files into the classpath.
+     * This method is called automatically when the configuration is loaded.
+     */
+    private static void loadAllDriverJars() {
+        if (driverJarPaths == null || driverJarPaths.isEmpty()) {
+            LOGGER.info("No driver JAR paths configured");
+            return;
+        }
+        
+        LOGGER.info("Loading " + driverJarPaths.size() + " driver JAR(s) from configuration...");
+        
+        for (String jarPath : driverJarPaths) {
+            try {
+                java.io.File jarFile = new java.io.File(jarPath);
+                if (!jarFile.exists()) {
+                    LOGGER.warning("Driver JAR file not found: " + jarPath);
+                    continue;
+                }
+                
+                loadDriverJar(jarFile);
+                LOGGER.info("Successfully loaded driver JAR: " + jarFile.getName());
+                
+            } catch (Exception ex) {
+                LOGGER.log(Level.SEVERE, "Failed to load driver JAR: " + jarPath, ex);
+            }
+        }
+    }
+    
+    /**
+     * Load a single driver JAR file into the classpath.
+     * This delegates to DriverConfigPanel's addJarToClasspath functionality.
+     */
+    private static void loadDriverJar(java.io.File jarFile) throws Exception {
+        try {
+            // Use reflection to call DriverConfigPanel's method to avoid direct dependency
+            Class<?> driverConfigPanelClass = Class.forName("net.hironico.minisql.ui.config.DriverConfigPanel");
+            java.lang.reflect.Method method = driverConfigPanelClass.getDeclaredMethod("loadDriverJarStatic", java.io.File.class);
+            method.setAccessible(true);
+            method.invoke(null, jarFile);
+        } catch (ClassNotFoundException e) {
+            LOGGER.warning("DriverConfigPanel class not found, cannot load driver JARs");
+            throw e;
+        }
     }
 }

@@ -4,8 +4,6 @@ import net.hironico.common.swing.JRoundedPanel;
 import org.jdesktop.swingx.JXTree;
 
 import javax.swing.*;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
@@ -23,9 +21,11 @@ public class ConfigPanel extends JRoundedPanel {
 
     private final String CARD_GENERAL = "General";
     private final String CARD_CONNECTIONS = "Connections";
+    private final String CARD_DRIVERS = "Drivers";
 
     private GeneralConfigPanel generalConfigPanel = null;
     private DbConfigPanel dbConfigPanel = null;
+    private DriverConfigPanel driverConfigPanel = null;
 
     public ConfigPanel() {
         super();
@@ -51,6 +51,7 @@ public class ConfigPanel extends JRoundedPanel {
 
             this.mainPanel.add(getGeneralConfigPanel(), CARD_GENERAL);
             this.mainPanel.add(getDbConfigPanel(), CARD_CONNECTIONS);
+            this.mainPanel.add(getDriverConfigPanel(), CARD_DRIVERS);
         }
 
         return this.mainPanel;
@@ -69,9 +70,11 @@ public class ConfigPanel extends JRoundedPanel {
             DefaultMutableTreeNode root = new DefaultMutableTreeNode();
             DefaultMutableTreeNode general = new DefaultMutableTreeNode("General");
             DefaultMutableTreeNode connections = new DefaultMutableTreeNode("Connections");
+            DefaultMutableTreeNode drivers = new DefaultMutableTreeNode("Drivers");
 
             root.add(general);
             root.add(connections);
+            root.add(drivers);
 
             treeMenu = new JXTree(root);
             treeMenu.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -110,5 +113,13 @@ public class ConfigPanel extends JRoundedPanel {
         }
 
         return dbConfigPanel;
+    }
+
+    private DriverConfigPanel getDriverConfigPanel() {
+        if (driverConfigPanel == null) {
+            driverConfigPanel = new DriverConfigPanel();
+        }
+
+        return driverConfigPanel;
     }
 }
