@@ -24,6 +24,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jdesktop.swingx.JXLabel;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTextField;
+import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 public class QueryHistoryPanel extends JRoundedPanel {
@@ -124,8 +125,11 @@ public class QueryHistoryPanel extends JRoundedPanel {
         if (tableHistory == null) {
             tableHistory = new FilterableTable();
             tableHistory.setOpaque(true);
-            tableHistory.setBackground(new Color(236, 243, 250));
-            tableHistory.addHighlighter(HighlighterFactory.createSimpleStriping());
+            Color coolBlue = new Color(236, 243, 250);
+            tableHistory.setBackground(coolBlue);
+            Highlighter highlighter = HighlighterFactory.createAlternateStriping(Color.WHITE, coolBlue, 1);
+            tableHistory.setHighlighters(highlighter);
+            
             tableHistory.setEditable(false);
             tableHistory.setColumnControlVisible(false);
             tableHistory.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
@@ -133,9 +137,7 @@ public class QueryHistoryPanel extends JRoundedPanel {
 
             tableHistory.setModel(getQueryHistoryTableModel());
 
-            Font font = getTxtPreview().getFont();
-            tableHistory.setFont(font);
-            FontMetrics fm = tableHistory.getFontMetrics(font);
+            FontMetrics fm = tableHistory.getFontMetrics(tableHistory.getFont());
             int width = fm.stringWidth(" MM/MM/MMMM 99:99:99 ") + 10;
 
             TableColumn colDate = tableHistory.getColumn(0);
@@ -171,8 +173,7 @@ public class QueryHistoryPanel extends JRoundedPanel {
                         }
 
                         Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();
-                        if (comp instanceof QueryPanel) {
-                            QueryPanel queryPanel = (QueryPanel)comp;
+                        if (comp instanceof QueryPanel queryPanel) {
                             String newSql = String.format("%s\n\n%s",queryPanel.getQueryText(), selectedEntry.query);
                             queryPanel.setQueryText(newSql);
                         }
