@@ -4,6 +4,7 @@ import net.hironico.minisql.ui.CopyAllAction;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Rectangle2D;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -19,8 +20,6 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 public class ClobTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
-    private static final long serialVersionUID = 1L;
-    
     private static final Logger LOGGER = Logger.getLogger(ClobTableCellEditor.class.getName());
 
     private Object editedValue;
@@ -36,7 +35,7 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
     private JPanel pnlClobViewer = null;
     private JDialog dialogClobViewer = null;
 
-    private TableCellEditor editorDelegate;
+    private final TableCellEditor editorDelegate;
 
     private JTable parentTable = null;
 
@@ -118,9 +117,9 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
                     final Highlighter h = txtClobViewer.getHighlighter();
                     h.removeAllHighlights();
 
-                    if (word == null || "".equals(word)) {
-                        Rectangle rect = getTxtClobViewer().modelToView(0);
-                        getScrollClobViewer().scrollRectToVisible(rect);
+                    if (word == null || word.isEmpty()) {
+                        Rectangle2D rect = getTxtClobViewer().modelToView2D(0);
+                        getScrollClobViewer().scrollRectToVisible(rect.getBounds());
                         return;
                     }
 
@@ -141,8 +140,8 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
 
                     if (firstOccurencePos >= 0) {
                         getTxtClobViewer().setCaretPosition(firstOccurencePos);
-                        Rectangle rect = getTxtClobViewer().modelToView(firstOccurencePos);
-                        getScrollClobViewer().scrollRectToVisible(rect);
+                        Rectangle2D rect = getTxtClobViewer().modelToView2D(firstOccurencePos);
+                        getScrollClobViewer().scrollRectToVisible(rect.getBounds());
                     }
                 } catch (BadLocationException ex) {
                     LOGGER.log(Level.SEVERE, "Problem while highlighting things in CLOB viewer.", ex);
@@ -258,7 +257,7 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
                 String txt = value == null ? "<NULL>" : "<CLOB>";
                 getLabel().setText(txt);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
             }
 
             Color bg = isSelected ? table.getSelectionBackground() : table.getBackground();

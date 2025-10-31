@@ -12,12 +12,13 @@ public class EntitiesUtils {
 
     /**
      * Saves the entity into the database using commit transaction if possible. the transaction scope is the whole
-     * set of given entities. If one fails then the whole bathc will be rollbacked.
+     * set of given entities. If one fails then the whole batch will be rollback.
      * @param entityManager properly initialized entity manager
      * @param entities one or more entity to persist in the DB.
      * @return merged entities in a list.
      * @throws Exception in case of any problem
      */
+    @SafeVarargs
     public static <T> List<T> saveEntities(EntityManager entityManager, T... entities)
     throws Exception {
         try {

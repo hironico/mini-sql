@@ -8,13 +8,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
@@ -23,6 +26,9 @@ import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TestJSONFile {
+
+    private static final Logger LOG = Logger.getLogger(TestJSONFile.class.getName());
+
     @JsonRootName("JSONTestObject")
     public static class JSONTestObject {
         @JsonProperty("firstName")
@@ -39,7 +45,7 @@ public class TestJSONFile {
     }
 
     protected static JSONTestObject testObj;
-    protected static ObjectMapper mapper;
+    protected static JsonMapper mapper;
     protected static File testFile = new File("./testFile.json");
 
     @BeforeClass
@@ -51,15 +57,13 @@ public class TestJSONFile {
         testObj.siblings.add("Second");
         testObj.siblings.add("Third");
 
-        mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.disable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
-
-        // serialize ONLY annotated properties
-        mapper.disable(MapperFeature.AUTO_DETECT_CREATORS,
+        MapperBuilder<JsonMapper, JsonMapper.Builder> builder = JsonMapper.builder().enable(SerializationFeature.INDENT_OUTPUT)
+                .disable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID)
+                .disable(MapperFeature.AUTO_DETECT_CREATORS,
                        MapperFeature.AUTO_DETECT_FIELDS,
                        MapperFeature.AUTO_DETECT_GETTERS,
                        MapperFeature.AUTO_DETECT_IS_GETTERS);
+        mapper = builder.build();
     }
 
     @AfterClass
@@ -80,8 +84,8 @@ public class TestJSONFile {
             String testValue = JSONFile.serialize(testObj);
             assertEquals(jsonStr, testValue);
         } catch (Exception ex) {
+            LOG.log(Level.SEVERE, "Could not serialize object", ex);
             fail("Could not serialize object.");
-            ex.printStackTrace();
         }
     }
 
@@ -92,7 +96,7 @@ public class TestJSONFile {
             boolean result = JSONFile.saveAs(testFile, testObj);
             assertTrue("Could not save the JSON file.", result);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOG.log(Level.SEVERE, "Could not write the json file.", ex);
             fail(ex.getMessage());
         }
 
@@ -112,7 +116,7 @@ public class TestJSONFile {
             assertEquals(serializedObj, fileContent);
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            LOG.log(Level.SEVERE, "Could not load the JSON file.", ex);
             fail(ex.getMessage());
         }
     }

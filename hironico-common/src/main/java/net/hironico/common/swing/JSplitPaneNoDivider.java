@@ -10,9 +10,8 @@ import javax.swing.plaf.basic.BasicSplitPaneDivider;
 import javax.swing.plaf.basic.BasicSplitPaneUI;
 
 public class JSplitPaneNoDivider extends JSplitPane {
-    private static final long serialVersionUID = 1L;
-    private int dividerDragSize = 9;
-    private int dividerDragOffset = 4;
+
+    private final int dividerDragOffset = 4;
     private boolean drawDividerLine = false;
 
     public JSplitPaneNoDivider() {
@@ -21,12 +20,13 @@ public class JSplitPaneNoDivider extends JSplitPane {
     }
 
     @Override
-    public void layout() {
-        super.layout();
+    public void doLayout() {
+        super.doLayout();
 
         // increase divider width or height
         BasicSplitPaneDivider divider = ((BasicSplitPaneUI)getUI()).getDivider();
         Rectangle bounds = divider.getBounds();
+        int dividerDragSize = 9;
         if( orientation == HORIZONTAL_SPLIT ) {
             bounds.x -= dividerDragOffset;
             bounds.width = dividerDragSize;
@@ -59,8 +59,6 @@ public class JSplitPaneNoDivider extends JSplitPane {
     }
 
     private class ZeroSizeDivider extends BasicSplitPaneDivider {
-        private static final long serialVersionUID = 1L;
-
         public ZeroSizeDivider(BasicSplitPaneUI ui) {
             super( ui );
             super.setBorder( null );

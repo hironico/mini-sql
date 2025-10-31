@@ -3,25 +3,29 @@ package net.hironico.common.utils.json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.MapperBuilder;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class JSONFile {
 
-    private static final ObjectMapper mapper = new ObjectMapper();
+    private static final MapperBuilder<JsonMapper, JsonMapper.Builder> builder;
+    private static final JsonMapper mapper;
 
     static {
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        mapper.disable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
-
         // serialize ONLY annotated properties
-        mapper.disable(MapperFeature.AUTO_DETECT_CREATORS,
-                       MapperFeature.AUTO_DETECT_FIELDS,
-                       MapperFeature.AUTO_DETECT_GETTERS,
-                       MapperFeature.AUTO_DETECT_IS_GETTERS);
+        builder = JsonMapper.builder()
+                .disable(MapperFeature.AUTO_DETECT_CREATORS,
+                         MapperFeature.AUTO_DETECT_FIELDS,
+                         MapperFeature.AUTO_DETECT_GETTERS,
+                         MapperFeature.AUTO_DETECT_IS_GETTERS)
+                .enable(SerializationFeature.INDENT_OUTPUT)
+                .disable(SerializationFeature.WRITE_DATES_WITH_ZONE_ID);
+        mapper = builder.build();
     }
 
     /**
@@ -38,7 +42,7 @@ public class JSONFile {
         }
     }
 
-    public static <T extends Object> T parse(String jsonStr, Class<T> clazz) throws IOException {
+    public static <T> T parse(String jsonStr, Class<T> clazz) throws IOException {
         try {
             return (T) mapper.readValue(jsonStr.getBytes(), clazz);
         } catch (Exception ex) {
@@ -46,7 +50,7 @@ public class JSONFile {
         }
     }
 
-    public static <T extends Object> T load(InputStream in, Class<T> clazz) throws IOException {
+    public static <T> T load(InputStream in, Class<T> clazz) throws IOException {
         try {
             return (T) mapper.readValue(in, clazz);
         } catch (Exception ex) {
@@ -54,7 +58,7 @@ public class JSONFile {
         }
     }
 
-    public static <T extends Object> T load(File file, Class<T> clazz) throws IOException {
+    public static <T> T load(File file, Class<T> clazz) throws IOException {
         try {
             return (T) mapper.readValue(file, clazz);
         } catch (Exception ex) {
