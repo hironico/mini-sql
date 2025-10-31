@@ -1,14 +1,11 @@
 package net.hironico.minisql.ctrl;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import java.sql.SQLException;
-import java.sql.ResultSet;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,7 +53,7 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
         }
     }
 
-    private SQLResultSetTableModel geTableForeignKeys(DatabaseMetaData metaData) throws SQLException {
+    private SQLResultSetTableModel getTableForeignKeys(DatabaseMetaData metaData) throws SQLException {
         try (ResultSet rs = metaData.getImportedKeys(null, schemaName, objectName)) {
             return new SQLResultSetTableModel(rs, "Foreign keys", "N/A", SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
         }
@@ -66,6 +63,76 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
         try (ResultSet rs = metaData.getProcedureColumns(null, schemaName, objectName, null)) {
             return new SQLResultSetTableModel(rs, "Columns", "N/A", SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
         }
+    }
+
+    /**
+     * Gets the table triggers from its schema and table name. Can only be invoked if the object
+     * is of table nature.
+     * @return SQLResultSetTableModel containing trigger info.
+     * @throws SQLException in case of any problem while requesting the database.
+     */
+    private SQLResultSetTableModel getTableTriggers() throws SQLException {
+        try (Connection con = config.getConnection()) {
+            ResultSet rsTriggers = getTriggerMetaData(con);
+            if (rsTriggers == null) {
+                return null;
+            }
+            return new SQLResultSetTableModel(rsTriggers, "Triggers", "N/A", SQLResultSetTableModel.DISPLAY_TYPE_TABLE);
+        } catch (Exception ex) {
+            throw new SQLException(ex);
+        }
+    }
+
+    private ResultSet getTriggerMetaData(Connection con) throws  SQLException{
+        String query = this.getTriggerQuery();
+        if (query == null) {
+            return null;
+        }
+        Statement stmt = con.createStatement();
+        return stmt.executeQuery(query);
+    }
+
+    private String getTriggerQuery() {
+        if (config.jdbcUrl.contains("postgres")) {
+            return String.format("""
+                SELECT trigger_name,
+                       event_manipulation,
+                       action_statement,
+                       action_timing
+                FROM   information_schema.triggers
+                WHERE  trigger_schema = '%s'
+                  AND  event_object_table = '%s'
+                """, schemaName, objectName);
+        }
+
+        if (config.jdbcUrl.contains("oracle")) {
+            return String.format("""
+                    SELECT owner,
+                           trigger_name,
+                           trigger_type,
+                           table_name,
+                           status
+                    FROM   all_triggers
+                    WHERE  owner      = %s
+                      AND  table_name = %s
+                    """, schemaName, objectName);
+        }
+
+        if (config.jdbcUrl.contains("tds")) {
+            return String.format("""
+                    SELECT trg.name          AS trigger_name,
+                           trg.type_desc     AS trigger_type,
+                           obj.name          AS table_name,
+                           m.definition      AS trigger_definition
+                    FROM   sys.triggers trg
+                    JOIN   sys.tables   obj ON trg.parent_id = obj.object_id
+                    CROSS APPLY sys.sql_modules m ON m.object_id = trg.object_id
+                    WHERE  obj.name = %s
+                    """, objectName);
+        }
+
+        LOGGER.severe("Triggers metadata retrieve for this JDBC URL is unsupported: " + config.jdbcUrl);
+        return null;
     }
 
     public List<SQLResultSetTableModel> call() {
@@ -86,8 +153,13 @@ public class MetadataResultCallable implements Callable<List<SQLResultSetTableMo
                 SQLResultSetTableModel resultPriv = getTablePrivileges(metaData);
                 result.add(resultPriv);
 
-                SQLResultSetTableModel resultFK = geTableForeignKeys(metaData);
+                SQLResultSetTableModel resultFK = getTableForeignKeys(metaData);
                 result.add(resultFK);
+
+                SQLResultSetTableModel resultTriggers = getTableTriggers();
+                if (resultTriggers != null) {
+                    result.add(resultTriggers);
+                }
                 break;
 
                 case VIEW:
