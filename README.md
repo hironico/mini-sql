@@ -9,13 +9,13 @@ Mini SQL aim to be :
 
 # Binaries
 
-Mini SQL is packaged in a single binary JAR file that you can launch with the following command:
+Mini SQL is packaged in a single binary JAR file containing all required dependencies.
+Download the dist package and launch with the following command:
 ```java -jar hironico-minisql-dist-x.y.z.jar```
 
 [![Release Status](https://github.com/hironico/mini-sql/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/hironico/mini-sql/actions/workflows/maven-publish.yml/badge.svg) 
 
 [![Build Status](https://github.com/hironico/mini-sql/actions/workflows/main.yml/badge.svg)](https://github.com/hironico/mini-sql/actions/workflows/main.yml/badge.svg)
-
 
 ## Download 
 
@@ -24,15 +24,20 @@ Go to [Maven Central](https://central.sonatype.com/artifact/net.hironico/hironic
 # Database support 
 
 Virtually, Mini SQL can connect to any JDBC compliant database server. 
-For your convenience, we included in the distribution three major vendors:
+For your convenience, we included in the distribution the following major vendors:
 - Oracle
 - TDS based : Sybase / IQ and MSSQL server
 - Postgres
 
-If you need to include a driver that is not in the provided distribution, clone this project and add the maven dependency for your driver in the 
-root project pom.xml file. Then Build the project using maven so a binary distribution with the newly added driver will be produced.
- 
-On the contrary you may remove the database drivers you do not need in order to lighten the distribution jar.
+If you need to use a driver that is not in the provided distribution:
+- Download the driver JAR file from the database vendor
+- Launch Mini-SQL and open configuration
+- In the Drivers tab browse for the driver file and load it into the classpath
+- When opening again mini sql, configured additional drivers are automatically added to classpath.
+- If changing the driver file's location, don't forget to update the configuration.
+
+## Change the packaging 
+To add or remove drivers embedded in the distribution uber jar, then update the pom.xml and rebuild.
 
 # Development
 
