@@ -5,7 +5,21 @@ Mini SQL aim to be :
 - very lightweight (core program is less than one MB)
 - very fast 
 - full of essential functionalities
-- pleasant to use user interface (thanks [icons8](https://icons8.com) the creators of fantastic Pichon)
+- pleasant to use user interface (thanks [icons8](https://icons8.com), the creators of the fantastic Pichon and icons)
+
+# Binaries
+
+Mini SQL is packaged in a single binary JAR file that you can launch with the following command:
+```java -jar hironico-minisql-dist-x.y.z.jar```
+
+[![Release Status](https://github.com/hironico/mini-sql/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/hironico/mini-sql/actions/workflows/maven-publish.yml/badge.svg) 
+
+[![Build Status](https://github.com/hironico/mini-sql/actions/workflows/main.yml/badge.svg)](https://github.com/hironico/mini-sql/actions/workflows/main.yml/badge.svg)
+
+
+## Download 
+
+Go to [Maven Central](https://central.sonatype.com/artifact/net.hironico/hironico-minisql-dist) and download the latest version.
 
 # Database support 
 
