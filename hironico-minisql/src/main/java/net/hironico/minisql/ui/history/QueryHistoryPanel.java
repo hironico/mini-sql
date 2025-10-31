@@ -98,6 +98,11 @@ public class QueryHistoryPanel extends JRoundedPanel {
 
     private QueryHistoryEntry getSelectedQueryHistoryEntry() {
         int row = getTableHistory().getSelectedRow();
+        if (row < 0) {
+            return null;
+        }
+        // Convert view index to model index to handle filtered rows correctly
+        row = getTableHistory().convertRowIndexToModel(row);
         return QueryHistory.getInstance().getQueryHistoryAt(row);
     }
 
