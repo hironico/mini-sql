@@ -129,7 +129,7 @@ public class QueryHistoryPanel extends JRoundedPanel {
             tableHistory.setBackground(coolBlue);
             Highlighter highlighter = HighlighterFactory.createAlternateStriping(Color.WHITE, coolBlue, 1);
             tableHistory.setHighlighters(highlighter);
-            
+
             tableHistory.setEditable(false);
             tableHistory.setColumnControlVisible(false);
             tableHistory.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
