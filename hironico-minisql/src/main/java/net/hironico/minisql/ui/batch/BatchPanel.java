@@ -189,7 +189,7 @@ public class BatchPanel extends JRoundedPanel {
         BatchFileTreeTableModel model = (BatchFileTreeTableModel) treeTable.getTreeTableModel();
         for(TreePath tp : pathsToRemove) {
             DefaultMutableTreeTableNode node = (DefaultMutableTreeTableNode) tp.getLastPathComponent();
-            node.removeFromParent();
+            model.removeNodeFromParent(node);
         }
     }
     

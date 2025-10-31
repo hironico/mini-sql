@@ -23,6 +23,7 @@ public class BatchRibbonTab extends RibbonTab {
 
             fileSelectionGroup.addButton(new AddFolderBatchAction(), RibbonGroup.SMALL);
             fileSelectionGroup.addButton(new AddFileBatchAction(), RibbonGroup.SMALL);
+            fileSelectionGroup.addButton(new RemoveBatchAction(), RibbonGroup.SMALL);
             fileSelectionGroup.addButton(new ClearFilesAction(), RibbonGroup.LARGE);
         }
 

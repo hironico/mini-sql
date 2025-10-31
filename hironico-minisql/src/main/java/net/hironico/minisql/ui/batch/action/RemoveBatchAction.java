@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 public class RemoveBatchAction extends AbstractRibbonAction {
 
     public RemoveBatchAction() {
-        super("Remove", null);
+        super("Remove", "icons8_delete_file_64px.png");
     }
 
     @Override
