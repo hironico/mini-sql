@@ -32,6 +32,9 @@ public class JSONFile {
      * Serialize to JSON string the object given as parameter, If it is a ResultSet then special handling 
      * is made in this class. <strong>Please note that if passed a resultset object, then the resultset is NOT closed 
      * by this method.</strong>
+     * @param obj is the object to serialize in JSON
+     * @return the serialized version of the passed object in JSON format.
+     * @throws JsonProcessingException in case of any problem during serialization
      */
     public static String serialize(Object obj) throws JsonProcessingException {
         try {
