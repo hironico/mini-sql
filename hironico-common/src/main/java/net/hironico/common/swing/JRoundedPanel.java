@@ -4,19 +4,27 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * JPanel with a rounded border and a gradient background.
- * Used in RibbonTab and other Hironico.net components (eg in mini-sql)
+ * JPanel with a rounded border and optional gradient background.
+ * This specialized panel provides visual enhancement for UI components with rounded corners
+ * and customizable styling options. Commonly used in RibbonTab and other 
+ * Hironico.net components for a modern, polished appearance.
  */
 public class JRoundedPanel extends JPanel {
 
+    /** Default light blue color used for gradient backgrounds */
     public static final Color LIGHT_BLUE_COLOR = new Color(236, 243, 250);
 
+    /** Flag indicating whether gradient background is enabled */
     private boolean gradientBackground = false;
+    
+    /** Color used for drawing the rounded border */
     private Color borderColor = Color.LIGHT_GRAY;
 
     /**
-     * Overrides the default paint with a rounded border and a gradient fill
-     * @param g the <code>Graphics</code> object to use for painting
+     * Overrides the default paint with a rounded border and optional gradient fill.
+     * Provides custom rendering with rounded corners and gradient background when enabled.
+     * 
+     * @param g the Graphics object to use for painting
      */
     @Override
     protected void paintComponent(Graphics g) {
@@ -36,19 +44,41 @@ public class JRoundedPanel extends JPanel {
         g2d.drawRoundRect(0, 0, w, h, 15, 15);
     }
 
+    /**
+     * Checks if gradient background is currently enabled.
+     * 
+     * @return true if gradient background is enabled, false otherwise
+     */
     public boolean isGradientBackground() {
         return gradientBackground;
     }
 
+    /**
+     * Enables or disables gradient background rendering.
+     * When enabled, the panel displays a gradient fill from white to light blue.
+     * 
+     * @param gradientBackground true to enable gradient background, false to disable
+     */
     public void setGradientBackground(boolean gradientBackground) {
         this.gradientBackground = gradientBackground;
         this.repaint();
     }
 
+    /**
+     * Gets the current border color.
+     * 
+     * @return the Color used for drawing the rounded border
+     */
     public Color getBorderColor() {
         return borderColor;
     }
 
+    /**
+     * Sets the border color for the rounded rectangle.
+     * Changes the color used to draw the panel's rounded border.
+     * 
+     * @param borderColor the Color to use for the border
+     */
     public void setBorderColor(Color borderColor) {
         this.borderColor = borderColor;
         this.repaint();

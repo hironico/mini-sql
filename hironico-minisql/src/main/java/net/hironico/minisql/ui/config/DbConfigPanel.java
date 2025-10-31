@@ -20,41 +20,96 @@ import org.jdesktop.swingx.JXColorSelectionButton;
 import org.jdesktop.swingx.JXLabel;
 
 /**
- * Panel to model the UI for managing connections to databases
+ * Panel to model the UI for managing connections to databases.
+ * This panel provides a comprehensive interface for creating, editing, testing,
+ * and managing database connection configurations with support for various
+ * connection parameters and visual identification through color coding.
  */
 public class DbConfigPanel extends JPanel {
 
+    /** Logger for this class */
     private static final Logger LOGGER = Logger.getLogger(DbConfigPanel.class.getName());
 
+    /** Toolbar containing action buttons and connection selector */
     private JToolBar toolbar;
-    private JComboBox<String> cmbConnectionList;
-    private JButton btnNew;
-    private JButton btnSave;
-    private JButton btnDelete;
-    private JButton btnDuplicate;
-    private JLabel lblName;
-    private JTextField txtName;
-    private JLabel lblJdbcUrl;
-    private JTextField txtJdbcUrl;
-    private JLabel lblUser;
-    private JTextField txtUser;
-    private JLabel lblPassword;
-    private JPasswordField txtPassword;
-    private JLabel lblDriverClassName;
-    private JTextField txtDriverClassName;
-    private JLabel lblStatementSeparator;
-    private JTextField txtStatementSeparator;
-    private JButton btnTestConnection = null;
-    private JXLabel txtColor = null;
-    private JXColorSelectionButton colorChooser = null;
-    private JCheckBox chkUsequotedIdentifiers = null;
 
+    /** Combo box for selecting existing database configurations */
+    private JComboBox<String> cmbConnectionList;
+
+    /** Button for creating new database configuration */
+    private JButton btnNew;
+
+    /** Button for saving current configuration changes */
+    private JButton btnSave;
+
+    /** Button for deleting selected configuration */
+    private JButton btnDelete;
+
+    /** Button for duplicating selected configuration */
+    private JButton btnDuplicate;
+
+    /** Label for connection name field */
+    private JLabel lblName;
+
+    /** Text field for displaying/editing connection name */
+    private JTextField txtName;
+
+    /** Label for JDBC URL field */
+    private JLabel lblJdbcUrl;
+
+    /** Text field for JDBC connection URL */
+    private JTextField txtJdbcUrl;
+
+    /** Label for username field */
+    private JLabel lblUser;
+
+    /** Text field for database username */
+    private JTextField txtUser;
+
+    /** Label for password field */
+    private JLabel lblPassword;
+
+    /** Password field for database password */
+    private JPasswordField txtPassword;
+
+    /** Label for driver class name field */
+    private JLabel lblDriverClassName;
+
+    /** Text field for JDBC driver class name */
+    private JTextField txtDriverClassName;
+
+    /** Label for SQL statement separator field */
+    private JLabel lblStatementSeparator;
+
+    /** Text field for SQL statement separator used in batch mode */
+    private JTextField txtStatementSeparator;
+
+    /** Button for testing database connection */
+    private JButton btnTestConnection = null;
+
+    /** Label for connection color selection */
+    private JXLabel txtColor = null;
+
+    /** Color selection button for connection visual identification */
+    private JXColorSelectionButton colorChooser = null;
+
+    /** Checkbox for enabling quoted identifiers */
+    private JCheckBox chkUseQuotedIdentifiers = null;
+
+    /**
+     * Constructs a new DbConfigPanel with default configuration.
+     * Initializes the UI components and loads all existing database configurations.
+     */
     public DbConfigPanel() {
         super();
         initialize();
         loadAllConfigs();
     }
 
+    /**
+     * Loads all available database configurations into the connection list combo box.
+     * Clears existing items and repopulates with current configuration names.
+     */
     protected void loadAllConfigs() {
         JComboBox<String> cmb = getCmbConnectionList();
         cmb.removeAllItems();
@@ -63,6 +118,10 @@ public class DbConfigPanel extends JPanel {
         }
     }
 
+    /**
+     * Clears all form fields to their default empty state.
+     * Resets text fields and checkbox to initial values.
+     */
     protected void clearForm() {
         getTxtName().setText("");
         getTxtJdbcUrl().setText("");
@@ -73,6 +132,12 @@ public class DbConfigPanel extends JPanel {
         getChkUseQuotedIdentifiers().setSelected(false);
     }
 
+    /**
+     * Loads the specified database configuration into the form fields.
+     * Clears existing form data and populates fields with configuration values.
+     *
+     * @param name the name of the configuration to load
+     */
     protected void loadSelectedConfig(String name) {
         DbConfig cfg = DbConfigFile.getConfig(name);
         if (cfg == null) {
@@ -93,6 +158,10 @@ public class DbConfigPanel extends JPanel {
         getChkUseQuotedIdentifiers().setSelected(cfg.useQuotedIdentifiers);
     }
 
+    /**
+     * Initializes the UI components and layout.
+     * Sets up the panel with GridBagLayout and adds all form elements.
+     */
     protected void initialize() {
         setLayout(new GridBagLayout());
         setBorder(BorderFactory.createEmptyBorder(-2, 5, 5, 5));
@@ -173,6 +242,12 @@ public class DbConfigPanel extends JPanel {
         add(getChkUseQuotedIdentifiers(), gc);
     }
 
+    /**
+     * Gets or creates the toolbar component.
+     * Creates toolbar with action buttons for configuration management.
+     *
+     * @return the JToolBar instance
+     */
     protected JToolBar getToolbar() {
         if (toolbar == null) {
             toolbar = new JToolBar();
@@ -190,6 +265,12 @@ public class DbConfigPanel extends JPanel {
         return toolbar;
     }
 
+    /**
+     * Gets or creates the test connection button.
+     * Sets up action listener to test database connectivity using current configuration.
+     *
+     * @return the JButton for testing connections
+     */
     protected JButton getBtnTestConnection() {
         if (btnTestConnection == null) {
             btnTestConnection = new JButton();
@@ -218,6 +299,12 @@ public class DbConfigPanel extends JPanel {
         return btnTestConnection;
     }
 
+    /**
+     * Gets or creates the new configuration button.
+     * Sets up action listener to create new database configurations.
+     *
+     * @return the JButton for creating new configurations
+     */
     protected JButton getBtnNew() {
         if (btnNew == null) {
             btnNew = new JButton("New");
@@ -246,6 +333,12 @@ public class DbConfigPanel extends JPanel {
         return btnNew;
     }
 
+    /**
+     * Saves the current form data to the database configuration.
+     * Updates the DbConfig object with current field values and encrypts password.
+     *
+     * @return the updated DbConfig instance, or null if configuration not found
+     */
     private DbConfig saveDbConfig() {
         String name = getTxtName().getText();
         DbConfig cfg = DbConfigFile.getConfig(name);
@@ -268,6 +361,12 @@ public class DbConfigPanel extends JPanel {
         return cfg;
     }
 
+    /**
+     * Gets or creates the save configuration button.
+     * Sets up action listener to save current configuration changes.
+     *
+     * @return the JButton for saving configurations
+     */
     protected JButton getBtnSave() {
         if (btnSave == null) {
             btnSave = new JButton("Save");
@@ -284,6 +383,12 @@ public class DbConfigPanel extends JPanel {
         return btnSave;
     }
 
+    /**
+     * Gets or creates the delete configuration button.
+     * Sets up action listener to remove selected configuration after confirmation.
+     *
+     * @return the JButton for deleting configurations
+     */
     protected JButton getBtnDelete() {
         if (btnDelete == null) {
             btnDelete = new JButton("Delete");
@@ -318,6 +423,12 @@ public class DbConfigPanel extends JPanel {
         return btnDelete;
     }
 
+    /**
+     * Gets or creates the duplicate configuration button.
+     * Sets up action listener to create a copy of selected configuration.
+     *
+     * @return the JButton for duplicating configurations
+     */
     protected JButton getBtnDuplicate() {
         if (btnDuplicate == null) {
             btnDuplicate = new JButton("Duplicate");
@@ -353,6 +464,12 @@ public class DbConfigPanel extends JPanel {
         return btnDuplicate;
     }
 
+    /**
+     * Gets or creates the connection list combo box.
+     * Sets up item listener to load configuration when selection changes.
+     *
+     * @return the JComboBox containing available configurations
+     */
     protected JComboBox<String> getCmbConnectionList() {
         if (cmbConnectionList == null) {
             cmbConnectionList = new JComboBox<String>();
@@ -371,6 +488,11 @@ public class DbConfigPanel extends JPanel {
         return cmbConnectionList;
     }
 
+    /**
+     * Gets or creates the connection name label.
+     *
+     * @return the JLabel for connection name field
+     */
     protected JLabel getLblName() {
         if (lblName == null) {
             lblName = new JLabel("Connection name:");
@@ -379,6 +501,12 @@ public class DbConfigPanel extends JPanel {
         return lblName;
     }
 
+    /**
+     * Gets or creates the connection name text field.
+     * Field is set to non-editable as names are managed through the combo box.
+     *
+     * @return the JTextField for connection name
+     */
     protected JTextField getTxtName() {
         if (txtName == null) {
             txtName = new JTextField();
@@ -388,6 +516,11 @@ public class DbConfigPanel extends JPanel {
         return txtName;
     }
 
+    /**
+     * Gets or creates the JDBC URL label.
+     *
+     * @return the JLabel for JDBC URL field
+     */
     protected JLabel getLblJdbcUrl() {
         if (lblJdbcUrl == null) {
             lblJdbcUrl = new JLabel("JDBC URL:");
@@ -396,6 +529,11 @@ public class DbConfigPanel extends JPanel {
         return lblJdbcUrl;
     }
 
+    /**
+     * Gets or creates the JDBC URL text field.
+     *
+     * @return the JTextField for JDBC connection URL
+     */
     protected JTextField getTxtJdbcUrl() {
         if (txtJdbcUrl == null) {
             txtJdbcUrl = new JTextField();
@@ -404,6 +542,11 @@ public class DbConfigPanel extends JPanel {
         return txtJdbcUrl;
     }
 
+    /**
+     * Gets or creates the username label.
+     *
+     * @return the JLabel for username field
+     */
     protected JLabel getLblUser() {
         if (lblUser == null) {
             lblUser = new JLabel("User name:");
@@ -412,6 +555,11 @@ public class DbConfigPanel extends JPanel {
         return lblUser;
     }
 
+    /**
+     * Gets or creates the username text field.
+     *
+     * @return the JTextField for database username
+     */
     protected JTextField getTxtUser() {
         if (txtUser == null) {
             txtUser = new JTextField();
@@ -420,6 +568,11 @@ public class DbConfigPanel extends JPanel {
         return txtUser;
     }
 
+    /**
+     * Gets or creates the password label.
+     *
+     * @return the JLabel for password field
+     */
     protected JLabel getLblPassword() {
         if (lblPassword == null) {
             lblPassword = new JLabel("Password:");
@@ -428,6 +581,11 @@ public class DbConfigPanel extends JPanel {
         return lblPassword;
     }
 
+    /**
+     * Gets or creates the password field.
+     *
+     * @return the JPasswordField for database password
+     */
     protected JPasswordField getTxtPassword() {
         if (txtPassword == null) {
             txtPassword = new JPasswordField();
@@ -436,6 +594,11 @@ public class DbConfigPanel extends JPanel {
         return txtPassword;
     }
 
+    /**
+     * Gets or creates the driver class name label.
+     *
+     * @return the JLabel for driver class name field
+     */
     protected JLabel getLblDriverClassName() {
         if (lblDriverClassName == null) {
             lblDriverClassName = new JLabel();
@@ -445,6 +608,11 @@ public class DbConfigPanel extends JPanel {
         return lblDriverClassName;
     }
 
+    /**
+     * Gets or creates the driver class name text field.
+     *
+     * @return the JTextField for JDBC driver class name
+     */
     protected JTextField getTxtDriverClassName() {
         if (txtDriverClassName == null) {
             txtDriverClassName = new JTextField();
@@ -453,6 +621,11 @@ public class DbConfigPanel extends JPanel {
         return txtDriverClassName;
     }
 
+    /**
+     * Gets or creates the SQL statement separator label.
+     *
+     * @return the JLabel for statement separator field
+     */
     protected JLabel getLblStatementSeparator() {
         if (lblStatementSeparator == null) {
             lblStatementSeparator = new JLabel("SQL statement separator (for batch mode only):");
@@ -461,6 +634,12 @@ public class DbConfigPanel extends JPanel {
         return lblStatementSeparator;
     }
 
+    /**
+     * Gets or creates the SQL statement separator text field.
+     * Used for separating multiple SQL statements in batch execution mode.
+     *
+     * @return the JTextField for SQL statement separator
+     */
     protected JTextField getTxtStatementSeparator() {
         if (txtStatementSeparator == null) {
             txtStatementSeparator = new JTextField();
@@ -470,6 +649,11 @@ public class DbConfigPanel extends JPanel {
         return txtStatementSeparator;
     }
 
+    /**
+     * Gets or creates the connection color label.
+     *
+     * @return the JXLabel for color selection
+     */
     protected JXLabel getTxtColor() {
         if (txtColor == null) {
             txtColor = new JXLabel("Connection color:");
@@ -477,6 +661,12 @@ public class DbConfigPanel extends JPanel {
         return txtColor;
     }
 
+    /**
+     * Gets or creates the color selection button.
+     * Allows users to choose a color for visual identification of the connection.
+     *
+     * @return the JXColorSelectionButton for color selection
+     */
     protected JXColorSelectionButton getColorChooser() {
         if (this.colorChooser == null) {
             this.colorChooser = new JXColorSelectionButton();
@@ -486,10 +676,16 @@ public class DbConfigPanel extends JPanel {
         return colorChooser;
     }
 
+    /**
+     * Gets or creates the quoted identifiers checkbox.
+     * Controls whether SQL identifiers should be quoted in generated queries.
+     *
+     * @return the JCheckBox for quoted identifiers option
+     */
     private JCheckBox getChkUseQuotedIdentifiers() {
-        if (chkUsequotedIdentifiers == null) {
-            chkUsequotedIdentifiers = new JCheckBox("Use quoted identfiers");
+        if (chkUseQuotedIdentifiers == null) {
+            chkUseQuotedIdentifiers = new JCheckBox("Use quoted identfiers");
         }
-        return chkUsequotedIdentifiers;
+        return chkUseQuotedIdentifiers;
     }
 }
