@@ -8,11 +8,18 @@ import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Utility class for retrieving the version from the JAR manifest.
+ */
 public class Version {
     private static String version = null;
 
     private static final Logger LOGGER = Logger.getLogger(Version.class.getName());
 
+    /**
+     * Retrieves the version string from the JAR manifest.
+     * @return the version string, or "unknown!" if not found
+     */
     public static String getVersion() {
         // scann classpath only opce.
         if (Version.version != null) {

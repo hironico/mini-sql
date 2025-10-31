@@ -5,6 +5,9 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+/**
+ * Utility class for entity management operations with JPA EntityManager.
+ */
 public class EntitiesUtils {
 
     /**
@@ -62,6 +65,12 @@ public class EntitiesUtils {
         }
     }
 
+    /**
+     * Removes the entity from the database.
+     * @param entityManager properly initialized entity manager
+     * @param entity entity object to remove from database
+     * @throws Exception in case of any problem
+     */
     public static void removeEntity(EntityManager entityManager, Object entity)
     throws Exception {
         try {

@@ -1,7 +1,18 @@
 package net.hironico.common.utils;
 
+/**
+ * Utility class for String manipulation operations.
+ * Provides helper methods for common string operations.
+ */
 public class StringUtils {
 
+    /**
+     * Count the number of occurrences of a specific character in a string.
+     * 
+     * @param src the source string to search in
+     * @param theCar the character to count
+     * @return the number of occurrences of the character, or -1 if src is null
+     */
     public static int countOccurences(String src, char theCar) {
         if (src == null) {
             return -1;

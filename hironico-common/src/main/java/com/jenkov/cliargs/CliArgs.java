@@ -5,17 +5,29 @@ import java.util.TreeSet;
 
 import java.lang.reflect.Field;
 
+/**
+ * Utility class for parsing command line arguments.
+ * Provides methods to handle switches and their values from command line input.
+ */
 public class CliArgs {
 
     private String[] args = null;
 
-    private HashMap<String, Integer> switchIndexes = new HashMap<String, Integer>();
-    private TreeSet<Integer> takenIndexes = new TreeSet<Integer>();
+    private final HashMap<String, Integer> switchIndexes = new HashMap<String, Integer>();
+    private final TreeSet<Integer> takenIndexes = new TreeSet<Integer>();
 
+    /**
+     * Constructs a CliArgs instance and parses the given arguments.
+     * @param args the command line arguments array to parse
+     */
     public CliArgs(String[] args) {
         parse(args);
     }
 
+    /**
+     * Parses the given arguments array.
+     * @param arguments the arguments to parse
+     */
     public void parse(String[] arguments) {
         this.args = arguments;
         //locate switches.
@@ -29,22 +41,47 @@ public class CliArgs {
         }
     }
 
+    /**
+     * Returns the original arguments array.
+     * @return the arguments array
+     */
     public String[] args() {
         return args;
     }
 
+    /**
+     * Retrieves the argument at the specified index.
+     * @param index the index of the argument
+     * @return the argument at the index
+     */
     public String arg(int index) {
         return args[index];
     }
 
+    /**
+     * Checks if the specified switch is present in the arguments.
+     * @param switchName the name of the switch
+     * @return true if the switch is present, false otherwise
+     */
     public boolean switchPresent(String switchName) {
         return switchIndexes.containsKey(switchName);
     }
 
+    /**
+     * Retrieves the value of a switch.
+     * @param switchName the name of the switch
+     * @return the switch value or null if not found
+     */
     public String switchValue(String switchName) {
         return switchValue(switchName, null);
     }
 
+    /**
+     * Retrieves the value of a switch, with a default value if not found.
+     * @param switchName the name of the switch
+     * @param defaultValue the default value to return if switch is not found
+     * @return the switch value or the default value
+     */
     public String switchValue(String switchName, String defaultValue) {
         if (!switchIndexes.containsKey(switchName))
             return defaultValue;
@@ -57,10 +94,21 @@ public class CliArgs {
         return defaultValue;
     }
 
+    /**
+     * Retrieves the long value of a switch.
+     * @param switchName the name of the switch
+     * @return the switch value as Long or null
+     */
     public Long switchLongValue(String switchName) {
         return switchLongValue(switchName, null);
     }
 
+    /**
+     * Retrieves the long value of a switch, with a default value.
+     * @param switchName the name of the switch
+     * @param defaultValue the default value to return if switch is not found or parsing fails
+     * @return the switch value as Long or the default value
+     */
     public Long switchLongValue(String switchName, Long defaultValue) {
         String switchValue = switchValue(switchName, null);
 
@@ -69,10 +117,21 @@ public class CliArgs {
         return Long.parseLong(switchValue);
     }
 
+    /**
+     * Retrieves the double value of a switch.
+     * @param switchName the name of the switch
+     * @return the switch value as Double or null
+     */
     public Double switchDoubleValue(String switchName) {
         return switchDoubleValue(switchName, null);
     }
 
+    /**
+     * Retrieves the double value of a switch, with a default value.
+     * @param switchName the name of the switch
+     * @param defaultValue the default value to return if switch is not found or parsing fails
+     * @return the switch value as Double or the default value
+     */
     public Double switchDoubleValue(String switchName, Double defaultValue) {
         String switchValue = switchValue(switchName, null);
 
@@ -81,6 +140,11 @@ public class CliArgs {
         return Double.parseDouble(switchValue);
     }
 
+    /**
+     * Retrieves the array of values for a switch.
+     * @param switchName the name of the switch
+     * @return the array of switch values, or empty array if not found
+     */
     public String[] switchValues(String switchName) {
         if (!switchIndexes.containsKey(switchName))
             return new String[0];
@@ -100,9 +164,16 @@ public class CliArgs {
         return values;
     }
 
+    /**
+     * Creates a POJO instance and fills it with switch values based on its fields.
+     * @param <T> the type of the POJO
+     * @param pojoClass the class of the POJO to create
+     * @return the instantiated POJO with fields set from switches
+     * @throws RuntimeException if instantiation or field access fails
+     */
     public <T> T switchPojo(Class<T> pojoClass) {
         try {
-            T pojo = pojoClass.newInstance();
+            T pojo = pojoClass.getDeclaredConstructor().newInstance();
 
             Field[] fields = pojoClass.getFields();
             for (Field field : fields) {
@@ -153,6 +224,10 @@ public class CliArgs {
         }
     }
 
+    /**
+     * Returns the array of targets (non-switch arguments).
+     * @return the array of target arguments
+     */
     public String[] targets() {
         String[] targetArray = new String[args.length - takenIndexes.size()];
         int targetIndex = 0;

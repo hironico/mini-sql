@@ -44,6 +44,11 @@ public class LangUtils {
         return true;
     }
 
+    /**
+     * Checks if all given objects are not null.
+     * @param objs the objects to check
+     * @return true if all objects are not null, false otherwise
+     */
     public static boolean isAllNotNull(Object... objs) {
         for (Object o : objs) {
             if (o == null) {
@@ -54,6 +59,13 @@ public class LangUtils {
         return true;
     }
 
+    /**
+     * Finds all classes in the specified package.
+     * @param packageName the package name to search in
+     * @return the list of classes found
+     * @throws ClassNotFoundException if a class cannot be found
+     * @throws IOException if an I/O error occurs
+     */
     public static List<Class<? extends Object>> getClasses(String packageName) throws ClassNotFoundException, IOException {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         assert classLoader != null;
