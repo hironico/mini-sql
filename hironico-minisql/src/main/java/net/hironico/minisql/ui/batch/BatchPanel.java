@@ -32,11 +32,19 @@ public class BatchPanel extends JRoundedPanel {
     private BatchFileTreeTableModel model;
     private File lastUsedFolder;
     
+    /**
+     * Constructs a new BatchPanel with default configuration.
+     * Initializes the UI components including the tree table for batch file management.
+     */
     public BatchPanel() {
         super();
         initialize();
     }
 
+    /**
+     * Initializes the UI components of the batch panel.
+     * Sets up the layout, tree table model, toolbar, and configures column renderers.
+     */
     private void initialize() {
         setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
         setOpaque(true);
@@ -63,6 +71,12 @@ public class BatchPanel extends JRoundedPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Gets or creates the toolbar component.
+     * Creates a non-floatable toolbar with the database configuration combo box.
+     * 
+     * @return the JToolBar instance for this batch panel
+     */
     private JToolBar getToolbar() {
         if (toolbar == null) {
             toolbar = new JToolBar();
@@ -74,6 +88,13 @@ public class BatchPanel extends JRoundedPanel {
         return toolbar;
     }
 
+    /**
+     * Gets or creates the database configuration combo box.
+     * Populates the combo box with available database configurations and sets up
+     * item listener to update the model when selection changes.
+     * 
+     * @return the JComboBox containing database configuration names
+     */
     private JComboBox<String> getCmbConfig() {
         if (cmbConfig == null) {
             cmbConfig = new JComboBox<>();
@@ -97,6 +118,10 @@ public class BatchPanel extends JRoundedPanel {
         return cmbConfig;
     }
 
+    /**
+     * Updates the editor tab title to reflect the current database configuration.
+     * Sets the tab title to "Batch [config_name]" format.
+     */
     private void setEditorTabTitle() {
         String title = String.format("Batch %s", getCmbConfig().getSelectedItem());
         MainWindow.getInstance().setEditorTabTitle(BatchPanel.this, title);
@@ -167,6 +192,10 @@ public class BatchPanel extends JRoundedPanel {
         }
     }
     
+    /**
+     * Configures the tree table columns with appropriate renderers and editors.
+     * Sets up column widths and assigns button renderers/editers for Edit and Run columns.
+     */
     private void configureColumns() {
         // FileName column (0) - default renderer
         treeTable.getColumnModel().getColumn(0).setPreferredWidth(300);
@@ -209,12 +238,20 @@ public class BatchPanel extends JRoundedPanel {
         return DbConfigFile.getConfig(dbConfigName);
     }
 
+    /**
+     * Executes all batch files in the tree table.
+     * Sets the database configuration for the model and triggers batch execution.
+     */
     public void runAll() {
         BatchFileTreeTableModel model = (BatchFileTreeTableModel) treeTable.getTreeTableModel();
         model.setDbConfig(this.getSelectedDbConfig());
         model.runAll();
     }
 
+    /**
+     * Updates the ribbon interface to show the Batch tab.
+     * Selects the Batch ribbon tab and refreshes its display.
+     */
     public void updateRibbon() {
         RibbonTab ribbonTab = MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Batch");
         ribbonTab.updateDisplay();

@@ -16,11 +16,13 @@ import java.util.logging.Logger;
 
 /**
  * TreeTableModel for batch files.
- * Columns: FileName, Edit, Run, Result
+ * Provides a hierarchical view of batch files organized by directories.
+ * Columns: FileName, Edit, Run, Result, Duration
  */
 class BatchFileTreeTableModel extends DefaultTreeTableModel {
     private static final Logger LOG = Logger.getLogger(BatchFileTreeTableModel.class.getName());
 
+    /** Column classes for the tree table model */
     private final Class<?>[] columnClasses = {
             String.class,  // FileName or Directory Name
             JButton.class, // Edit
@@ -29,18 +31,36 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
             String.class     // duration
     };
 
+    /** Database configuration for batch execution */
     private DbConfig dbConfig = null;
 
+    /**
+     * Constructs a new BatchFileTreeTableModel with default root node and column headers.
+     */
     public BatchFileTreeTableModel() {
         super(new DefaultMutableTreeTableNode("ROOT"),
                 Arrays.asList("FileName", "Edit", "Run", "Result", "Duration"));
     }
 
+    /**
+     * Gets the class type for the specified column.
+     * 
+     * @param col the column index
+     * @return the Class type for the column
+     */
     @Override
     public Class<?> getColumnClass(int col) {
         return columnClasses[col];
     }
 
+    /**
+     * Determines if a cell is editable based on the node type and column.
+     * Only Edit and Run columns are editable for file nodes (not directories).
+     * 
+     * @param node the tree node to check
+     * @param column the column index to check
+     * @return true if the cell is editable, false otherwise
+     */
     @Override
     public boolean isCellEditable(Object node, int column) {
         DefaultMutableTreeTableNode treeNode = (DefaultMutableTreeTableNode) node;
@@ -57,6 +77,14 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
         return column == 1 || column == 2;
     }
 
+    /**
+     * Gets the value for a specific cell in the tree table.
+     * Returns appropriate values based on column and node type.
+     * 
+     * @param node the tree node
+     * @param col the column index
+     * @return the value at the specified cell
+     */
     @Override
     public Object getValueAt(Object node, int col) {
         DefaultMutableTreeTableNode treeNode = (DefaultMutableTreeTableNode) node;
@@ -75,6 +103,14 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
         };
     }
 
+    /**
+     * Sets the value for a specific cell in the tree table.
+     * Currently only handles setting the result value for file nodes.
+     * 
+     * @param value the value to set
+     * @param node the tree node
+     * @param column the column index
+     */
     @Override
     public void setValueAt(Object value, Object node, int column) {
         DefaultMutableTreeTableNode treeNode = (DefaultMutableTreeTableNode) node;
@@ -99,6 +135,10 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
         }
     }
 
+    /**
+     * Clears all nodes from the tree table model.
+     * Removes all child nodes from the root.
+     */
     public void clear() {
         DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode) getRoot();
         while (root.getChildCount() > 0) {
@@ -106,6 +146,10 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
         }
     }
 
+    /**
+     * Resets the results and timing information for all file nodes.
+     * Clears result strings and resets execution timestamps.
+     */
     public void resetResults() {
         DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode) getRoot();
         
@@ -132,12 +176,25 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
         }
     }
 
+    /**
+     * Adds a file to the appropriate folder node in the tree table.
+     * Creates a folder node if it doesn't exist for the file's parent directory.
+     * 
+     * @param file the file to add to the tree table
+     */
     public void addFile(File file) {
         DefaultMutableTreeTableNode dirNode = findFolderNode(file);
         BatchFileNode batchFileNode = new BatchFileNode(file);
         insertNodeInto(new DefaultMutableTreeTableNode(batchFileNode), dirNode, dirNode.getChildCount());
     }
 
+    /**
+     * Finds or creates a folder node for the specified file's parent directory.
+     * Searches existing folder nodes and creates a new one if not found.
+     * 
+     * @param file the file whose parent directory node is needed
+     * @return the folder node for the file's parent directory
+     */
     private DefaultMutableTreeTableNode findFolderNode(File file) {
         DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode) getRoot();
         for(int index = 0; index < root.getChildCount(); index++) {
@@ -155,14 +212,28 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
         return dirNode;
     }
 
+    /**
+     * Gets the current database configuration.
+     * 
+     * @return the DbConfig instance, or null if not set
+     */
     public DbConfig getDbConfig() {
         return dbConfig;
     }
 
+    /**
+     * Sets the database configuration for batch execution.
+     * 
+     * @param dbConfig the database configuration to set
+     */
     public void setDbConfig(DbConfig dbConfig) {
         this.dbConfig = dbConfig;
     }
 
+    /**
+     * Executes all batch files in the tree table.
+     * Iterates through all file nodes and triggers asynchronous execution.
+     */
     public void runAll() {
         DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode) getRoot();
         // Iterate through all folder nodes
@@ -188,6 +259,14 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
         }
     }
 
+    /**
+     * Updates the batch file node when execution is completed.
+     * Monitors the Future result and updates the node with execution results.
+     * 
+     * @param fut the Future representing the execution result
+     * @param batchFileNode the batch file node to update
+     * @param pathToRoot the tree path to the node for UI updates
+     */
     public void updateWhenFinished(Future<List<SQLResultSetTableModel>> fut, BatchFileNode batchFileNode, TreePath pathToRoot) {
         Thread thread = new Thread(() -> {
             try {

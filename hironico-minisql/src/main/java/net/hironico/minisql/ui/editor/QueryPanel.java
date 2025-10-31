@@ -35,6 +35,11 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jdesktop.swingx.JXStatusBar;
 import org.jdesktop.swingx.JXTable;
 
+/**
+ * Main query editor panel for SQL query execution and result display.
+ * This panel provides a comprehensive SQL editor with syntax highlighting, multiple result display formats,
+ * database configuration selection, and integration with the application's ribbon interface.
+ */
 public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFileListener {
 
     private static final Logger LOGGER = Logger.getLogger(QueryPanel.class.getName());
@@ -64,11 +69,19 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
 
     private boolean batchMode = false;
 
+    /**
+     * Constructs a new QueryPanel with default configuration.
+     * Initializes UI components and registers as a database configuration file listener.
+     */
     public QueryPanel() {
         initialize();
         DbConfigFile.addListener(this);
     }
 
+    /**
+     * Initializes the UI components of the query panel.
+     * Sets up layout, toolbar, and split pane for query editor and results display.
+     */
     private void initialize() {
         setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
         setOpaque(true);
@@ -80,6 +93,12 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         getSplitQuery().setDividerLocation(250);
     }
 
+    /**
+     * Gets or creates the toolbar component.
+     * Creates a toolbar with database configuration combo box and result display type toggles.
+     * 
+     * @return the JToolBar instance for this query panel
+     */
     private JToolBar getToolbar() {
         if (toolbar == null) {
             toolbar = new JToolBar();
@@ -95,6 +114,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return toolbar;
     }
 
+    /**
+     * Gets or creates the button group for result display type selection.
+     * 
+     * @return ButtonGroup for result display type toggles
+     */
     private ButtonGroup getGroupResultType() {
         if (groupResultType == null) {
             groupResultType = new ButtonGroup();
@@ -103,6 +127,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return groupResultType;
     }
 
+    /**
+     * Gets or creates the table display toggle button.
+     * 
+     * @return JToggleButton for table display mode
+     */
     private JToggleButton getToggleTable() {
         if (toggleTable == null) {
             toggleTable = new JToggleButton("Table");
@@ -113,6 +142,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return toggleTable;
     }
 
+    /**
+     * Gets or creates the JSON display toggle button.
+     * 
+     * @return JToggleButton for JSON display mode
+     */
     private JToggleButton getToggleJSON() {
         if (toggleJSON == null) {
             toggleJSON = new JToggleButton("JSON");
@@ -122,6 +156,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return toggleJSON;
     }
 
+    /**
+     * Gets or creates the text display toggle button.
+     * 
+     * @return JToggleButton for text display mode
+     */
     private JToggleButton getToggleText() {
         if (toggleText == null) {
             toggleText = new JToggleButton("Text");
@@ -131,7 +170,9 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return toggleText;
     }
     /**
-     * Get the last used directroy when openning or saving a file into the editor.
+     * Gets the last used directory when opening or saving a file in the editor.
+     * 
+     * @return the last used directory path, or user home if not set
      */
     public String getLastUserDirectory() {
         if (this.lastUsedDirectory == null) {
@@ -141,10 +182,20 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return this.lastUsedDirectory;
     }
 
+    /**
+     * Sets the last used directory for file operations.
+     * 
+     * @param directoryName the directory path to set as last used
+     */
     public void setLastUsedDirectory(String directoryName) {
         this.lastUsedDirectory = directoryName;
     }
 
+    /**
+     * Gets or creates the open query action.
+     * 
+     * @return OpenQueryAction instance
+     */
     private OpenQueryAction getOpenQueryAction() {
         if (openQueryAction == null) {
             openQueryAction = new OpenQueryAction();
@@ -153,6 +204,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return openQueryAction;
     }
 
+    /**
+     * Gets or creates the save query action.
+     * 
+     * @return SaveQueryAction instance
+     */
     private SaveQueryAction getSaveQueryAction() {
         if (saveQueryAction == null) {
             saveQueryAction = new SaveQueryAction();
@@ -161,6 +217,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return saveQueryAction;
     }
 
+    /**
+     * Gets or creates the execute query action.
+     * 
+     * @return ExecuteQueryAction instance
+     */
     private ExecuteQueryAction getExecuteQueryAction() {
         if (executeQueryAction == null) {
             executeQueryAction = new ExecuteQueryAction();
@@ -169,6 +230,12 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return executeQueryAction;
     }
 
+    /**
+     * Gets or creates the database configuration combo box.
+     * Populates with available database configurations and sets up selection listener.
+     * 
+     * @return JComboBox containing database configuration names
+     */
     private JComboBox<String> getCmbConfig() {
         if (cmbConfig == null) {
             cmbConfig = new JComboBox<>();
@@ -185,10 +252,20 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return cmbConfig;
     }
 
+    /**
+     * Sets the divider location of the split pane.
+     * 
+     * @param location the relative divider location (0.0 to 1.0)
+     */
     public void setDividerLocation(double location) {
         getSplitQuery().setDividerLocation(location);
     }
 
+    /**
+     * Gets or creates the split pane for query editor and results.
+     * 
+     * @return JSplitPaneNoDivider separating query editor from results
+     */
     private JSplitPaneNoDivider getSplitQuery() {
         if (splitQuery == null) {
             splitQuery = new JSplitPaneNoDivider();
@@ -203,6 +280,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return splitQuery;
     }
 
+    /**
+     * Gets the currently selected database configuration.
+     * 
+     * @return DbConfig instance, or null if no selection
+     */
     public DbConfig getConfig() {
         int index = getCmbConfig().getSelectedIndex();
         if (index < 0) {
@@ -217,6 +299,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return DbConfigFile.getConfig(cfgName);
     }
 
+    /**
+     * Sets the database configuration selection.
+     * 
+     * @param config the DbConfig to select, or null to clear selection
+     */
     public void setConfig(DbConfig config) {
         if (config == null) {
             return;
@@ -225,6 +312,12 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         getCmbConfig().getModel().setSelectedItem(config.name);
     }
 
+    /**
+     * Gets the SQL query text from the editor.
+     * Returns selected text if available, otherwise returns all text.
+     * 
+     * @return the SQL query string, trimmed and never null
+     */
     public String getQueryText() {
         String sql = getTxtQuery().getSelectedText();
         if (sql == null) {
@@ -233,10 +326,20 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return sql == null ? "" : sql.trim();
     }
 
+    /**
+     * Sets the SQL query text in the editor.
+     * 
+     * @param text the SQL query text to set
+     */
     public void setQueryText(String text) {
         getTxtQuery().setText(text);
     }
 
+    /**
+     * Gets the current result display type based on selected toggle button.
+     * 
+     * @return one of the SQLResultSetTableModel.DISPLAY_TYPE constants
+     */
     public int getResultDisplayType() {
         if (getToggleTable().isSelected()) {
             return SQLResultSetTableModel.DISPLAY_TYPE_TABLE;
@@ -250,6 +353,12 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         }
     }
 
+    /**
+     * Sets the results display component.
+     * Clears any existing results and displays the new component.
+     * 
+     * @param resultsComp the component to display in the results area
+     */
     public void setResultsComponent(JComponent resultsComp) {
         getPnlResults().removeAll();
         getPnlResults().add(resultsComp, BorderLayout.CENTER);
@@ -258,6 +367,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         getTxtQuery().setCaretPosition(0);
     }
 
+    /**
+     * Gets or creates the results panel.
+     * 
+     * @return JPanel for displaying query results
+     */
     private JPanel getPnlResults() {
         if (pnlResults == null) {
             pnlResults = new JPanel();
@@ -268,6 +382,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return pnlResults;
     }
 
+    /**
+     * Gets or creates the scroll pane for the query editor.
+     * 
+     * @return RTextScrollPane containing the SQL editor
+     */
     private RTextScrollPane getScrollQuery() {
         if (scrollQuery == null) {
             scrollQuery = new RTextScrollPane(getTxtQuery());
@@ -279,6 +398,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return scrollQuery;
     }
 
+    /**
+     * Gets or creates the query panel containing editor and status bar.
+     * 
+     * @return JPanel containing the SQL editor and status information
+     */
     private JPanel getPnlQuery() {
         if (pnlQuery == null) {
             pnlQuery = new JPanel();
@@ -290,6 +414,12 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return pnlQuery;
     }
 
+    /**
+     * Gets or creates the SQL text editor component.
+     * Configures syntax highlighting, keyboard shortcuts, and event handlers.
+     * 
+     * @return RSyntaxTextArea for SQL editing
+     */
     public RSyntaxTextArea getTxtQuery() {
         if (txtQuery == null) {
             txtQuery = new RSyntaxTextArea();
@@ -383,6 +513,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return txtQuery;
     }
 
+    /**
+     * Gets or creates the editor status bar.
+     * 
+     * @return JXStatusBar displaying cursor position and selection information
+     */
     private JXStatusBar getStbEditorStatusBar() {
         if (stbEditorStatusBar == null) {
             stbEditorStatusBar = new JXStatusBar();
@@ -396,6 +531,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return stbEditorStatusBar;
     }
 
+    /**
+     * Gets or creates the selection information label.
+     * 
+     * @return JLabel displaying text selection statistics
+     */
     private JLabel getLblSelection() {
         if (lblSelection == null) {
             lblSelection = new JLabel("0 chars");
@@ -405,10 +545,20 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return lblSelection;
     }
 
+    /**
+     * Gets the formatted batch mode status text.
+     * 
+     * @return HTML formatted string showing batch mode status
+     */
     private String getBatchModeStatusText() {
         return String.format("<html>Batch mode: <b>%s</b></html>", this.batchMode ? "ON" : "OFF");
     }
 
+    /**
+     * Gets or creates the batch mode status label.
+     * 
+     * @return JLabel displaying current batch mode status
+     */
     private JLabel getLblBatchMode() {
         if (lblBatchMode == null) {
             lblBatchMode = new JLabel(getBatchModeStatusText());
@@ -418,6 +568,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return lblBatchMode;
     }
 
+    /**
+     * Gets or creates the cursor position label.
+     * 
+     * @return JLabel displaying cursor position in the editor
+     */
     private JLabel getLblPosition() {
         if (lblPosition == null) {
             lblPosition = new JLabel();
@@ -428,6 +583,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return lblPosition;
     }
 
+    /**
+     * Gets or creates the status message label.
+     * 
+     * @return JLabel for displaying status messages
+     */
     private JLabel getLblStatusMessage() {
         if (lblStatusMessage == null) {
             lblStatusMessage = new JLabel();
@@ -437,6 +597,11 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return lblStatusMessage;
     }
 
+    /**
+     * Sets the status message in the editor status bar.
+     * 
+     * @param msg the status message to display
+     */
     public void setStatusMessage(String msg) {
         getLblStatusMessage().setText(msg);
     }
@@ -619,6 +784,12 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         this.getCmbConfig().removeItem(config.name);
     }
 
+    /**
+     * Loads SQL query text from the specified file.
+     * Reads the file content and sets it as the query text in the editor.
+     * 
+     * @param file the file to load SQL query from
+     */
     public void loadFile(File file) {
         this.setLastUsedDirectory(file.getAbsolutePath());
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -634,6 +805,12 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         }
     }
 
+    /**
+     * Saves the current SQL query text to the specified file.
+     * Prompts for confirmation if the file already exists.
+     * 
+     * @param saveFile the file to save the SQL query to
+     */
     public void saveFile(File saveFile) {
         String lastDir = saveFile.getAbsolutePath();
         this.setLastUsedDirectory(lastDir);
@@ -655,15 +832,29 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         }
     }
 
+    /**
+     * Checks if batch mode is currently enabled.
+     * 
+     * @return true if batch mode is enabled, false otherwise
+     */
     public boolean isBatchMode() {
         return batchMode;
     }
 
+    /**
+     * Sets the batch mode status and updates the UI accordingly.
+     * 
+     * @param batchMode true to enable batch mode, false to disable
+     */
     public void setBatchMode(boolean batchMode) {
         this.batchMode = batchMode;
         getLblBatchMode().setText(getBatchModeStatusText());
     }
 
+    /**
+     * Updates the ribbon interface to show the Editor tab.
+     * Selects the Editor ribbon tab and refreshes its display.
+     */
     public void updateRibbon() {
         RibbonTab ribbonTab = MainWindow.getInstance().getRibbon().setSelectedRibbonTab("Editor");
         ribbonTab.updateDisplay();
