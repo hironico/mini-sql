@@ -68,6 +68,7 @@ public class BatchPanel extends JRoundedPanel {
 
         // Add to panel with scroll pane
         JScrollPane scrollPane = new JScrollPane(treeTable);
+        scrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(scrollPane, BorderLayout.CENTER);
     }
 
