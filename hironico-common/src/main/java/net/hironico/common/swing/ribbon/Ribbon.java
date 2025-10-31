@@ -29,7 +29,7 @@ public class Ribbon extends JTabbedPaneNoContentSeparator {
 
     public Ribbon() {
         super();
-        int scaledHeight = UIScale.scale(148);
+        int scaledHeight = UIScale.scale(155);
         setMaximumSize(new Dimension(4096, scaledHeight));
         setPreferredSize(new Dimension(1024, scaledHeight));
     }
