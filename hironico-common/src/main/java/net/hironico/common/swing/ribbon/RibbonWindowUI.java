@@ -4,7 +4,6 @@ import com.formdev.flatlaf.icons.FlatWindowCloseIcon;
 import com.formdev.flatlaf.icons.FlatWindowIconifyIcon;
 import com.formdev.flatlaf.icons.FlatWindowMaximizeIcon;
 import com.formdev.flatlaf.icons.FlatWindowRestoreIcon;
-import com.formdev.flatlaf.ui.FlatButtonUI;
 
 import javax.swing.*;
 import javax.swing.plaf.LayerUI;
@@ -12,6 +11,11 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 
+/**
+ * The ribbon UI class is overriding window controls to mimic a window bar with
+ * integrated close, restore/minimize and maximize buttons. It mimic only MS Windows
+ * style window bar for the moment.
+ */
 public class RibbonWindowUI extends LayerUI<Ribbon> {
 
     protected final Color hoverBackground = UIManager.getColor("TitlePane.closeHoverBackground");
@@ -22,6 +26,9 @@ public class RibbonWindowUI extends LayerUI<Ribbon> {
     private Icon iconRestore = null;
     private Icon iconMinimize = null;
 
+    /**
+     * Represents a close icon
+     */
     static class RibbonCloseIcon extends FlatWindowCloseIcon {
         private boolean selected = false;
         protected final Color hoverForeground = UIManager.getColor("TitlePane.closeHoverForeground");
@@ -40,10 +47,16 @@ public class RibbonWindowUI extends LayerUI<Ribbon> {
         }
     }
 
+    /**
+     * Builds the UI and call initialize method.
+     */
     public RibbonWindowUI() {
         initialize();
     }
 
+    /**
+     * Builds the icons and keep track of it
+     */
     private void initialize() {
         this.iconClose = new RibbonCloseIcon();
         this.iconMaximize = new FlatWindowMaximizeIcon();
@@ -51,6 +64,11 @@ public class RibbonWindowUI extends LayerUI<Ribbon> {
         this.iconMinimize = new FlatWindowIconifyIcon();
     }
 
+    /**
+     * Paint the UI
+     * @param g the {@code Graphics} context in which to paint
+     * @param c the component being painted
+     */
     @Override
     public void paint(Graphics g, JComponent c) {
         int w = c.getWidth();
@@ -86,6 +104,11 @@ public class RibbonWindowUI extends LayerUI<Ribbon> {
         iconMinimize.paintIcon(c, g, w - iconWidth * 3, 0);
     }
 
+    /**
+     * Process mouse event and detect if we need to activate emulated buttons actions
+     * @param e MouseEvent to analyse
+     * @param l JXLayer to pass the event from/to
+     */
     @Override
     protected void processMouseEvent(MouseEvent e, JLayer<? extends Ribbon> l) {
         if (e.getClickCount() != 1 || e.getID() != MouseEvent.MOUSE_CLICKED) {
@@ -116,6 +139,11 @@ public class RibbonWindowUI extends LayerUI<Ribbon> {
         }
     }
 
+    /**
+     * Process the mouse motion and move the window if button is hold pushed.
+     * @param e MouseEvent to analyze
+     * @param l JXLayer to pass the event from/to
+     */
     @Override
     protected void processMouseMotionEvent(MouseEvent e, JLayer<? extends Ribbon> l) {
         if (isOverIcon(this.iconClose, e, l)) {
@@ -127,6 +155,13 @@ public class RibbonWindowUI extends LayerUI<Ribbon> {
         }
     }
 
+    /**
+     * Detect if mouse is moved over an icon of the emulated buttons
+     * @param icon the icon we build in initialize
+     * @param evt MouseEvent to analyze
+     * @param layer JXLayer to get the event from/to
+     * @return true if the mouse if over the passed icon
+     */
     private boolean isOverIcon(Icon icon, MouseEvent evt, JLayer<? extends Ribbon> layer) {
         int w = layer.getWidth();
         int iconWidth = icon.getIconWidth();
