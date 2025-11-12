@@ -12,32 +12,70 @@ import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
+/**
+ * Tree table model for displaying database objects in a hierarchical structure.
+ * Organizes SQL objects (tables, views, procedures, sequences, enums) by type
+ * with support for filtering system objects and providing a structured view suitable
+ * for database browsing and navigation.
+ */
 public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
+
+    /** Logger for this class */
     private static final Logger LOGGER = Logger.getLogger(SQLObjectsTreeTableModel.class.getName());
 
+    /** Root node for displaying tables and related objects */
     private DefaultMutableTreeTableNode tablesNode;
+
+    /** Root node for displaying view objects */
     private DefaultMutableTreeTableNode viewsNode;
+
+    /** Root node for displaying procedure and function objects */
     private DefaultMutableTreeTableNode procsNode;
+
+    /** Root node for displaying sequence objects */
     private DefaultMutableTreeTableNode sequencesNode;
+
+    /** Root node for displaying enum objects */
     private DefaultMutableTreeTableNode enumsNode;
 
+    /** Flag controlling whether system objects are displayed */
     private boolean showSystemObjects = Boolean.FALSE;
 
+    /** Column class definitions for the tree table */
     private final Class<?>[] columnClass = {
             String.class, String.class
     };
 
+    /**
+     * Constructs a new SQLObjectsTreeTableModel with default root structure.
+     * Creates a root node and initializes all category nodes for organizing SQL objects.
+     */
     public SQLObjectsTreeTableModel() {
         super(new DefaultMutableTreeTableNode("ROOT"), Arrays.asList("Name", "Type"));
         addRootNodes();
     }
 
+    /**
+     * Gets the class type for the specified column.
+     *
+     * @param col the column index
+     * @return the Class type for the column
+     */
     @Override
     public Class<?> getColumnClass(int col) {
         return columnClass[col];
     }
 
-
+    /**
+     * Gets the value at the specified cell in the tree table.
+     * Handles different types of nodes: category nodes (Strings) and SQL object nodes.
+     * For category nodes, returns the category name in column 0.
+     * For SQL object nodes, returns the object name in column 0 and type in column 1.
+     *
+     * @param node the tree table node
+     * @param col the column index (0 = Name, 1 = Type)
+     * @return the cell value, or null for invalid cases
+     */
     @Override
     public Object getValueAt(Object node, int col) {
         DefaultMutableTreeTableNode objNode = (DefaultMutableTreeTableNode)node;
@@ -66,6 +104,10 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         };
     }
 
+    /**
+     * Adds all root category nodes to the tree structure.
+     * Creates the main organizational nodes for different types of SQL objects.
+     */
     private void addRootNodes() {
         this.addTablesRootNode();
         this.addViewsRootNode();
@@ -104,10 +146,21 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         this.insertNodeInto(enumsNode, root, 3);
     }
 
+    /**
+     * Clears all objects from the tree table model.
+     * Removes all child nodes from all category nodes.
+     */
     public void clear() {
         this.clear(null);
     }
 
+    /**
+     * Clears objects of a specific type from the tree table model.
+     * Removes child nodes from category nodes based on the filter type.
+     * If objectFilter is null, clears all objects from all categories.
+     *
+     * @param objectFilter the type of objects to clear, or null to clear all
+     */
     public void clear(SQLObjectTypeEnum objectFilter) {
         if (objectFilter == null || objectFilter == SQLObjectTypeEnum.TABLE) {
             List<MutableTreeTableNode> nodes = StreamUtils.stream(this.tablesNode.children()).collect(Collectors.toList());
@@ -134,11 +187,26 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         }
     }
 
+    /**
+     * Adds a SQL object as a child node to the specified parent category node.
+     * Creates a new tree node containing the SQL object and inserts it at the end
+     * of the parent's child list, maintaining alphabetical or creation order.
+     *
+     * @param parent the parent category node
+     * @param obj the SQL object to add as a child
+     */
     private void addSQLObject(DefaultMutableTreeTableNode parent, SQLObject obj) {
         DefaultMutableTreeTableNode objNode = new DefaultMutableTreeTableNode(obj);
         this.insertNodeInto(objNode, parent, parent.getChildCount());
     }
 
+    /**
+     * Sets SQL objects in the tree table model from a list of object information arrays.
+     * Each array contains [schema, name, type] information that gets converted
+     * to SQLObject instances and organized under appropriate category nodes.
+     *
+     * @param objects list of string arrays containing SQL object information
+     */
     public void setSQLObjects(List<String[]> objects) {
         if (objects == null) {
             return;
@@ -153,6 +221,15 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         });
     }
 
+    /**
+     * Determines the appropriate parent category node for a SQL object.
+     * Based on the object type and the showSystemObjects flag, decides which
+     * root category node should contain this SQL object. System objects
+     * are only shown if showSystemObjects is true.
+     *
+     * @param myObj the SQL object to categorize
+     * @return the appropriate parent node, or null if the object should not be displayed
+     */
     private DefaultMutableTreeTableNode getSQLObjectParentNode(SQLObject myObj) {
         if (myObj == null) {
             return null;
@@ -216,6 +293,14 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
         return null;
     }
 
+    /**
+     * Creates a SQLObject instance from an information array.
+     * Parses the [schema, name, type] information and converts the type string
+     * to the appropriate SQLObjectTypeEnum value.
+     *
+     * @param infos array containing [schema, name, type] information
+     * @return the created SQLObject, or null if the type is not supported
+     */
     private SQLObject createSQLObject(String[] infos) {
         try {
             SQLObject obj = new SQLObject();

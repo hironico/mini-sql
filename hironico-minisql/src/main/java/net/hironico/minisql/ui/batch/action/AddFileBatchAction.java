@@ -10,12 +10,28 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
+/**
+ * Action for adding one or more SQL/text files to a batch panel.
+ * This action opens a file chooser dialog that allows users to select
+ * multiple SQL or text files to add to the current batch execution.
+ */
 public class AddFileBatchAction extends AbstractRibbonAction {
 
+    /**
+     * Constructs a new AddFileBatchAction.
+     * Sets the action name to "Add file" and uses the add file icon.
+     */
     public AddFileBatchAction() {
         super("Add file", "icons8-add-file-64.png");
     }
 
+    /**
+     * Executes the add file action when triggered.
+     * Opens a file chooser dialog allowing selection of multiple SQL/text files.
+     * The selected files are added to the current batch panel for execution.
+     *
+     * @param e the action event that triggered this action
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();

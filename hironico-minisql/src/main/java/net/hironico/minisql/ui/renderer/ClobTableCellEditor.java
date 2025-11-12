@@ -18,38 +18,80 @@ import javax.swing.text.Highlighter;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+/**
+ * Table cell editor for CLOB (Character Large OBject) database columns.
+ * Provides specialized editing capabilities for large text content with a modal dialog
+ * that includes syntax highlighting, search functionality, and copy-to-clipboard operations.
+ * Used in query result tables to allow users to view and interact with large text content
+ * that cannot be displayed inline in table cells.
+ */
 public class ClobTableCellEditor extends AbstractCellEditor implements TableCellEditor {
 
+    /** Logger for this class */
     private static final Logger LOGGER = Logger.getLogger(ClobTableCellEditor.class.getName());
 
+    /** The value currently being edited */
     private Object editedValue;
 
+    /** Panel containing the label and button for inline display */
     private JPanel pnl = null;
+
+    /** Label showing CLOB presence indicator */
     private JLabel label = null;
+
+    /** Button to open the CLOB viewer dialog */
     private JButton button = null;
 
+    /** Scroll pane for the CLOB viewer text area */
     private RTextScrollPane scrollClobViewer = null;
+
+    /** Syntax-highlighted text area for displaying CLOB content */
     private RSyntaxTextArea txtClobViewer = null;
+
+    /** Toolbar with search and copy functionality */
     private JToolBar toolbarClobViewer = null;
+
+    /** Text field for searching within CLOB content */
     private JTextField txtSearchClobViewer = null;
+
+    /** Main panel for the CLOB viewer dialog */
     private JPanel pnlClobViewer = null;
+
+    /** Modal dialog for displaying CLOB content */
     private JDialog dialogClobViewer = null;
 
+    /** Delegate editor for non-CLOB columns */
     private final TableCellEditor editorDelegate;
 
+    /** Reference to the parent table containing this editor */
     private JTable parentTable = null;
 
+    /**
+     * Constructs a new CLOB table cell editor.
+     *
+     * @param delegate the fallback editor for non-CLOB columns
+     */
     public ClobTableCellEditor(TableCellEditor delegate) {
         this.editorDelegate = delegate;
         initialize();
     }
 
+    /**
+     * Initializes the editor components.
+     * Creates the basic panel structure needed for inline display.
+     */
     protected void initialize() {
         getPanel();
     }
 
+    /**
+     * Gets or creates the panel for inline table cell display.
+     * Contains a label and button for compact CLOB representation within table cells.
+     *
+     * @return the JPanel for inline display
+     */
     protected JPanel getPanel() {
-        if (pnl == null) {            
+        if (pnl == null) {
             pnl = new JPanel();
             pnl.setBorder(BorderFactory.createEmptyBorder());
             pnl.setLayout(new FlowLayout(FlowLayout.RIGHT, 0, 0));
@@ -60,6 +102,12 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
         return pnl;
     }
 
+    /**
+     * Gets or creates the label for displaying CLOB indicator text.
+     * Shows "&lt;CLOB&gt;" or "&lt;NULL&gt;" depending on content availability.
+     *
+     * @return the JLabel for CLOB indication
+     */
     protected JLabel getLabel() {
         if (label == null) {
             label = new JLabel();
@@ -246,12 +294,24 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
         return button;
     }
 
+    /**
+     * Gets the component for editing the cell.
+     * Returns either a CLOB-specific panel with viewer button (for CLOB columns)
+     * or delegates to the fallback editor (for other column types).
+     *
+     * @param table the JTable instance
+     * @param value the cell value
+     * @param isSelected true if the cell is selected
+     * @param row the row index
+     * @param column the column index
+     * @return the component for cell editing
+     */
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
 
         this.editedValue = value;
         this.parentTable = table;
 
-        Class<?> clazz = table.getModel().getColumnClass(column);                
+        Class<?> clazz = table.getModel().getColumnClass(column);
         if (clazz.getName().toLowerCase().endsWith("clob")) {
             try {
                 String txt = value == null ? "<NULL>" : "<CLOB>";
@@ -273,15 +333,31 @@ public class ClobTableCellEditor extends AbstractCellEditor implements TableCell
         }
     }
 
+    /**
+     * Gets the current value of the cell editor.
+     * Returns the edited value as stored in the editor.
+     *
+     * @return the cell editor value
+     */
     @Override
     public Object getCellEditorValue() {
         return this.editedValue;
     }
 
+    /**
+     * Stops cell editing and commits changes.
+     * Closes any open CLOB viewer dialog and stops the editing session.
+     *
+     * @return true to indicate editing should stop
+     */
     public boolean stopCellEditing() {
         return super.stopCellEditing();
     }
 
+    /**
+     * Cancels cell editing and discards changes.
+     * Closes any open CLOB viewer dialog and cancels the editing session.
+     */
     public void cancelCellEditing() {
         super.cancelCellEditing();
     }

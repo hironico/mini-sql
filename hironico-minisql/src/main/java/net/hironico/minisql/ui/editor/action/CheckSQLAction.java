@@ -21,15 +21,35 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Action for validating SQL syntax using ANTLR parser.
+ * This action analyzes the SQL content in the current query editor using
+ * the PostgreSQL ANTLR grammar to detect syntax errors and display validation results.
+ */
 public class CheckSQLAction extends AbstractRibbonAction {
+
+    /** Logger for this class */
     private static final Logger LOGGER = Logger.getLogger(CheckSQLAction.class.getName());
 
+    /** Reference to the current query panel being validated */
     private QueryPanel queryPanel = null;
 
+    /**
+     * Constructs a new CheckSQLAction.
+     * Sets the action name to "Check SQL" and uses the eye checked icon.
+     */
     public CheckSQLAction() {
         super("Check SQL", "icons8_eye_checked_64px.png");
     }
 
+    /**
+     * Validates SQL syntax using ANTLR PostgreSQL parser.
+     * Analyzes the provided SQL string for syntax correctness by creating a lexer,
+     * parser, and walking the parse tree. Reports any syntax errors found.
+     *
+     * @param sql the SQL string to validate
+     * @throws IOException if an error occurs during parsing
+     */
     private void validateSQL(String sql) throws IOException {
         LOGGER.info("Starting SQL validation ...");
 
@@ -88,6 +108,13 @@ public class CheckSQLAction extends AbstractRibbonAction {
         }
     }
 
+    /**
+     * Executes the SQL syntax check action when triggered.
+     * Retrieves the current query panel and its SQL content, then validates
+     * the syntax using the ANTLR parser. Displays results in the query panel status.
+     *
+     * @param e the action event that triggered this validation
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Component comp = MainWindow.getInstance().getCurrentEditorTabComponent();

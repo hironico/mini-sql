@@ -10,14 +10,27 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 
 /**
- * Select a folder and load all the files in this folder into the batch execution tab
+ * Action for adding all SQL/text files from a selected folder to a batch panel.
+ * This action opens a directory chooser dialog and recursively loads all
+ * files from the selected directory into the current batch execution.
  */
 public class AddFolderBatchAction extends AbstractRibbonAction {
 
+    /**
+     * Constructs a new AddFolderBatchAction.
+     * Sets the action name to "Add folder" and uses the add folder icon.
+     */
     public AddFolderBatchAction() {
         super("Add folder", "icons8-add-folder-64.png");
     }
 
+    /**
+     * Executes the add folder action when triggered.
+     * Opens a directory chooser dialog allowing selection of a folder.
+     * All files in the selected folder are added to the current batch panel for execution.
+     *
+     * @param e the action event that triggered this action
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
 

@@ -16,34 +16,69 @@ import org.openide.util.ImageUtilities;
 import java.awt.*;
 import java.util.logging.Logger;
 
+/**
+ * Custom color scheme for database visualization diagrams in the NetBeans Visual Library.
+ * Extends VMDColorScheme to provide database-themed styling with configurable base colors
+ * for nodes, connections, pins, and various interaction states. Uses accessibility-conscious
+ * color combinations to ensure good contrast between backgrounds and text.
+ */
 public class DbColorScheme extends VMDColorScheme {
+
+    /** Logger for this class */
     private static final Logger LOGGER = Logger.getLogger(DbColorScheme.class.getName());
 
+    /** Base color for the color scheme */
     private Color baseColor;
 
+    /** Default normal connection color */
     private Color COLOR_NORMAL = new Color (0xBACDF0);
+
+    /** Default highlighted connection color */
     private Color COLOR_HIGHLIGHTED = new Color (0x316AC5);
 
-    //    private static final Color COLOR0 = new Color (169, 197, 235);
+    /** Primary gradient color 1 */
     private Color COLOR1 = new Color (221, 235, 246);
+
+    /** Primary gradient color 2 (white) */
     private Color COLOR2 = new Color (255, 255, 255);
 
+    /** Selection color for widgets and connections */
     public static final Color COLOR60_SELECT = new Color (0xFF8500);
+
+    /** Hover color for widgets */
     private Color COLOR60_HOVER = new Color (0x5B67B0);
+
+    /** Hover background color for widgets */
     private Color COLOR60_HOVER_BACKGROUND = new Color (0xB0C3E1);
 
+    /** Normal state border for widgets */
     private Border BORDER60 = new DbGraphNodeBorder(COLOR_NORMAL, 2, COLOR1, COLOR2);
+
+    /** Selected state border for widgets */
     private Border BORDER60_SELECT = new DbGraphNodeBorder(COLOR60_SELECT, 2, COLOR1, COLOR2);
+
+    /** Hovered state border for widgets */
     private Border BORDER60_HOVER = new DbGraphNodeBorder(COLOR60_HOVER, 2, COLOR1, COLOR2);
 
+    /** Border for pins */
     static final Border BORDER_PIN = BorderFactory.createOpaqueBorder (2, 8, 2, 8);
+
+    /** Selected pin border */
     private static final Border BORDER60_PIN_SELECT = BorderFactory.createCompositeBorder (BorderFactory.createLineBorder (0, 1, 0, 1, COLOR60_SELECT), BorderFactory.createLineBorder (2, 7, 2, 7, COLOR60_SELECT));
-//        private static final Border BORDER60_PIN_HOVER = BorderFactory.createLineBorder (2, 8, 2, 8, COLOR60_HOVER);
 
-    private static final PointShape POINT_SHAPE60_IMAGE = PointShapeFactory.createImagePointShape (ImageUtilities.loadImage ("org/netbeans/modules/visual/resources/vmd-pin-60.png")); // NOI18N
+    /** Point shape for connection end points */
+    private static final PointShape POINT_SHAPE60_IMAGE = PointShapeFactory.createImagePointShape (ImageUtilities.loadImage ("org/netbeans/modules/visual/resources/vmd-pin-60.png"));
 
+    /** Background color for pin category labels */
     private Color BORDER_CATEGORY_BACKGROUND = new Color (0xCDDDF8);
 
+    /**
+     * Constructs a new database color scheme with a custom base color.
+     * Attempts to decode the base color from hexadecimal string and creates
+     * a coordinated color palette. Falls back to defaults if color decoding fails.
+     *
+     * @param baseColorCode hexadecimal color code (e.g., "#FF8500") for base theming
+     */
     public DbColorScheme(String baseColorCode) {
         try {
             Color baseColor = Color.decode((baseColorCode));
@@ -62,6 +97,13 @@ public class DbColorScheme extends VMDColorScheme {
         }
     }
 
+    /**
+     * Installs the color scheme styling for node widgets.
+     * Configures borders, header background, label colors, and pin separators
+     * based on the color scheme's color palette.
+     *
+     * @param widget the VMDNodeWidget to apply styling to
+     */
     public void installUI (VMDNodeWidget widget) {
         widget.setBorder (BORDER60);
 
@@ -76,6 +118,15 @@ public class DbColorScheme extends VMDColorScheme {
         pinsSeparator.setForeground (BORDER_CATEGORY_BACKGROUND);
     }
 
+    /**
+     * Updates the visual appearance of node widgets based on interaction state changes.
+     * Handles selection, hover, and focus states by changing borders and bringing
+     * selected widgets to the front. Ensures proper opacity and visual feedback.
+     *
+     * @param widget the VMDNodeWidget whose appearance needs updating
+     * @param previousState the previous ObjectState
+     * @param state the new ObjectState
+     */
     public void updateUI (VMDNodeWidget widget, ObjectState previousState, ObjectState state) {
         if (! previousState.isSelected ()  &&  state.isSelected ())
             widget.bringToFront ();
@@ -93,12 +144,27 @@ public class DbColorScheme extends VMDColorScheme {
             widget.setBorder (BORDER60);
     }
 
+    /**
+     * Installs the color scheme styling for connection widgets.
+     * Configures anchor shapes and enables control point painting for visual connections.
+     *
+     * @param widget the VMDConnectionWidget to apply styling to
+     */
     public void installUI (VMDConnectionWidget widget) {
         widget.setSourceAnchorShape (AnchorShape.NONE);
         widget.setTargetAnchorShape (AnchorShape.TRIANGLE_FILLED);
         widget.setPaintControlPoints (true);
     }
 
+    /**
+     * Updates the visual appearance of connection widgets based on interaction state.
+     * Changes foreground colors for different states (selected, highlighted, hover,
+     * focused, normal) and adjusts control point/end point visual properties.
+     *
+     * @param widget the VMDConnectionWidget whose appearance needs updating
+     * @param previousState the previous ObjectState
+     * @param state the new ObjectState
+     */
     public void updateUI (VMDConnectionWidget widget, ObjectState previousState, ObjectState state) {
         if (state.isSelected ())
             widget.setForeground (COLOR60_SELECT);
@@ -170,6 +236,14 @@ public class DbColorScheme extends VMDColorScheme {
         return label;
     }
 
+    /**
+     * Automatically selects appropriate text color for optimal contrast against a given background.
+     * Uses the standard luminance formula to determine whether black or white text provides
+     * better readability against the specified background color.
+     *
+     * @param bg the background color to evaluate
+     * @return Color.BLACK for light backgrounds, Color.WHITE for dark backgrounds
+     */
     private Color getLabelColorFromBackground(Color bg) {
         if ((bg.getRed()*0.299 + bg.getGreen()*0.587 + bg.getBlue()*0.114) > 186) {
             return Color.BLACK;

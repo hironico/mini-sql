@@ -7,15 +7,33 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 
+/**
+ * Configuration panel for general application settings.
+ * Provides user interface for configuring application-wide preferences
+ * including window decoration and logging settings.
+ */
 public class GeneralConfigPanel extends JPanel {
+
+    /** Checkbox for enabling/disabling window decoration (experimental feature) */
     private JCheckBox chkDecoratedWindow = null;
+
+    /** Text field for setting the maximum number of log rows to display */
     private JTextField txtLogMaxRows = null;
 
+    /**
+     * Constructs a new GeneralConfigPanel with default settings.
+     * Initializes the UI components and loads current configuration values.
+     */
     public GeneralConfigPanel() {
         super();
         initialize();
     }
 
+    /**
+     * Initializes the general configuration panel layout and components.
+     * Sets up GridBagLayout with two main configuration options:
+     * decorated window setting and log max rows setting.
+     */
     private void initialize() {
         setLayout(new GridBagLayout());
 
@@ -38,6 +56,12 @@ public class GeneralConfigPanel extends JPanel {
         add(getTxtLogMaxRows(), gc);
     }
 
+    /**
+     * Gets or creates the decorated window checkbox.
+     * This is an experimental feature that should not be used with multi-screen configurations.
+     *
+     * @return JCheckBox for window decoration setting
+     */
     private JCheckBox getChkDecoratedWindow() {
         if (chkDecoratedWindow == null) {
             chkDecoratedWindow = new JCheckBox("Decorated window. EXPERIMENTAL !");
@@ -52,6 +76,12 @@ public class GeneralConfigPanel extends JPanel {
         return chkDecoratedWindow;
     }
 
+    /**
+     * Gets or creates the log maximum rows text field.
+     * Provides input validation for positive integer values and immediate configuration updates.
+     *
+     * @return JTextField for log max rows setting
+     */
     private JTextField getTxtLogMaxRows() {
         if (txtLogMaxRows == null) {
             txtLogMaxRows = new JTextField();
