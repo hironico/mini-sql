@@ -1,0 +1,146 @@
+{
+  "resources":{
+  "includes":[{
+    "pattern":"\\QMETA-INF/MANIFEST.MF\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/com.formdev.flatlaf.FlatDefaultsAddon\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLInputFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/javax.xml.stream.XMLOutputFactory\\E"
+  }, {
+    "pattern":"\\QMETA-INF/services/org.jdesktop.swingx.plaf.LookAndFeelAddons\\E"
+  }, {
+    "pattern":"\\Qcom/formdev/flatlaf/FlatLaf.properties\\E"
+  }, {
+    "pattern":"\\Qcom/formdev/flatlaf/FlatLightLaf.properties\\E"
+  }, {
+    "pattern":"\\Qcom/formdev/flatlaf/natives/libflatlaf-macos-arm64.dylib\\E"
+  }, {
+    "pattern":"\\Qcom/formdev/flatlaf/swingx/FlatLaf.properties\\E"
+  }, {
+    "pattern":"\\Qcom/formdev/flatlaf/swingx/FlatLightLaf.properties\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8-add-file-64.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8-add-folder-64.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8-broom-64.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_binoculars_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_clipboard_list_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_close_window_64px_2.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_collapse_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_copy_64px_2.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_counter_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_cut_64px_1.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_data_sheet_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_delete_file_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_expand_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_eye_checked_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_flow_chart_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_genealogy_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_k_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_opened_folder_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_paste_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_play_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_play_property_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_png_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_pull_down_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_redo_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_save_as_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_search_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_services_64px_2.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_sql_64px_4.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_synchronize_64px_3.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_undo_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_work_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_zoom_in_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_zoom_out_64px.png\\E"
+  }, {
+    "pattern":"\\Qicons/png_64/icons8_zoom_to_actual_size_64px.png\\E"
+  }, {
+    "pattern":"\\Qnet/hironico/minisql/metadata/postgresql/pg_get_enums.sql\\E"
+  }, {
+    "pattern":"\\Qnet/hironico/minisql/metadata/postgresql/pg_get_functions.sql\\E"
+  }, {
+    "pattern":"\\Qoracle/jdbc/defaultConnectionProperties.properties\\E"
+  }, {
+    "pattern":"\\Qoracle/jdbc/driver/errorMap.xml\\E"
+  }, {
+    "pattern":"\\Qorg/netbeans/api/visual/widget/Bundle.properties\\E"
+  }, {
+    "pattern":"\\Qorg/netbeans/modules/visual/resources/vmd-collapse-60.png\\E"
+  }, {
+    "pattern":"\\Qorg/netbeans/modules/visual/resources/vmd-pin-60.png\\E"
+  }, {
+    "pattern":"\\Qorg/netbeans/modules/visual/resources/vmd-pin.png\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt67b/nfc.nrm\\E"
+  }, {
+    "pattern":"java.base:\\Qjdk/internal/icu/impl/data/icudt67b/nfkc.nrm\\E"
+  }, {
+    "pattern":"java.datatransfer:\\Qsun/datatransfer/resources/flavormap.properties\\E"
+  }, {
+    "pattern":"java.desktop:\\Qjavax/swing/text/html/default.css\\E"
+  }, {
+    "pattern":"java.desktop:\\Qjavax/swing/text/html/parser/html32.bdtd\\E"
+  }]},
+  "bundles":[{
+    "name":"com.formdev.flatlaf.resources.Bundle",
+    "locales":["", "fr"]
+  }, {
+    "name":"com.sun.swing.internal.plaf.basic.resources.basic",
+    "classNames":["com.sun.swing.internal.plaf.basic.resources.basic"]
+  }, {
+    "name":"oracle.jdbc.driver.ErrorMessages",
+    "classNames":["oracle.jdbc.driver.ErrorMessages", "oracle.jdbc.driver.ErrorMessages_fr"]
+  }, {
+    "name":"oracle.jdbc.driver.Messages",
+    "locales":["", "fr"]
+  }, {
+    "name":"org.fife.ui.rsyntaxtextarea.RSyntaxTextArea",
+    "locales":["", "fr"]
+  }, {
+    "name":"org.fife.ui.rtextarea.RTextArea",
+    "locales":["", "fr"]
+  }, {
+    "name":"org.jdesktop.swingx.plaf.basic.resources.swingx",
+    "locales":["", "fr"]
+  }, {
+    "name":"sun.awt.resources.awt",
+    "classNames":["sun.awt.resources.awt"]
+  }, {
+    "name":"sun.awt.resources.awtosx",
+    "classNames":["sun.awt.resources.awtosx"]
+  }]
+}

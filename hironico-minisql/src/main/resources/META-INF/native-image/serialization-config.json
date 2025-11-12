@@ -1,0 +1,23 @@
+{
+  "types":[
+    {
+      "name":"java.lang.Enum"
+    },
+    {
+      "name":"java.lang.String"
+    },
+    {
+      "name":"net.hironico.minisql.model.SQLObject"
+    },
+    {
+      "name":"net.hironico.minisql.model.SQLObjectTypeEnum"
+    },
+    {
+      "name":"net.hironico.minisql.model.SQLObject[]"
+    }
+  ],
+  "lambdaCapturingTypes":[
+  ],
+  "proxies":[
+  ]
+}
