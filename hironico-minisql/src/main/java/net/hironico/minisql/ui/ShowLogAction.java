@@ -6,6 +6,7 @@ import javax.swing.Action;
 
 import net.hironico.common.swing.log.LogPanel;
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
+import net.hironico.minisql.DbConfigFile;
 
 /**
  * Action implementation for displaying the application log panel.
@@ -13,8 +14,6 @@ import net.hironico.common.swing.ribbon.AbstractRibbonAction;
  * application activity.
  */
 public class ShowLogAction extends AbstractRibbonAction {
-
-    private static final long serialVersionUID = -1L;
 
     /** The log panel instance for displaying application logs */
     private LogPanel logPanel = null;
@@ -38,6 +37,9 @@ public class ShowLogAction extends AbstractRibbonAction {
         if (logPanel == null) {
             logPanel = new LogPanel();
         }
+
+        // setup max number of rows all the time since it may have changed after log panel was created
+        logPanel.setMaxRows(DbConfigFile.getInstance().getLogMaxRows());
 
         return logPanel;
     }

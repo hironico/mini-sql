@@ -30,6 +30,8 @@ public class DbConfigFile {
 
     protected static Boolean decoratedWindow = Boolean.FALSE;
 
+    protected static int logMaxRows = 4096;
+
     protected static List<String> driverJarPaths = new ArrayList<>();
 
     public interface DbConfigFileListener {
@@ -69,14 +71,10 @@ public class DbConfigFile {
     }
 
     public static void addConfig(String name) {
-        DbConfigFile.addConfig(name, "", "", "");
-    }
-
-    private static void addConfig(String name, String url, String user, String password) {
         DbConfig cfg = new DbConfig();
-        cfg.jdbcUrl = url;
-        cfg.user = user;
-        cfg.password = password;
+        cfg.jdbcUrl = "";
+        cfg.user = "";
+        cfg.password = "";
         cfg.name = name;
 
         all.add(cfg);
@@ -145,11 +143,11 @@ public class DbConfigFile {
     @JsonProperty("decorated-window")
     @JacksonXmlProperty(localName = "decorated-window")
     public Boolean getDecoratedWindow() {
-        return this.decoratedWindow;
+        return decoratedWindow;
     }
 
     public void setDecoratedWindow(Boolean decoratedWindow) {
-        this.decoratedWindow = decoratedWindow == null ? Boolean.FALSE : decoratedWindow;
+        decoratedWindow = decoratedWindow == null ? Boolean.FALSE : decoratedWindow;
     }
 
     @JsonProperty("driverJarPaths")
@@ -157,6 +155,16 @@ public class DbConfigFile {
     @JacksonXmlProperty(localName = "driver-jar-path")
     public List<String> getDriverJarPaths() {
         return driverJarPaths;
+    }
+
+    public void setLogMaxRows(int logMaxRows) {
+        DbConfigFile.logMaxRows = logMaxRows;
+    }
+
+    @JsonProperty("logMaxRows")
+    @JacksonXmlProperty(localName = "log-max-rows")
+    public int getLogMaxRows() {
+        return logMaxRows;
     }
 
     public void setDriverJarPaths(List<String> driverJarPaths) {

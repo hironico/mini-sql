@@ -2,6 +2,7 @@ package net.hironico.common.swing.log;
 
 import com.formdev.flatlaf.util.SystemInfo;
 import com.formdev.flatlaf.util.UIScale;
+import net.hironico.common.swing.JRoundedPanel;
 import net.hironico.common.swing.SortedComboBoxModel;
 import net.hironico.common.utils.StreamUtils;
 
@@ -22,7 +23,7 @@ import static java.util.logging.Level.*;
  * be specified 
  * @see SwingHandler
  */
-public class LogPanel extends JPanel {
+public class LogPanel extends JRoundedPanel {
     private static final Logger LOGGER = Logger.getLogger(LogPanel.class.getName());
 
     private JPanel pnlTools = null;
@@ -46,7 +47,10 @@ public class LogPanel extends JPanel {
 
     protected void initialize() {
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setBackground(JRoundedPanel.LIGHT_BLUE_COLOR);
+        setOpaque(true);
+        setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
+
         add(getPnlTools(), BorderLayout.NORTH);
         add(getScrollLog(), BorderLayout.CENTER);
     }
@@ -120,9 +124,7 @@ public class LogPanel extends JPanel {
     private JButton getBtnClear() {
         if (btnClear == null) {
             btnClear = new JButton("Clear");
-            btnClear.addActionListener(actionEvent -> {
-                getTxtLog().setText("");
-            });
+            btnClear.addActionListener(actionEvent -> getTxtLog().setText(""));
         }
 
         return btnClear;
