@@ -65,7 +65,7 @@ public class CloseableTabComponent extends JPanel {
                 showMenu(evt);
             }
 
-            protected void showMenu(MouseEvent evt) {
+            private void showMenu(MouseEvent evt) {
                 if (evt.isPopupTrigger()) {
                     getMenu().show(tab, evt.getX(), evt.getY());
                 }
