@@ -119,6 +119,10 @@ public class SchemaExplorerPanel extends JRoundedPanel implements DbConfigFile.D
                 this.refreshObjects(SQLObjectTypeEnum.SEQUENCE);
                 break;
 
+            case "ENUMS":
+                this.refreshObjects(SQLObjectTypeEnum.ENUM);
+                break;
+
             default:
                 LOGGER.warning("Unknown object type to refresh: " + nodeType);
                 break;
