@@ -2,8 +2,11 @@ package net.hironico.minisql.ui.config;
 
 import java.awt.GridBagLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -71,6 +74,12 @@ public class DbConfigPanel extends JPanel {
 
     /** Password field for database password */
     private JPasswordField txtPassword;
+
+    /** Toggle button for showing/hiding password */
+    private JToggleButton btnTogglePassword;
+
+    /** Button for copying password to clipboard */
+    private JButton btnCopyPassword;
 
     /** Label for driver class name field */
     private JLabel lblDriverClassName;
@@ -180,6 +189,7 @@ public class DbConfigPanel extends JPanel {
         add(getToolbar(), gc);
 
         gc.gridy = 1;
+        gc.gridwidth = 3;
         gc.insets.top = 5;
         add(getLblName(), gc);
 
@@ -205,13 +215,37 @@ public class DbConfigPanel extends JPanel {
 
         gc.gridy = 7;
         gc.insets.top = 5;
+        gc.gridwidth = 3;
         add(getLblPassword(), gc);
 
+        // Password row with field and buttons
         gc.gridy = 8;
+        gc.gridx = 0;
+        gc.gridwidth = 1;
+        gc.weightx = 1.0;
         gc.insets.top = 0;
+        gc.fill = GridBagConstraints.HORIZONTAL;
         add(getTxtPassword(), gc);
 
+        gc.gridx = 1;
+        gc.weightx = 0.0;
+        gc.fill = GridBagConstraints.NONE;
+        gc.insets.left = 5;
+        add(getBtnTogglePassword(), gc);
+
+        gc.gridx = 2;
+        gc.insets.left = 0;
+        add(getBtnCopyPassword(), gc);
+
+        // Reset for next rows
+        gc.gridx = 0;
+        gc.gridwidth = 3;
+        gc.weightx = 1.0;
+        gc.insets.left = 0;
+        gc.fill = GridBagConstraints.HORIZONTAL;
+
         gc.gridy = 9;
+        gc.gridwidth = 3;
         gc.insets.top = 5;
         add(getLblDriverClassName(), gc);
 
@@ -687,5 +721,95 @@ public class DbConfigPanel extends JPanel {
             chkUseQuotedIdentifiers = new JCheckBox("Use quoted identfiers");
         }
         return chkUseQuotedIdentifiers;
+    }
+
+    /**
+     * Gets or creates the toggle password visibility button.
+     * Allows showing/hiding the password in plain text.
+     *
+     * @return the JToggleButton for toggling password visibility
+     */
+    protected JToggleButton getBtnTogglePassword() {
+        if (btnTogglePassword == null) {
+            btnTogglePassword = new JToggleButton();
+            btnTogglePassword.setPreferredSize(new Dimension(32, 26));
+            btnTogglePassword.setMinimumSize(new Dimension(32, 26));
+            btnTogglePassword.setMaximumSize(new Dimension(32, 26));
+            
+            // Load icon from resources
+            try {
+                ImageIcon icon = new ImageIcon(getClass().getResource("/icons/png_64/icons8_eye_checked_64px.png"));
+                if (icon.getImageLoadStatus() == java.awt.MediaTracker.COMPLETE) {
+                    // Scale the icon to fit button
+                    btnTogglePassword.setIcon(new ImageIcon(icon.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH)));
+                } else {
+                    btnTogglePassword.setText("👁");
+                }
+            } catch (Exception ex) {
+                // Fallback to text if icon not found
+                btnTogglePassword.setText("👁");
+            }
+            
+            btnTogglePassword.setToolTipText("Show/hide password");
+            btnTogglePassword.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    if (btnTogglePassword.isSelected()) {
+                        // Show password
+                        getTxtPassword().setEchoChar((char) 0);
+                    } else {
+                        // Hide password
+                        getTxtPassword().setEchoChar('•');
+                    }
+                }
+            });
+        }
+        return btnTogglePassword;
+    }
+
+    /**
+     * Gets or creates the copy password button.
+     * Copies the password to system clipboard.
+     *
+     * @return the JButton for copying password to clipboard
+     */
+    protected JButton getBtnCopyPassword() {
+        if (btnCopyPassword == null) {
+            btnCopyPassword = new JButton();
+            btnCopyPassword.setPreferredSize(new Dimension(32, 26));
+            btnCopyPassword.setMinimumSize(new Dimension(32, 26));
+            btnCopyPassword.setMaximumSize(new Dimension(32, 26));
+            
+            // Load icon from resources
+            try {
+                ImageIcon icon = new ImageIcon(getClass().getResource("/icons/png_64/icons8_copy_64px_2.png"));
+                if (icon.getImageLoadStatus() == java.awt.MediaTracker.COMPLETE) {
+                    // Scale the icon to fit button
+                    btnCopyPassword.setIcon(new ImageIcon(icon.getImage().getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH)));
+                } else {
+                    btnCopyPassword.setText("📋");
+                }
+            } catch (Exception ex) {
+                // Fallback to text if icon not found
+                btnCopyPassword.setText("📋");
+            }
+            
+            btnCopyPassword.setToolTipText("Copy password to clipboard");
+            btnCopyPassword.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String password = String.copyValueOf(getTxtPassword().getPassword());
+                    if (password != null && !password.isEmpty()) {
+                        StringSelection stringSelection = new StringSelection(password);
+                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
+                        JOptionPane.showMessageDialog(DbConfigPanel.this, 
+                            "Password copied to clipboard!", 
+                            "Success", 
+                            JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
+        }
+        return btnCopyPassword;
     }
 }
