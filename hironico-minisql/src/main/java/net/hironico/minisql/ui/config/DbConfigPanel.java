@@ -9,8 +9,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -33,11 +31,11 @@ public class DbConfigPanel extends JPanel {
     /** Logger for this class */
     private static final Logger LOGGER = Logger.getLogger(DbConfigPanel.class.getName());
 
+    /** Reference to parent ConfigPanel for refreshing tree */
+    private final ConfigPanel parentConfigPanel;
+
     /** Toolbar containing action buttons and connection selector */
     private JToolBar toolbar;
-
-    /** Combo box for selecting existing database configurations */
-    private JComboBox<String> cmbConnectionList;
 
     /** Button for creating new database configuration */
     private JButton btnNew;
@@ -106,32 +104,22 @@ public class DbConfigPanel extends JPanel {
     private JCheckBox chkUseQuotedIdentifiers = null;
 
     /**
-     * Constructs a new DbConfigPanel with default configuration.
-     * Initializes the UI components and loads all existing database configurations.
+     * Constructs a new DbConfigPanel with reference to parent ConfigPanel.
+     * Initializes the UI components.
+     *
+     * @param parentConfigPanel the parent ConfigPanel for refreshing the tree
      */
-    public DbConfigPanel() {
+    public DbConfigPanel(ConfigPanel parentConfigPanel) {
         super();
+        this.parentConfigPanel = parentConfigPanel;
         initialize();
-        loadAllConfigs();
-    }
-
-    /**
-     * Loads all available database configurations into the connection list combo box.
-     * Clears existing items and repopulates with current configuration names.
-     */
-    protected void loadAllConfigs() {
-        JComboBox<String> cmb = getCmbConnectionList();
-        cmb.removeAllItems();
-        for (String name : DbConfigFile.getConfigNames()) {
-            cmb.addItem(name);
-        }
     }
 
     /**
      * Clears all form fields to their default empty state.
      * Resets text fields and checkbox to initial values.
      */
-    protected void clearForm() {
+    public void clearForm() {
         getTxtName().setText("");
         getTxtJdbcUrl().setText("");
         getTxtUser().setText("");
@@ -147,7 +135,7 @@ public class DbConfigPanel extends JPanel {
      *
      * @param name the name of the configuration to load
      */
-    protected void loadSelectedConfig(String name) {
+    public void loadSelectedConfig(String name) {
         DbConfig cfg = DbConfigFile.getConfig(name);
         if (cfg == null) {
             return;
@@ -173,7 +161,7 @@ public class DbConfigPanel extends JPanel {
      */
     protected void initialize() {
         setLayout(new GridBagLayout());
-        setBorder(BorderFactory.createEmptyBorder(-2, 5, 5, 5));
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         setOpaque(true);
         // setBackground(new Color(238, 243, 250));
@@ -182,6 +170,7 @@ public class DbConfigPanel extends JPanel {
         GridBagConstraints gc = new GridBagConstraints();
         gc.gridx = 0;
         gc.gridy = 0;
+        gc.gridwidth = 3;
         gc.weightx = 1.0;
         gc.insets = new Insets(0, 0, 0, 0);
         gc.fill = GridBagConstraints.HORIZONTAL;
@@ -189,7 +178,6 @@ public class DbConfigPanel extends JPanel {
         add(getToolbar(), gc);
 
         gc.gridy = 1;
-        gc.gridwidth = 3;
         gc.insets.top = 5;
         add(getLblName(), gc);
 
@@ -245,7 +233,6 @@ public class DbConfigPanel extends JPanel {
         gc.fill = GridBagConstraints.HORIZONTAL;
 
         gc.gridy = 9;
-        gc.gridwidth = 3;
         gc.insets.top = 5;
         add(getLblDriverClassName(), gc);
 
@@ -288,7 +275,6 @@ public class DbConfigPanel extends JPanel {
 
             toolbar.add(getBtnNew());
             toolbar.add(getBtnDuplicate());
-            toolbar.add(getCmbConnectionList());
             toolbar.add(getBtnSave());
             toolbar.addSeparator();
             toolbar.add(getBtnTestConnection());
@@ -347,19 +333,24 @@ public class DbConfigPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String name = JOptionPane.showInputDialog(DbConfigPanel.this, "Please enter new configuration name:");
-                    if (name == null) {
+                    if (name == null || name.trim().isEmpty()) {
                         return;
                     }
 
                     DbConfig cfg = DbConfigFile.getConfig(name);
 
                     if (cfg != null) {
-                        cmbConnectionList.setSelectedItem(name);
+                        JOptionPane.showMessageDialog(DbConfigPanel.this,
+                                "A configuration with this name already exists.", "Warning",
+                                JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     DbConfigFile.addConfig(name);
-                    DbConfigPanel.this.loadAllConfigs();
+                    if (parentConfigPanel != null) {
+                        parentConfigPanel.refreshConnectionNodes();
+                    }
+                    loadSelectedConfig(name);
                 }
             });
         }
@@ -432,6 +423,13 @@ public class DbConfigPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     String name = getTxtName().getText();
+                    if (name == null || name.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(DbConfigPanel.this,
+                                "No configuration selected.", "Warning",
+                                JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+
                     DbConfig cfg = DbConfigFile.getConfig(name);
                     if (cfg == null) {
                         JOptionPane.showMessageDialog(DbConfigPanel.this,
@@ -449,7 +447,10 @@ public class DbConfigPanel extends JPanel {
 
                     DbConfigFile.removeConfig(name);
 
-                    DbConfigPanel.this.loadAllConfigs();
+                    if (parentConfigPanel != null) {
+                        parentConfigPanel.refreshConnectionNodes();
+                    }
+                    clearForm();
                 }
             });
         }
@@ -471,26 +472,33 @@ public class DbConfigPanel extends JPanel {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String sourceConfig = (String) getCmbConnectionList().getSelectedItem();
-                    if (sourceConfig == null) {
+                    String sourceConfig = getTxtName().getText();
+                    if (sourceConfig == null || sourceConfig.trim().isEmpty()) {
+                        JOptionPane.showMessageDialog(DbConfigPanel.this,
+                                "No configuration selected to duplicate.", "Warning",
+                                JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     String name = JOptionPane.showInputDialog(DbConfigPanel.this, "Please enter new configuration name:");
-                    if (name == null) {
+                    if (name == null || name.trim().isEmpty()) {
                         return;
                     }
 
                     DbConfig cfg = DbConfigFile.getConfig(name);
 
                     if (cfg != null) {
-                        cmbConnectionList.setSelectedItem(name);
+                        JOptionPane.showMessageDialog(DbConfigPanel.this,
+                                "A configuration with this name already exists.", "Warning",
+                                JOptionPane.WARNING_MESSAGE);
                         return;
                     }
 
                     cfg = DbConfigFile.duplicate(sourceConfig, name);
-                    DbConfigPanel.this.loadAllConfigs();
-                    getCmbConnectionList().setSelectedItem(name);
+                    if (parentConfigPanel != null) {
+                        parentConfigPanel.refreshConnectionNodes();
+                    }
+                    loadSelectedConfig(name);
                 }
             });
         }
@@ -498,29 +506,6 @@ public class DbConfigPanel extends JPanel {
         return btnDuplicate;
     }
 
-    /**
-     * Gets or creates the connection list combo box.
-     * Sets up item listener to load configuration when selection changes.
-     *
-     * @return the JComboBox containing available configurations
-     */
-    protected JComboBox<String> getCmbConnectionList() {
-        if (cmbConnectionList == null) {
-            cmbConnectionList = new JComboBox<String>();
-
-            cmbConnectionList.addItemListener(new ItemListener() {
-
-                @Override
-                public void itemStateChanged(ItemEvent e) {
-                    if (e.getStateChange() == ItemEvent.SELECTED) {
-                        loadSelectedConfig((String) e.getItem());
-                    }
-                }
-            });
-        }
-
-        return cmbConnectionList;
-    }
 
     /**
      * Gets or creates the connection name label.

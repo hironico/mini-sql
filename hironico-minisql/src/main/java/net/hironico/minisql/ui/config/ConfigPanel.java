@@ -1,10 +1,12 @@
 package net.hironico.minisql.ui.config;
 
 import net.hironico.common.swing.JRoundedPanel;
+import net.hironico.minisql.DbConfigFile;
 import org.jdesktop.swingx.JXTree;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 
@@ -20,6 +22,9 @@ public class ConfigPanel extends JRoundedPanel {
 
     /** Scroll pane containing the navigation tree */
     private JScrollPane scrollMenu = null;
+
+    /** Connections parent node in the tree */
+    private DefaultMutableTreeNode connectionsNode = null;
 
     /** Card layout manager for switching between configuration panels */
     private CardLayout cardLayout = null;
@@ -105,6 +110,7 @@ public class ConfigPanel extends JRoundedPanel {
     /**
      * Gets or creates the navigation tree for switching between configuration categories.
      * Creates a tree with three main nodes: General, Connections, and Drivers.
+     * Connection names are loaded as child nodes under Connections.
      *
      * @return JXTree navigation component
      */
@@ -112,16 +118,20 @@ public class ConfigPanel extends JRoundedPanel {
         if (treeMenu == null) {
             DefaultMutableTreeNode root = new DefaultMutableTreeNode();
             DefaultMutableTreeNode general = new DefaultMutableTreeNode("General");
-            DefaultMutableTreeNode connections = new DefaultMutableTreeNode("Connections");
+            connectionsNode = new DefaultMutableTreeNode("Connections");
             DefaultMutableTreeNode drivers = new DefaultMutableTreeNode("Drivers");
 
             root.add(general);
-            root.add(connections);
+            root.add(connectionsNode);
             root.add(drivers);
+
+            // Load all connection names as child nodes
+            loadConnectionNodes();
 
             treeMenu = new JXTree(root);
             treeMenu.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
             treeMenu.setRootVisible(false);
+            treeMenu.setShowsRootHandles(true);
             treeMenu.getSelectionModel().setSelectionPath(new TreePath(general.getPath()));
             treeMenu.addTreeSelectionListener(e -> {
                 TreePath tp = getTreeMenu().getSelectionPath();
@@ -134,12 +144,55 @@ public class ConfigPanel extends JRoundedPanel {
                 }
 
                 DefaultMutableTreeNode node = (DefaultMutableTreeNode) tp.getLastPathComponent();
-                String cardName = (String)node.getUserObject();
-                cardLayout.show(getMainPanel(), cardName);
+                String nodeName = (String)node.getUserObject();
+
+                // Check if this is a connection child node
+                if (node.getParent() == connectionsNode) {
+                    // This is a connection name, show connections card and load the config
+                    cardLayout.show(getMainPanel(), CARD_CONNECTIONS);
+                    getDbConfigPanel().loadSelectedConfig(nodeName);
+                } else if (node == connectionsNode) {
+                    // This is the Connections parent node, show connections card with empty form
+                    cardLayout.show(getMainPanel(), CARD_CONNECTIONS);
+                    getDbConfigPanel().clearForm();
+                } else {
+                    // This is a main category node
+                    cardLayout.show(getMainPanel(), nodeName);
+                }
             });
         }
 
         return treeMenu;
+    }
+
+    /**
+     * Loads all connection names as child nodes under the Connections node.
+     */
+    private void loadConnectionNodes() {
+        if (connectionsNode != null) {
+            // Clear existing connection nodes
+            connectionsNode.removeAllChildren();
+
+            // Add a node for each connection
+            for (String name : DbConfigFile.getConfigNames()) {
+                DefaultMutableTreeNode connectionNode = new DefaultMutableTreeNode(name);
+                connectionsNode.add(connectionNode);
+            }
+        }
+    }
+
+    /**
+     * Refreshes the connection list in the tree.
+     * Should be called after adding, deleting, or renaming connections.
+     */
+    public void refreshConnectionNodes() {
+        loadConnectionNodes();
+        if (treeMenu != null) {
+            DefaultTreeModel model = (DefaultTreeModel) treeMenu.getModel();
+            model.reload(connectionsNode);
+            // Expand the connections node to show all connections
+            treeMenu.expandPath(new TreePath(connectionsNode.getPath()));
+        }
     }
 
     /**
@@ -164,7 +217,7 @@ public class ConfigPanel extends JRoundedPanel {
      */
     private DbConfigPanel getDbConfigPanel() {
         if (dbConfigPanel == null) {
-            dbConfigPanel = new DbConfigPanel();
+            dbConfigPanel = new DbConfigPanel(this);
         }
 
         return dbConfigPanel;
