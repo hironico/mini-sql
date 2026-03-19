@@ -1,5 +1,7 @@
 package net.hironico.common.swing;
 
+import com.formdev.flatlaf.util.SystemInfo;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -41,7 +43,16 @@ public class JRoundedPanel extends JPanel {
             g2d.fillRoundRect(0, 0, w, h, 15, 15);
         }
         g2d.setPaint(this.borderColor);
-        g2d.drawRoundRect(0, 0, w, h, 15, 15);
+
+        // path for windows that does not have the same way to compute border
+        int borderWidth = w;
+        int borderHeigth = h;
+        if (SystemInfo.isWindows_10_orLater) {
+            borderWidth--;
+            borderHeigth--;
+        }
+
+        g2d.drawRoundRect(0, 0, borderWidth, borderHeigth, 15, 15);
     }
 
     /**
