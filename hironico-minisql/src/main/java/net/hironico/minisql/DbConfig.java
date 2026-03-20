@@ -31,6 +31,12 @@ import java.net.InetAddress;
 public class DbConfig implements Cloneable {
     private static final Logger LOGGER = Logger.getLogger(DbConfig.class.getName());
 
+    /** Connection type constant for standard JDBC relational databases. */
+    public static final String CONNECTION_TYPE_JDBC = "jdbc";
+
+    /** Connection type constant for MongoDB document databases. */
+    public static final String CONNECTION_TYPE_MONGODB = "mongodb";
+
     private static final String superSecret = "EkRg0PcE2yv80Zhal+xTsGLSsIyZhlkttEbd2bMNT3Q=";
     private static final SecretKey secretKey = NicoCrypto.generate(superSecret);
     private static final NicoCrypto crypto = new NicoCrypto();
@@ -66,6 +72,33 @@ public class DbConfig implements Cloneable {
     @JsonProperty("useQuotedIdentifiers")
     @JacksonXmlProperty(localName = "useQuotedIdentifiers", isAttribute = true)
     public Boolean useQuotedIdentifiers = Boolean.FALSE;
+
+    /**
+     * The type of this connection. Supported values are "jdbc" (default) and "mongodb".
+     * When set to "mongodb", the jdbcUrl field holds the MongoDB connection string
+     * (e.g. mongodb://localhost:27017/myDatabase) and queries are executed using
+     * mongosh-style syntax instead of SQL.
+     */
+    @JsonProperty("type")
+    @JacksonXmlProperty(localName = "type", isAttribute = true)
+    public String type = "jdbc";
+
+    /**
+     * Returns true when this configuration targets a MongoDB server.
+     * URL-first detection: if {@link #jdbcUrl} starts with {@code mongodb://} or
+     * {@code mongodb+srv://} the config is treated as MongoDB regardless of the
+     * stored {@link #type} field. The stored {@code type} is used as a fallback when
+     * the URL is empty or not yet set.
+     */
+    public boolean isMongoDB() {
+        // URL-based detection takes priority (always set when the user connects)
+        if (jdbcUrl != null && !jdbcUrl.isBlank()) {
+            String url = jdbcUrl.trim().toLowerCase();
+            return url.startsWith("mongodb://") || url.startsWith("mongodb+srv://");
+        }
+        // Fall back to the stored type field
+        return CONNECTION_TYPE_MONGODB.equalsIgnoreCase(type);
+    }
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
