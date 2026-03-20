@@ -65,6 +65,7 @@
         <jackson.version>2.17.1</jackson.version>
         <eclipselink.version>2.7.7</eclipselink.version>
         <flatlaf.version>3.6.2</flatlaf.version>
+        <mongodb.version>5.1.0</mongodb.version>
 
         <!-- test dependencies versions -->
         <junit.version>4.13.2</junit.version>
@@ -299,6 +300,13 @@
             <artifactId>byte-buddy</artifactId>
             <version>1.11.13</version>
             <scope>test</scope>
+        </dependency>
+
+        <!-- MongoDB Java Driver -->
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-sync</artifactId>
+            <version>${mongodb.version}</version>
         </dependency>
 
     </dependencies>

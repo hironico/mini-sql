@@ -1,6 +1,7 @@
 package net.hironico.minisql.ui;
 
 import net.hironico.common.swing.ribbon.AbstractRibbonAction;
+import net.hironico.minisql.ctrl.MongoQueryResultCallable;
 import net.hironico.minisql.ctrl.QueryResultCallable;
 import net.hironico.minisql.model.SQLResultSetTableModel;
 import net.hironico.minisql.ui.editor.QueryPanel;
@@ -34,9 +35,16 @@ public abstract class AbstractQueryAction extends AbstractRibbonAction {
 
         queryPanel.setResultsComponent(new JLabel("Executing query, please wait."));
 
-        QueryResultCallable queryCall = new QueryResultCallable(sql, queryPanel.getConfig(), queryPanel.isBatchMode());
-        queryCall.addQueryHistoryListener(QueryHistory.getInstance());
-        final Future<List<SQLResultSetTableModel>> futureResults = MainWindow.executorService.submit(queryCall);
+        // Choose the right callable depending on the connection type
+        final Future<List<SQLResultSetTableModel>> futureResults;
+        if (queryPanel.getConfig() != null && queryPanel.getConfig().isMongoDB()) {
+            MongoQueryResultCallable mongoCall = new MongoQueryResultCallable(sql, queryPanel.getConfig());
+            futureResults = MainWindow.executorService.submit(mongoCall);
+        } else {
+            QueryResultCallable queryCall = new QueryResultCallable(sql, queryPanel.getConfig(), queryPanel.isBatchMode());
+            queryCall.addQueryHistoryListener(QueryHistory.getInstance());
+            futureResults = MainWindow.executorService.submit(queryCall);
+        }
 
         Runnable waitQueryRun = () -> {
             try {

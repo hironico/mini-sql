@@ -14,7 +14,13 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 import net.hironico.minisql.DbConfigFile;
 import net.hironico.minisql.DbConfig;
 import org.jdesktop.swingx.JXColorSelectionButton;
@@ -103,6 +109,15 @@ public class DbConfigPanel extends JPanel {
     /** Checkbox for enabling quoted identifiers */
     private JCheckBox chkUseQuotedIdentifiers = null;
 
+    /** Hint label shown under the connection URL when MongoDB type is detected */
+    private JLabel lblConnectionTypeHint = null;
+
+    /** Connection type constant for standard JDBC connections */
+    public static final String CONNECTION_TYPE_JDBC = DbConfig.CONNECTION_TYPE_JDBC;
+
+    /** Connection type constant for MongoDB connections */
+    public static final String CONNECTION_TYPE_MONGODB = DbConfig.CONNECTION_TYPE_MONGODB;
+
     /**
      * Constructs a new DbConfigPanel with reference to parent ConfigPanel.
      * Initializes the UI components.
@@ -117,7 +132,7 @@ public class DbConfigPanel extends JPanel {
 
     /**
      * Clears all form fields to their default empty state.
-     * Resets text fields and checkbox to initial values.
+     * Resets text fields and checkbox to initial values, then resets form to JDBC mode.
      */
     public void clearForm() {
         getTxtName().setText("");
@@ -127,11 +142,13 @@ public class DbConfigPanel extends JPanel {
         getTxtDriverClassName().setText("");
         getTxtStatementSeparator().setText("");
         getChkUseQuotedIdentifiers().setSelected(false);
+        updateFormForConnectionType(CONNECTION_TYPE_JDBC);
     }
 
     /**
      * Loads the specified database configuration into the form fields.
-     * Clears existing form data and populates fields with configuration values.
+     * The connection type is detected automatically from the URL prefix
+     * ({@code mongodb://} or {@code mongodb+srv://} → MongoDB; anything else → JDBC).
      *
      * @param name the name of the configuration to load
      */
@@ -141,8 +158,7 @@ public class DbConfigPanel extends JPanel {
             return;
         }
 
-        clearForm();
-
+        // Populate fields first (URL must be set before type is detected)
         getTxtName().setText(cfg.name);
         getTxtJdbcUrl().setText(cfg.jdbcUrl);
         getTxtUser().setText(cfg.user);
@@ -153,6 +169,9 @@ public class DbConfigPanel extends JPanel {
         getColorChooser().getChooser().setColor(conColor);
         getColorChooser().setBackground(conColor);
         getChkUseQuotedIdentifiers().setSelected(cfg.useQuotedIdentifiers);
+
+        // Adapt form layout based on the detected connection type
+        updateFormForConnectionType(detectConnectionType(cfg.jdbcUrl));
     }
 
     /**
@@ -193,21 +212,26 @@ public class DbConfigPanel extends JPanel {
         gc.insets.top = 0;
         add(getTxtJdbcUrl(), gc);
 
+        // URL hint for MongoDB (shown/hidden automatically by DocumentListener on the URL field)
         gc.gridy = 5;
+        gc.insets.top = 2;
+        add(getLblConnectionTypeHint(), gc);
+
+        gc.gridy = 6;
         gc.insets.top = 5;
         add(getLblUser(), gc);
 
-        gc.gridy = 6;
+        gc.gridy = 7;
         gc.insets.top = 0;
         add(getTxtUser(), gc);
 
-        gc.gridy = 7;
+        gc.gridy = 8;
         gc.insets.top = 5;
         gc.gridwidth = 3;
         add(getLblPassword(), gc);
 
         // Password row with field and buttons
-        gc.gridy = 8;
+        gc.gridy = 9;
         gc.gridx = 0;
         gc.gridwidth = 1;
         gc.weightx = 1.0;
@@ -232,31 +256,32 @@ public class DbConfigPanel extends JPanel {
         gc.insets.left = 0;
         gc.fill = GridBagConstraints.HORIZONTAL;
 
-        gc.gridy = 9;
+        // JDBC-only fields (hidden automatically when MongoDB URL is detected)
+        gc.gridy = 10;
         gc.insets.top = 5;
         add(getLblDriverClassName(), gc);
 
-        gc.gridy = 10;
+        gc.gridy = 11;
         gc.insets.top = 0;
         add(getTxtDriverClassName(), gc);
 
-        gc.gridy = 11;
+        gc.gridy = 12;
         gc.insets.top = 5;
         add(getLblStatementSeparator(), gc);
 
-        gc.gridy = 12;
+        gc.gridy = 13;
         gc.insets.top = 5;
         add(getTxtStatementSeparator(), gc);
 
-        gc.gridy = 13;
+        gc.gridy = 14;
         gc.insets.top = 5;
         add(getTxtColor(), gc);
 
-        gc.gridy = 14;
+        gc.gridy = 15;
         gc.insets.top = 5;
         add(getColorChooser(), gc);
 
-        gc.gridy = 15;
+        gc.gridy = 16;
         gc.anchor = GridBagConstraints.NORTH;
         gc.weighty = 1.0;
         gc.insets.top = 0;
@@ -287,7 +312,8 @@ public class DbConfigPanel extends JPanel {
 
     /**
      * Gets or creates the test connection button.
-     * Sets up action listener to test database connectivity using current configuration.
+     * Tests a JDBC connection using {@link DbConfig#getConnection()} or a MongoDB
+     * connection using the MongoDB Java driver, depending on the selected connection type.
      *
      * @return the JButton for testing connections
      */
@@ -300,17 +326,43 @@ public class DbConfigPanel extends JPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     DbConfig cfg = DbConfigPanel.this.saveDbConfig();
-                    try {
-                        assert cfg != null;
-                        try (Connection con = cfg.getConnection()) {
-                            JOptionPane.showMessageDialog(DbConfigPanel.this, "It works !", "Yeah...",
-                                    JOptionPane.INFORMATION_MESSAGE);
+                    if (cfg == null) {
+                        return;
+                    }
+
+                    if (CONNECTION_TYPE_MONGODB.equalsIgnoreCase(cfg.type)) {
+                        // Test MongoDB connection
+                        try {
+                            String connStr = cfg.jdbcUrl == null ? "" : cfg.jdbcUrl.trim();
+                            ConnectionString connectionString = new ConnectionString(connStr);
+                            MongoClientSettings settings = MongoClientSettings.builder()
+                                    .applyConnectionString(connectionString)
+                                    .build();
+                            try (MongoClient mongoClient = MongoClients.create(settings)) {
+                                // Execute a ping command to verify the connection
+                                mongoClient.getDatabase("admin").runCommand(new org.bson.Document("ping", 1));
+                                JOptionPane.showMessageDialog(DbConfigPanel.this, "MongoDB connection successful!", "Yeah...",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        } catch (Exception ex) {
+                            LOGGER.log(Level.SEVERE, "Problem while testing MongoDB connection.", ex);
+                            JOptionPane.showMessageDialog(DbConfigPanel.this,
+                                    "Problem while testing MongoDB connection.\n" + ex.getMessage(), "Error...",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
-                    } catch (Exception ex) {
-                        LOGGER.log(Level.SEVERE, "Problem while testing connection.", ex);
-                        JOptionPane.showMessageDialog(DbConfigPanel.this,
-                                "Problem while testing connection.\n" + ex.getMessage(), "Error...",
-                                JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        // Test JDBC connection
+                        try {
+                            try (Connection con = cfg.getConnection()) {
+                                JOptionPane.showMessageDialog(DbConfigPanel.this, "It works !", "Yeah...",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        } catch (Exception ex) {
+                            LOGGER.log(Level.SEVERE, "Problem while testing connection.", ex);
+                            JOptionPane.showMessageDialog(DbConfigPanel.this,
+                                    "Problem while testing connection.\n" + ex.getMessage(), "Error...",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
                     }
                 }
             });
@@ -375,6 +427,7 @@ public class DbConfigPanel extends JPanel {
         }
 
         cfg.jdbcUrl = getTxtJdbcUrl().getText();
+        cfg.type = detectConnectionType(cfg.jdbcUrl);
         cfg.user = getTxtUser().getText();
         cfg.password = DbConfig.encryptPassword(String.copyValueOf(getTxtPassword().getPassword()));
         cfg.driverClassName = getTxtDriverClassName().getText();
@@ -549,13 +602,26 @@ public class DbConfigPanel extends JPanel {
     }
 
     /**
-     * Gets or creates the JDBC URL text field.
+     * Gets or creates the JDBC/MongoDB URL text field.
+     * A {@link DocumentListener} on this field automatically adapts the form layout
+     * whenever the URL is changed: if the URL starts with {@code mongodb://} or
+     * {@code mongodb+srv://} the MongoDB-specific layout is shown, otherwise the
+     * standard JDBC layout is shown.
      *
-     * @return the JTextField for JDBC connection URL
+     * @return the JTextField for the connection URL
      */
     protected JTextField getTxtJdbcUrl() {
         if (txtJdbcUrl == null) {
             txtJdbcUrl = new JTextField();
+            txtJdbcUrl.getDocument().addDocumentListener(new DocumentListener() {
+                private void onUrlChanged() {
+                    String url = txtJdbcUrl.getText();
+                    updateFormForConnectionType(detectConnectionType(url));
+                }
+                @Override public void insertUpdate(DocumentEvent e)  { onUrlChanged(); }
+                @Override public void removeUpdate(DocumentEvent e)  { onUrlChanged(); }
+                @Override public void changedUpdate(DocumentEvent e) { onUrlChanged(); }
+            });
         }
 
         return txtJdbcUrl;
@@ -796,5 +862,71 @@ public class DbConfigPanel extends JPanel {
             });
         }
         return btnCopyPassword;
+    }
+
+    // -------------------------------------------------------------------------
+    // MongoDB / Connection-type UI helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Detects the connection type from the URL string.
+     * Returns {@link #CONNECTION_TYPE_MONGODB} when the URL starts with
+     * {@code mongodb://} or {@code mongodb+srv://}; returns {@link #CONNECTION_TYPE_JDBC}
+     * for all other values (including null/blank).
+     *
+     * @param url the connection URL to inspect
+     * @return {@code "mongodb"} or {@code "jdbc"}
+     */
+    protected static String detectConnectionType(String url) {
+        if (url != null && !url.isBlank()) {
+            String lower = url.trim().toLowerCase();
+            if (lower.startsWith("mongodb://") || lower.startsWith("mongodb+srv://")) {
+                return CONNECTION_TYPE_MONGODB;
+            }
+        }
+        return CONNECTION_TYPE_JDBC;
+    }
+
+    /**
+     * Gets or creates the connection URL hint label.
+     * Shows a format hint for MongoDB connection strings and is hidden for JDBC connections.
+     *
+     * @return the JLabel displaying the MongoDB connection URL format hint
+     */
+    protected JLabel getLblConnectionTypeHint() {
+        if (lblConnectionTypeHint == null) {
+            lblConnectionTypeHint = new JLabel(
+                    "<html><i style='color:gray'>" +
+                            "MongoDB URL format: mongodb://[user:password@]host[:port]/[database]<br/>"
+                    + "JDBC URL format: jdbc:RDBMS_VENDOR://[user:password@]host[:port]/[database]</i></html>");
+        }
+        return lblConnectionTypeHint;
+    }
+
+    /**
+     * Updates the form labels and field visibility to match the selected connection type.
+     * <ul>
+     *   <li><b>JDBC</b>: shows driver class name and batch separator; hides MongoDB URL hint;
+     *       restores the URL label to "JDBC URL:".</li>
+     *   <li><b>MongoDB</b>: hides driver class name and batch separator; shows the MongoDB URL
+     *       hint; changes the URL label to "Connection URL (MongoDB):".</li>
+     * </ul>
+     *
+     * @param type the connection type string, either {@link #CONNECTION_TYPE_JDBC}
+     *             or {@link #CONNECTION_TYPE_MONGODB}
+     */
+    protected void updateFormForConnectionType(String type) {
+        boolean isMongo = CONNECTION_TYPE_MONGODB.equalsIgnoreCase(type);
+
+        // Enable/Disable JDBC-only fields
+        getLblDriverClassName().setEnabled(!isMongo);
+        getTxtDriverClassName().setEnabled(!isMongo);
+
+        if (isMongo) {
+            getTxtDriverClassName().setText("");
+        }
+
+        revalidate();
+        repaint();
     }
 }

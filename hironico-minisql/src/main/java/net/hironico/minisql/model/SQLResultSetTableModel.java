@@ -52,6 +52,27 @@ public class SQLResultSetTableModel extends DefaultTableModel {
         this.displayType = displayType;
     }
 
+    /**
+     * Creates an empty SQLResultSetTableModel with explicit column names and classes.
+     * Use this constructor for non-JDBC result sources such as MongoDB, where data
+     * is provided programmatically rather than through a {@link ResultSet}.
+     * Rows can be added afterwards via {@link #addRow(Object[])}.
+     *
+     * @param title       display title shown in the result tab header
+     * @param query       the originating query string (for reference)
+     * @param displayType one of the {@code DISPLAY_TYPE_*} constants
+     * @param columnNames names of the columns to create in the model
+     */
+    public SQLResultSetTableModel(String title, String query, int displayType, String... columnNames) {
+        super();
+        this.title = title == null ? "Results" : title;
+        this.query = query == null ? "N/A" : query;
+        this.displayType = displayType;
+        this.classNames = new Class<?>[columnNames.length];
+        java.util.Arrays.fill(this.classNames, Object.class);
+        setColumnIdentifiers(columnNames);
+    }
+
     private void setupData(ResultSet resultSet) throws SQLException {
 
         if (resultSet == null) {
