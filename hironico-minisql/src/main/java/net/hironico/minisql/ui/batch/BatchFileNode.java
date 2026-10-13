@@ -22,7 +22,7 @@ class BatchFileNode {
     private static final Logger LOGGER = Logger.getLogger(BatchFileNode.class.getName());
 
     /** Executor service for batch file execution with a single thread */
-    public static final ExecutorService executorService = Executors.newFixedThreadPool(1);
+    public static final ExecutorService executorService = Executors.newSingleThreadExecutor(Thread.ofVirtual().factory());
 
     /** The file represented by this batch node */
     private final File file;

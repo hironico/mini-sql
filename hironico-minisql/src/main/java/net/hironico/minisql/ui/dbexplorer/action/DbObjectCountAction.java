@@ -32,6 +32,13 @@ public class DbObjectCountAction extends AbstractDbExplorerAction {
             return;
         }
 
+        if (configToUse.isMongoDB()) {
+            if (isQueryableMongoObject(obj)) {
+                showAndExecuteQuery(getMongoCountQuery(obj.name));
+            }
+            return;
+        }
+
         QueryPanel pnl = this.showNewQueryPanel();
 
         if (SQLObjectTypeEnum.isTableOrView(obj.type)) {

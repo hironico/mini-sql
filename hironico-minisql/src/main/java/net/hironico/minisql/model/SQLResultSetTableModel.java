@@ -1,5 +1,10 @@
 package net.hironico.minisql.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import net.hironico.common.utils.json.JSONFile;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.time.OffsetDateTime;
 
 import javax.swing.table.DefaultTableModel;
@@ -8,6 +13,10 @@ import java.io.InputStream;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,7 +26,6 @@ import java.util.logging.Logger;
  * It is also possible to transpose a result set and vice versa.
  */
 public class SQLResultSetTableModel extends DefaultTableModel {
-    private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = Logger.getLogger(SQLResultSetTableModel.class.getName());
 
@@ -219,5 +227,44 @@ public class SQLResultSetTableModel extends DefaultTableModel {
 
     public int getDisplayType() {
         return this.displayType;
+    }
+
+    public String toString() {
+        StringBuilder textToDisplay = new StringBuilder();
+        for (int row = 0; row < this.getRowCount(); row++) {
+            for (int column = 0; column < this.getColumnCount(); column++) {
+                if (column > 0) {
+                    textToDisplay.append("\t");
+                }
+                Object value = this.getValueAt(row, column);
+                String valueStr = value == null ? "NULL" : value.toString();
+                textToDisplay.append(valueStr);
+            }
+        }
+        return textToDisplay.toString();
+    }
+
+    public String toJSONString() {
+        try {
+            List<Map<String, Object>> flatRows = new ArrayList<>();
+            for (int row = 0; row < this.getRowCount(); row++) {
+                // Represent a row in DB. Key: Column name, Value: Column value
+                Map<String, Object> rowValues = new HashMap<>();
+
+                for (int col = 0; col < this.getColumnCount(); col++) {
+                    String colName = this.getColumnName(col);
+                    rowValues.put(colName, this.getValueAt(row, col));
+                }
+
+                flatRows.add(rowValues);
+            }
+
+            return JSONFile.serialize(flatRows);
+        } catch (JsonProcessingException ex) {
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            ex.printStackTrace(pw);
+            return sw.toString();
+        }
     }
 }

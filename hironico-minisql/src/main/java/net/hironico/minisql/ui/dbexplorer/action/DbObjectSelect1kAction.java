@@ -47,6 +47,13 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
             return;
         }
 
+        if (cfg.isMongoDB()) {
+            if (isQueryableMongoObject(obj)) {
+                showAndExecuteQuery(getMongoSelect1kQuery(obj.name));
+            }
+            return;
+        }
+
         DB_VENDOR dbVendor = this.getDbVendor(cfg);
         if (dbVendor == null) {
             LOGGER.severe("Driver type is not supported. Only Oracle or Sybase/MSSQL (TDS) or Postgresql are supported.");

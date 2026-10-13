@@ -674,60 +674,21 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
         return scrollResults;
     }
 
-    private static String tableModelToString(DefaultTableModel modelToDisplay) {
-        StringBuilder textToDisplay = new StringBuilder();
-        for (int row = 0; row < modelToDisplay.getRowCount(); row++) {
-            for (int column = 0; column < modelToDisplay.getColumnCount(); column++) {
-                if (column > 0) {
-                    textToDisplay.append("\t");
-                }
-                Object value = modelToDisplay.getValueAt(row, column);
-                String valueStr = value == null ? "NULL" : value.toString();
-                textToDisplay.append(valueStr);
-            }
-        }
-        return textToDisplay.toString();
-    }
-
-    private static String tableModelToJSON(DefaultTableModel modelToDisplay) {
-        try {
-            List<Map<String, Object>> flatRows = new ArrayList<>();
-            for (int row = 0; row < modelToDisplay.getRowCount(); row++) {
-                // Represent a row in DB. Key: Column name, Value: Column value
-                Map<String, Object> rowValues = new HashMap<>();
-
-                for (int col = 0; col < modelToDisplay.getColumnCount(); col++) {
-                    String colName = modelToDisplay.getColumnName(col);
-                    rowValues.put(colName, modelToDisplay.getValueAt(row, col));
-                }
-
-                flatRows.add(rowValues);
-            }
-
-            return JSONFile.serialize(flatRows);
-        } catch (JsonProcessingException ex) {
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            ex.printStackTrace(pw);
-            return sw.toString();
-        }
-    }
-
     private static JComponent getResultComponentSQL(DefaultTableModel modelToDisplay) {
         RSyntaxTextArea textResults = getResultTextArea(SyntaxConstants.SYNTAX_STYLE_SQL);
-        textResults.setText(tableModelToString(modelToDisplay));
+        textResults.setText(modelToDisplay.toString());
         return getResultTextAreaScroll(textResults);
     }
 
-    private static JComponent getResultComponentJSON(DefaultTableModel modelToDisplay) {
+    private static JComponent getResultComponentJSON(SQLResultSetTableModel modelToDisplay) {
         RSyntaxTextArea textResults = getResultTextArea(SyntaxConstants.SYNTAX_STYLE_JSON);
-        textResults.setText(tableModelToJSON(modelToDisplay));
+        textResults.setText(modelToDisplay.toJSONString());
         return getResultTextAreaScroll(textResults);
     }
 
-    private static JComponent getResultComponentText(DefaultTableModel modelToDisplay) {
+    private static JComponent getResultComponentText(SQLResultSetTableModel modelToDisplay) {
         RSyntaxTextArea textResults = getResultTextArea(SyntaxConstants.SYNTAX_STYLE_CSV);
-        textResults.setText(tableModelToString(modelToDisplay));
+        textResults.setText(modelToDisplay.toString());
         return getResultTextAreaScroll(textResults);
     }
 

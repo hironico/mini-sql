@@ -268,10 +268,9 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
      * @param pathToRoot the tree path to the node for UI updates
      */
     public void updateWhenFinished(Future<List<SQLResultSetTableModel>> fut, BatchFileNode batchFileNode, TreePath pathToRoot) {
-        Thread thread = new Thread(() -> {
+        Thread thread = Thread.ofVirtual().unstarted(() -> {
             try {
                 if (fut != null) {
-                    // maybe we can store the results table model for debugging later in the GUI to display the details
                     List<SQLResultSetTableModel> results = fut.get();
                     batchFileNode.setEnded(System.currentTimeMillis());
                     String strResult = String.format("OK. %d results.", results.size());
@@ -281,8 +280,7 @@ class BatchFileTreeTableModel extends DefaultTreeTableModel {
                 LOG.log(Level.SEVERE, "ERROR while running batch of SQL:", e);
                 batchFileNode.setResult(String.format("ERROR: %s", e.getMessage()));
             } finally {
-                // force display of results
-                modelSupport.fireTreeStructureChanged(pathToRoot);
+                SwingUtilities.invokeLater(() -> modelSupport.fireTreeStructureChanged(pathToRoot));
             }
         });
         thread.start();

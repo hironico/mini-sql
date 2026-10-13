@@ -8,7 +8,6 @@ import net.hironico.minisql.ui.editor.QueryPanel;
 import net.hironico.minisql.ui.history.QueryHistory;
 
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.logging.Logger;
 import javax.swing.*;
 
@@ -26,45 +25,44 @@ public abstract class AbstractQueryAction extends AbstractRibbonAction {
         super(name, icon);
     }
 
-    public static void executeQueryAsync(QueryPanel queryPanel) {
+    public static void executeQueryAsync(QueryPanel query29_queryPanel) {
 
-        String sql = queryPanel.getQueryText();
-        int resultDisplayType = queryPanel.getResultDisplayType();
+        String sql = query29_queryPanel.getQueryText();
+        int resultDisplayType = query29_queryPanel.getResultDisplayType();
 
         LOGGER.fine("Executing '" + sql + "'");
 
-        queryPanel.setResultsComponent(new JLabel("Executing query, please wait."));
+        query29_queryPanel.setResultsComponent(new JLabel("Executing query, please wait."));
 
-        // Choose the right callable depending on the connection type
-        final Future<List<SQLResultSetTableModel>> futureResults;
-        if (queryPanel.getConfig() != null && queryPanel.getConfig().isMongoDB()) {
-            MongoQueryResultCallable mongoCall = new MongoQueryResultCallable(sql, queryPanel.getConfig());
-            futureResults = MainWindow.executorService.submit(mongoCall);
-        } else {
-            QueryResultCallable queryCall = new QueryResultCallable(sql, queryPanel.getConfig(), queryPanel.isBatchMode());
-            queryCall.addQueryHistoryListener(QueryHistory.getInstance());
-            futureResults = MainWindow.executorService.submit(queryCall);
-        }
-
-        Runnable waitQueryRun = () -> {
+        MainWindow.executorService.submit(() -> {
             try {
-                List<SQLResultSetTableModel> results = futureResults.get();
+                List<SQLResultSetTableModel> results;
+                if (query29_queryPanel.getConfig() != null && query29_queryPanel.getConfig().isMongoDB()) {
+                    MongoQueryResultCallable mongoCall = new MongoQueryResultCallable(sql, query29_queryPanel.getConfig());
+                    results = mongoCall.call();
+                } else {
+                    QueryResultCallable queryCall = new QueryResultCallable(sql, query29_queryPanel.getConfig(), query29_queryPanel.isBatchMode());
+                    queryCall.addQueryHistoryListener(QueryHistory.getInstance());
+                    results = queryCall.call();
+                }
+
                 results.forEach(result -> result.setDisplayType(resultDisplayType));
                 JComponent compResults = QueryPanel.getResultComponentTab(results);
-                queryPanel.setResultsComponent(compResults);
-            } catch (Exception ex) {
-                JTextPane txtErr = new JTextPane();
-                txtErr.setText(ex.getMessage());
-                txtErr.setBorder(BorderFactory.createEmptyBorder());
-                txtErr.setEditable(false);
-                txtErr.setEnabled(false);
-                JScrollPane scrollErr = new JScrollPane(txtErr);
-                scrollErr.setBorder(BorderFactory.createEmptyBorder());
-                queryPanel.setResultsComponent(scrollErr);
-            }
-        };
+                SwingUtilities.invokeLater(() -> query29_queryPanel.setResultsComponent(compResults));
 
-        Thread waitQueryThread = new Thread(waitQueryRun);
-        waitQueryThread.start();
+            } catch (Exception ex) {
+                SwingUtilities.invokeLater(() -> {
+                    JTextPane txtErr = new JTextPane();
+                    txtErr.setText(ex.getMessage());
+                    txtErr.setBorder(BorderFactory.createEmptyBorder());
+                    txtErr.setEditable(false);
+                    txtErr.setEnabled(false);
+                    JScrollPane scrollErr = new JScrollPane(txtErr);
+                    scrollErr.setBorder(BorderFactory.createEmptyBorder());
+                    query29_queryPanel.setResultsComponent(scrollErr);
+                });
+            }
+        });
     }
+
 }

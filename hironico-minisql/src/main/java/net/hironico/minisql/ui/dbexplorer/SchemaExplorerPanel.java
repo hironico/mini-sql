@@ -3,12 +3,14 @@ package net.hironico.minisql.ui.dbexplorer;
 import net.hironico.common.swing.JRoundedPanel;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.DbConfigFile;
+import net.hironico.minisql.ctrl.MongoCollectionListCallable;
 import net.hironico.minisql.ctrl.ObjectListCallable;
 import net.hironico.minisql.ctrl.SchemaListCallable;
 import net.hironico.minisql.model.SQLObject;
 import net.hironico.minisql.model.SQLObjectTypeEnum;
 import net.hironico.minisql.ui.MainWindow;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
+import net.hironico.minisql.utils.MongoUtils;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -17,6 +19,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.*;
@@ -54,6 +57,11 @@ public class SchemaExplorerPanel extends JRoundedPanel implements DbConfigFile.D
             return;
         }
 
+        if (isMongoConnection()) {
+            refreshMongoDatabase();
+            return;
+        }
+
         this.setEnabled(false);
 
         CompletableFuture.supplyAsync(new SchemaListCallable(this.dbConfig))
@@ -69,6 +77,28 @@ public class SchemaExplorerPanel extends JRoundedPanel implements DbConfigFile.D
         });
     }
 
+    /**
+     * For MongoDB connections the schema combo only holds the database declared in the connection URL.
+     */
+    private void refreshMongoDatabase() {
+        DefaultComboBoxModel<String> model = getCmbSchemaModel();
+        model.removeAllElements();
+
+        String dbName = MongoUtils.getDatabaseName(this.dbConfig);
+        if (dbName == null) {
+            LOGGER.warning("No database found in the MongoDB connection URL of '" + this.dbConfig.name
+                    + "'. Add it to the URL to browse collections, e.g. mongodb://localhost:27017/myDatabase");
+            getTreeTableObjectsModel().clear();
+            return;
+        }
+
+        model.addElement(dbName);
+    }
+
+    public boolean isMongoConnection() {
+        return this.dbConfig != null && this.dbConfig.isMongoDB();
+    }
+
     private void refreshObjects(SQLObjectTypeEnum objectTypeFilter) {
         SQLObjectsTreeTableModel model = this.getTreeTableObjectsModel();
 
@@ -78,8 +108,12 @@ public class SchemaExplorerPanel extends JRoundedPanel implements DbConfigFile.D
             return;
         }
 
+        Supplier<List<String[]>> objectListSupplier = isMongoConnection()
+                ? new MongoCollectionListCallable(this.dbConfig, schemaName, objectTypeFilter)
+                : new ObjectListCallable(this.dbConfig, schemaName, objectTypeFilter);
+
         this.setEnabled(false);
-        CompletableFuture.supplyAsync(new ObjectListCallable(this.dbConfig, schemaName, objectTypeFilter))
+        CompletableFuture.supplyAsync(objectListSupplier)
         .thenAccept(objects -> SwingUtilities.invokeLater(() -> {
             model.clear(objectTypeFilter);
             model.setSQLObjects(objects);
@@ -103,6 +137,10 @@ public class SchemaExplorerPanel extends JRoundedPanel implements DbConfigFile.D
         switch(nodeType.toUpperCase()) {
             case "TABLES":
                 this.refreshObjects(SQLObjectTypeEnum.TABLE);
+                break;
+
+            case "COLLECTIONS":
+                this.refreshObjects(SQLObjectTypeEnum.COLLECTION);
                 break;
 
             case "VIEWS":
@@ -219,6 +257,7 @@ public class SchemaExplorerPanel extends JRoundedPanel implements DbConfigFile.D
                     return;
                 }
                 this.dbConfig = (DbConfig)this.cmbConnection.getSelectedItem();
+                getTreeTableObjectsModel().setMongoMode(isMongoConnection());
                 SchemaExplorerPanel.this.refreshSchemas();
             });
         }

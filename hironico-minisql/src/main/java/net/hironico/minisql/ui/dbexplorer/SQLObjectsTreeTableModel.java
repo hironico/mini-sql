@@ -14,7 +14,8 @@ import org.jdesktop.swingx.treetable.MutableTreeTableNode;
 
 /**
  * Tree table model for displaying database objects in a hierarchical structure.
- * Organizes SQL objects (tables, views, procedures, sequences, enums) by type
+ * Organizes SQL objects (tables, views, procedures, sequences, enums) by type,
+ * or MongoDB collections and views when in MongoDB mode,
  * with support for filtering system objects and providing a structured view suitable
  * for database browsing and navigation.
  */
@@ -37,6 +38,12 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
 
     /** Root node for displaying enum objects */
     private DefaultMutableTreeTableNode enumsNode;
+
+    /** Root node for displaying MongoDB collections (only present in MongoDB mode) */
+    private DefaultMutableTreeTableNode collectionsNode;
+
+    /** When true, root nodes are Collections and Views (MongoDB) instead of the relational categories */
+    private boolean mongoMode = false;
 
     /** Flag controlling whether system objects are displayed */
     private boolean showSystemObjects = Boolean.FALSE;
@@ -105,45 +112,58 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
     }
 
     /**
-     * Adds all root category nodes to the tree structure.
-     * Creates the main organizational nodes for different types of SQL objects.
+     * Switches the root category nodes between the relational layout (Tables, Views, Procedures,
+     * Sequences, Enums) and the MongoDB layout (Collections, Views). All displayed objects are removed
+     * when the layout changes.
+     *
+     * @param mongoMode true for the MongoDB layout, false for the relational layout
+     */
+    public void setMongoMode(boolean mongoMode) {
+        if (this.mongoMode == mongoMode) {
+            return;
+        }
+        this.mongoMode = mongoMode;
+        removeRootNodes();
+        addRootNodes();
+    }
+
+    public boolean isMongoMode() {
+        return mongoMode;
+    }
+
+    /**
+     * Adds all root category nodes to the tree structure according to the current layout mode.
      */
     private void addRootNodes() {
-        this.addTablesRootNode();
-        this.addViewsRootNode();
-        this.addProcsRootNode();
-        this.addSequencesRootNode();
-        this.addEnumsRootNode();
+        if (mongoMode) {
+            collectionsNode = addRootNode("Collections", 0);
+            viewsNode = addRootNode("Views", 1);
+        } else {
+            tablesNode = addRootNode("Tables", 0);
+            viewsNode = addRootNode("Views", 1);
+            procsNode = addRootNode("Procedures", 2);
+            sequencesNode = addRootNode("Sequences", 3);
+            enumsNode = addRootNode("Enums", 3);
+        }
     }
 
-    private void addTablesRootNode() {
+    private DefaultMutableTreeTableNode addRootNode(String name, int index) {
         DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode)getRoot();
-        tablesNode = new DefaultMutableTreeTableNode("Tables");
-        this.insertNodeInto(tablesNode, root, 0);
+        DefaultMutableTreeTableNode node = new DefaultMutableTreeTableNode(name);
+        this.insertNodeInto(node, root, index);
+        return node;
     }
 
-    private void addViewsRootNode() {
+    private void removeRootNodes() {
         DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode)getRoot();
-        viewsNode = new DefaultMutableTreeTableNode("Views");
-        this.insertNodeInto(viewsNode, root, 1);
-    }
-
-    private void addProcsRootNode() {
-        DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode)getRoot();
-        procsNode = new DefaultMutableTreeTableNode("Procedures");
-        this.insertNodeInto(procsNode, root, 2);
-    }
-
-    private void addSequencesRootNode() {
-        DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode)getRoot();
-        sequencesNode = new DefaultMutableTreeTableNode("Sequences");
-        this.insertNodeInto(sequencesNode, root, 3);
-    }
-
-    private void addEnumsRootNode() {
-        DefaultMutableTreeTableNode root = (DefaultMutableTreeTableNode)getRoot();
-        enumsNode = new DefaultMutableTreeTableNode("Enums");
-        this.insertNodeInto(enumsNode, root, 3);
+        List<MutableTreeTableNode> nodes = StreamUtils.stream(root.children()).collect(Collectors.toList());
+        nodes.forEach(this::removeNodeFromParent);
+        tablesNode = null;
+        viewsNode = null;
+        procsNode = null;
+        sequencesNode = null;
+        enumsNode = null;
+        collectionsNode = null;
     }
 
     /**
@@ -163,28 +183,36 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
      */
     public void clear(SQLObjectTypeEnum objectFilter) {
         if (objectFilter == null || objectFilter == SQLObjectTypeEnum.TABLE) {
-            List<MutableTreeTableNode> nodes = StreamUtils.stream(this.tablesNode.children()).collect(Collectors.toList());
-            nodes.forEach(this::removeNodeFromParent);
+            clearNode(this.tablesNode);
         }
+
         if (objectFilter == null || objectFilter == SQLObjectTypeEnum.VIEW) {
-            List<MutableTreeTableNode> nodes = StreamUtils.stream(this.viewsNode.children()).collect(Collectors.toList());
-            nodes.forEach(this::removeNodeFromParent);
+            clearNode(this.viewsNode);
         }
 
         if (objectFilter == null || objectFilter == SQLObjectTypeEnum.PROCEDURE) {
-            List<MutableTreeTableNode> nodes = StreamUtils.stream(this.procsNode.children()).collect(Collectors.toList());
-            nodes.forEach(this::removeNodeFromParent);
+            clearNode(this.procsNode);
         }
 
         if (objectFilter == null || objectFilter == SQLObjectTypeEnum.SEQUENCE) {
-            List<MutableTreeTableNode> nodes = StreamUtils.stream(this.sequencesNode.children()).collect(Collectors.toList());
-            nodes.forEach(this::removeNodeFromParent);
+            clearNode(this.sequencesNode);
         }
 
         if (objectFilter == null || objectFilter == SQLObjectTypeEnum.ENUM) {
-            List<MutableTreeTableNode> nodes = StreamUtils.stream(this.enumsNode.children()).collect(Collectors.toList());
-            nodes.forEach(this::removeNodeFromParent);
+            clearNode(this.enumsNode);
         }
+
+        if (objectFilter == null || SQLObjectTypeEnum.isCollection(objectFilter)) {
+            clearNode(this.collectionsNode);
+        }
+    }
+
+    private void clearNode(DefaultMutableTreeTableNode node) {
+        if (node == null) {
+            return;
+        }
+        List<MutableTreeTableNode> nodes = StreamUtils.stream(node.children()).collect(Collectors.toList());
+        nodes.forEach(this::removeNodeFromParent);
     }
 
     /**
@@ -283,6 +311,15 @@ public class SQLObjectsTreeTableModel extends DefaultTreeTableModel {
 
             case ENUM:
                 return this.enumsNode;
+
+            case COLLECTION:
+                return this.collectionsNode;
+
+            case SYSTEM_COLLECTION:
+                if (this.showSystemObjects) {
+                    return this.collectionsNode;
+                }
+                break;
 
             default:
                 LOGGER.severe("Unsupported object type: " + myObj.type);

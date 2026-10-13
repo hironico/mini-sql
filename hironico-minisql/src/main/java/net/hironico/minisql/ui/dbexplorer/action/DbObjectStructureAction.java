@@ -41,7 +41,7 @@ public class DbObjectStructureAction extends AbstractDbExplorerAction {
         }
 
         final DbConfig configToUse = DbConfigFile.getConfig(this.getExplorerPanel().getSelectedConnectionName());
-        if (configToUse == null) {
+        if (configToUse == null || rejectIfMongoDB(configToUse)) {
             return;
         }
 

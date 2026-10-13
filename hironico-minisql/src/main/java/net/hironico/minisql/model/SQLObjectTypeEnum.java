@@ -18,6 +18,8 @@ public enum SQLObjectTypeEnum {
     SYNONYM("SYNONYM"),
     SCHEMA("SCHEMA"),
     DATABASE("DATABASE"),
+    COLLECTION("COLLECTION"),
+    SYSTEM_COLLECTION("SYSTEM COLLECTION"),
     UNKNOWN("UNKNOWN");
 
     private String value;
@@ -34,6 +36,10 @@ public enum SQLObjectTypeEnum {
     public static boolean isProcOrFunction(SQLObjectTypeEnum typeEnum) {
         return typeEnum == FUNCTION || typeEnum == PROCEDURE
                 || typeEnum == SYSTEM_FUNCTION || typeEnum == SYSTEM_PROCEDURE;
+    }
+
+    public static boolean isCollection(SQLObjectTypeEnum typeEnum) {
+        return typeEnum == COLLECTION || typeEnum == SYSTEM_COLLECTION;
     }
 
     public String toString() {

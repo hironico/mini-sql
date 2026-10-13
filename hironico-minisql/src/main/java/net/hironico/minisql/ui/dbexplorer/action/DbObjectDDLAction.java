@@ -31,6 +31,9 @@ public class DbObjectDDLAction extends AbstractDbExplorerAction {
         SchemaExplorerPanel explorerPanel = MainWindow.getInstance().getSchemaExplorerPanel();
         SQLObject obj = explorerPanel.getSelectedSQLObject();
         DbConfig cfg = DbConfigFile.getConfig(explorerPanel.getSelectedConnectionName());
+        if (rejectIfMongoDB(cfg)) {
+            return;
+        }
         try {
             String ddl = null;
             switch (obj.type) {

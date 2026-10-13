@@ -1,10 +1,9 @@
 package net.hironico.minisql.ctrl;
 
-import com.mongodb.ConnectionString;
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.*;
 import net.hironico.minisql.DbConfig;
 import net.hironico.minisql.model.SQLResultSetTableModel;
+import net.hironico.minisql.utils.MongoUtils;
 import org.bson.Document;
 
 import java.util.*;
@@ -22,6 +21,7 @@ import java.util.regex.Pattern;
  *   <li>{@code show dbs} / {@code show databases} — list all databases</li>
  *   <li>{@code show collections} — list collections in the current database</li>
  *   <li>{@code db.collection.find({filter}, {projection})} — query documents</li>
+ *   <li>{@code db.getCollection("name").<method>(...)} — same collection methods, for any collection name</li>
  *   <li>{@code db.collection.findOne({filter})} — query first matching document</li>
  *   <li>{@code db.collection.insertOne({doc})} — insert a document</li>
  *   <li>{@code db.collection.insertMany([{doc1},{doc2}])} — insert multiple documents</li>
@@ -75,6 +75,14 @@ public class MongoQueryResultCallable implements Callable<List<SQLResultSetTable
             "^\\s*db\\.([\\w]+)\\.([\\w]+)\\((.*)\\)\\s*;?\\s*$",
             Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
+    /**
+     * Matches: db.getCollection("name").<method>(<args>) — allows collection names that are not
+     * plain identifiers (containing dots, dashes, spaces...). Group 2 is the (escaped) name.
+     */
+    static final Pattern GET_COLLECTION_CMD = Pattern.compile(
+            "^\\s*db\\.getCollection\\(\\s*([\"'])((?:\\\\.|(?!\\1).)*)\\1\\s*\\)\\.([\\w]+)\\((.*)\\)\\s*;?\\s*$",
+            Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
     private final String query;
     private final DbConfig config;
 
@@ -89,44 +97,14 @@ public class MongoQueryResultCallable implements Callable<List<SQLResultSetTable
         this.config = config;
     }
 
-    /**
-     * Builds the MongoDB connection string, injecting separate user/password credentials
-     * into the URI when they are not already embedded in it.
-     */
-    private String buildConnectionString() {
-        String connStr = config.jdbcUrl == null ? "" : config.jdbcUrl.trim();
-        String user = config.user == null ? "" : config.user.trim();
-        String password = config.password == null ? "" : DbConfig.decryptPassword(config.password).trim();
-
-        // Inject credentials only when they are provided separately and not already in the URI
-        if (!user.isEmpty() && !connStr.contains("@")) {
-            String encodedUser = user.replace("@", "%40");
-            String encodedPassword = password.replace("@", "%40");
-            String credentials = encodedPassword.isEmpty() ? encodedUser : encodedUser + ":" + encodedPassword;
-            if (connStr.startsWith("mongodb+srv://")) {
-                connStr = "mongodb+srv://" + credentials + "@" + connStr.substring("mongodb+srv://".length());
-            } else if (connStr.startsWith("mongodb://")) {
-                connStr = "mongodb://" + credentials + "@" + connStr.substring("mongodb://".length());
-            }
-        }
-        return connStr;
-    }
-
     @Override
     public List<SQLResultSetTableModel> call() throws Exception {
         List<SQLResultSetTableModel> results = new ArrayList<>();
 
-        String connStr = buildConnectionString();
-        ConnectionString connectionString = new ConnectionString(connStr);
+        try (MongoClient client = MongoUtils.createClient(config)) {
 
-        MongoClientSettings settings = MongoClientSettings.builder()
-                .applyConnectionString(connectionString)
-                .build();
-
-        try (MongoClient client = MongoClients.create(settings)) {
-
-            String dbName = connectionString.getDatabase();
-            MongoDatabase db = (dbName != null && !dbName.isEmpty()) ? client.getDatabase(dbName) : null;
+            String dbName = MongoUtils.getDatabaseName(config);
+            MongoDatabase db = dbName != null ? client.getDatabase(dbName) : null;
 
             String trimmed = query == null ? "" : query.trim();
 
@@ -172,6 +150,22 @@ public class MongoQueryResultCallable implements Callable<List<SQLResultSetTable
                 return results;
             }
 
+            // --- db.getCollection("<name>").<method>(<args>) — for names that are not plain identifiers.
+            // MUST be checked before DB_METHOD_CMD which would otherwise match it as db.getCollection(...)
+            Matcher getCollMatcher = GET_COLLECTION_CMD.matcher(trimmed);
+            if (getCollMatcher.matches()) {
+                requireDatabase(db);
+                String collectionName = unescapeCollectionName(getCollMatcher.group(2));
+                String method = getCollMatcher.group(3).toLowerCase();
+                String argsStr = getCollMatcher.group(4).trim();
+                MongoCollection<Document> collection = db.getCollection(collectionName);
+                SQLResultSetTableModel result = executeCollectionMethod(collection, method, argsStr, trimmed);
+                if (result != null) {
+                    results.add(result);
+                }
+                return results;
+            }
+
             // --- db.<method>(<args>) — database-level commands: runCommand, adminCommand, etc.
             // This MUST be checked before COLLECTION_CMD because COLLECTION_CMD is more specific
             // (three-part path db.col.method) and won't match two-part db.method calls.
@@ -213,8 +207,14 @@ public class MongoQueryResultCallable implements Callable<List<SQLResultSetTable
                     + "  db.collection.deleteOne({filter}) | db.collection.deleteMany({filter})\n"
                     + "  db.collection.countDocuments({filter})\n"
                     + "  db.collection.aggregate([{stage1},...]) | db.collection.drop()\n"
-                    + "  db.createCollection(\"name\")");
+                    + "  db.createCollection(\"name\")\n"
+                    + "  db.getCollection(\"name\").<method>(...) for any collection method above");
         }
+    }
+
+    /** Removes backslash escapes from a quoted collection name, e.g. {@code my\"coll} becomes {@code my"coll}. */
+    static String unescapeCollectionName(String escaped) {
+        return escaped.replaceAll("\\\\(.)", "$1");
     }
 
     // -------------------------------------------------------------------------
