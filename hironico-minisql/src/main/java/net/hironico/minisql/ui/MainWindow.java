@@ -34,7 +34,7 @@ public class MainWindow extends JFrame {
 
     private static final Logger LOGGER = Logger.getLogger(MainWindow.class.getName());
 
-    public static final ExecutorService executorService = Executors.newFixedThreadPool(4);
+    public static final ExecutorService executorService = Executors.newSingleThreadExecutor(Thread.ofVirtual().factory());
 
     public static final Map<String, AbstractRibbonAction> appActions = new HashMap<>();
 
