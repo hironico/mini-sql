@@ -7,6 +7,7 @@ import net.hironico.minisql.ui.batch.BatchPanel;
 import net.hironico.minisql.ui.batch.action.NewBatchAction;
 import net.hironico.minisql.ui.batch.ribbon.BatchRibbonTab;
 import net.hironico.minisql.ui.config.ShowConfigPanelAction;
+import net.hironico.minisql.ui.dataimport.action.ShowDataImportPanelAction;
 import net.hironico.common.swing.tabbedpane.JTabbedPaneNoContentSeparator;
 import net.hironico.minisql.ui.dbexplorer.SchemaExplorerPanel;
 import net.hironico.minisql.ui.dbexplorer.ribbon.DbExplorerRibbonTab;
@@ -252,6 +253,7 @@ public class MainWindow extends JFrame {
             toolsRibbonGroup = new RibbonGroup("Tools");
             toolsRibbonGroup.addButton(new NewVisualDbTabAction(), RibbonGroup.LARGE);
             toolsRibbonGroup.addButton(new NewBatchAction(), RibbonGroup.LARGE);
+            toolsRibbonGroup.addButton(new ShowDataImportPanelAction(), RibbonGroup.LARGE);
         }
 
         return toolsRibbonGroup;

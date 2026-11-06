@@ -54,6 +54,7 @@ public class DbExplorerRibbonTab extends RibbonTab {
             this.selectRibbonGroup.addButton(new DbObjectSelect1kAction(), RibbonGroup.SMALL);
             this.selectRibbonGroup.addButton(new DbObjectCountAction(), RibbonGroup.SMALL);
             this.selectRibbonGroup.addButton(new DbObjectExportStructureAction(), RibbonGroup.LARGE);
+            this.selectRibbonGroup.addButton(new DbModelImportAction(), RibbonGroup.LARGE);
         }
 
         return selectRibbonGroup;
