@@ -88,8 +88,8 @@ public class DbConfigPanel extends JPanel {
     /** Label for driver class name field */
     private JLabel lblDriverClassName;
 
-    /** Text field for JDBC driver class name */
-    private JTextField txtDriverClassName;
+    /** Editable combo box for JDBC driver class name (loaded drivers list + custom value) */
+    private JComboBox<String> cmbDriverClassName;
 
     /** Label for SQL statement separator field */
     private JLabel lblStatementSeparator;
@@ -139,7 +139,7 @@ public class DbConfigPanel extends JPanel {
         getTxtJdbcUrl().setText("");
         getTxtUser().setText("");
         getTxtPassword().setText("");
-        getTxtDriverClassName().setText("");
+        getCmbDriverClassName().setSelectedItem(null);
         getTxtStatementSeparator().setText("");
         getChkUseQuotedIdentifiers().setSelected(false);
         updateFormForConnectionType(CONNECTION_TYPE_JDBC);
@@ -163,7 +163,7 @@ public class DbConfigPanel extends JPanel {
         getTxtJdbcUrl().setText(cfg.jdbcUrl);
         getTxtUser().setText(cfg.user);
         getTxtPassword().setText(DbConfig.decryptPassword(cfg.password));
-        getTxtDriverClassName().setText(cfg.driverClassName);
+        getCmbDriverClassName().setSelectedItem(cfg.driverClassName);
         getTxtStatementSeparator().setText(cfg.batchStatementSeparator);
         Color conColor = cfg.color == null ? Color.BLUE : Color.decode(cfg.color);
         getColorChooser().getChooser().setColor(conColor);
@@ -263,7 +263,7 @@ public class DbConfigPanel extends JPanel {
 
         gc.gridy = 11;
         gc.insets.top = 0;
-        add(getTxtDriverClassName(), gc);
+        add(getCmbDriverClassName(), gc);
 
         gc.gridy = 12;
         gc.insets.top = 5;
@@ -430,7 +430,7 @@ public class DbConfigPanel extends JPanel {
         cfg.type = detectConnectionType(cfg.jdbcUrl);
         cfg.user = getTxtUser().getText();
         cfg.password = DbConfig.encryptPassword(String.copyValueOf(getTxtPassword().getPassword()));
-        cfg.driverClassName = getTxtDriverClassName().getText();
+        cfg.driverClassName = getDriverClassNameValue();
         cfg.batchStatementSeparator = getTxtStatementSeparator().getText();
         Color bg = getColorChooser().getBackground();
         cfg.color = String.format("#%02x%02x%02x", bg.getRed(), bg.getGreen(), bg.getBlue());
@@ -694,16 +694,48 @@ public class DbConfigPanel extends JPanel {
     }
 
     /**
-     * Gets or creates the driver class name text field.
+     * Gets or creates the driver class name combo box.
+     * The list contains the JDBC drivers loaded at startup. The combo is editable
+     * so that a custom driver class name can be typed in.
      *
-     * @return the JTextField for JDBC driver class name
+     * @return the editable JComboBox for JDBC driver class name
      */
-    protected JTextField getTxtDriverClassName() {
-        if (txtDriverClassName == null) {
-            txtDriverClassName = new JTextField();
+    protected JComboBox<String> getCmbDriverClassName() {
+        if (cmbDriverClassName == null) {
+            cmbDriverClassName = new JComboBox<>(
+                    new DefaultComboBoxModel<>(DriverConfigPanel.getLoadedDriverClasses().toArray(new String[0])));
+            cmbDriverClassName.setEditable(true);
+            cmbDriverClassName.setSelectedItem(null);
+
+            // refresh the list when a driver jar is added while the application is running
+            DriverConfigPanel.addDriverClassesListener(this::refreshDriverClassNames);
         }
 
-        return txtDriverClassName;
+        return cmbDriverClassName;
+    }
+
+    /**
+     * Returns the driver class name currently displayed in the combo editor,
+     * including a custom value typed by the user and not part of the list.
+     *
+     * @return the driver class name, trimmed, or an empty string
+     */
+    private String getDriverClassNameValue() {
+        Object value = getCmbDriverClassName().isEditable()
+                ? getCmbDriverClassName().getEditor().getItem()
+                : getCmbDriverClassName().getSelectedItem();
+        return value == null ? "" : value.toString().trim();
+    }
+
+    /**
+     * Reloads the combo box list from the loaded drivers registry
+     * while preserving the current value.
+     */
+    private void refreshDriverClassNames() {
+        String current = getDriverClassNameValue();
+        getCmbDriverClassName().setModel(
+                new DefaultComboBoxModel<>(DriverConfigPanel.getLoadedDriverClasses().toArray(new String[0])));
+        getCmbDriverClassName().setSelectedItem(current.isEmpty() ? null : current);
     }
 
     /**
@@ -920,10 +952,10 @@ public class DbConfigPanel extends JPanel {
 
         // Enable/Disable JDBC-only fields
         getLblDriverClassName().setEnabled(!isMongo);
-        getTxtDriverClassName().setEnabled(!isMongo);
+        getCmbDriverClassName().setEnabled(!isMongo);
 
         if (isMongo) {
-            getTxtDriverClassName().setText("");
+            getCmbDriverClassName().setSelectedItem(null);
         }
 
         revalidate();

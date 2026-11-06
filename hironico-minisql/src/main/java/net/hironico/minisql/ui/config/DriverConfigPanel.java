@@ -8,6 +8,10 @@ import java.awt.*;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +25,26 @@ public class DriverConfigPanel extends JPanel {
     
     // Static class loader to accumulate all driver JARs
     private static URLClassLoader driverClassLoader = null;
+
+    /** Well known JDBC driver class names probed to build the list of available drivers. */
+    private static final String[] COMMON_DRIVER_CLASSES = {
+        "org.postgresql.Driver",
+        "com.mysql.jdbc.Driver",
+        "com.mysql.cj.jdbc.Driver",
+        "oracle.jdbc.driver.OracleDriver",
+        "oracle.jdbc.OracleDriver",
+        "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+        "org.mariadb.jdbc.Driver",
+        "org.h2.Driver",
+        "org.sqlite.JDBC",
+        "net.sourceforge.jtds.jdbc.Driver"
+    };
+
+    /** JDBC driver class names found as loadable at startup or when a JAR is added. */
+    private static final TreeSet<String> loadedDriverClasses = new TreeSet<>();
+
+    /** Listeners notified (on the EDT) when the list of loaded driver classes changes. */
+    private static final List<Runnable> driverClassesListeners = new CopyOnWriteArrayList<>();
     
     private DefaultListModel<String> driverListModel;
     private JList<String> driverList;
@@ -280,25 +304,12 @@ public class DriverConfigPanel extends JPanel {
      */
     private static void loadJdbcDriversFromJar(File jarFile) {
         try {
-            // Common JDBC driver class names to try
-            String[] commonDrivers = {
-                "org.postgresql.Driver",
-                "com.mysql.jdbc.Driver",
-                "com.mysql.cj.jdbc.Driver",
-                "oracle.jdbc.driver.OracleDriver",
-                "oracle.jdbc.OracleDriver",
-                "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-                "org.mariadb.jdbc.Driver",
-                "org.h2.Driver",
-                "org.sqlite.JDBC",
-                "net.sourceforge.jtds.jdbc.Driver"
-            };
-            
             int loadedCount = 0;
-            for (String driverClass : commonDrivers) {
+            for (String driverClass : COMMON_DRIVER_CLASSES) {
                 try {
                     Class<?> driver = Class.forName(driverClass, true, driverClassLoader);
                     LOGGER.info("Successfully loaded JDBC driver: " + driverClass);
+                    registerDriverClass(driverClass);
                     loadedCount++;
                 } catch (ClassNotFoundException e) {
                     // This driver is not in this JAR, ignore
@@ -313,6 +324,55 @@ public class DriverConfigPanel extends JPanel {
         }
     }
     
+    /**
+     * Register a driver class name as available and notify listeners if it is new.
+     */
+    private static void registerDriverClass(String className) {
+        boolean added;
+        synchronized (loadedDriverClasses) {
+            added = loadedDriverClasses.add(className);
+        }
+        if (added) {
+            for (Runnable listener : driverClassesListeners) {
+                SwingUtilities.invokeLater(listener);
+            }
+        }
+    }
+
+    /**
+     * Probe well known JDBC driver classes against the application class path
+     * (embedded drivers and jars added at startup) and the dynamic driver class loader,
+     * and register those that are found. Called once at application startup.
+     */
+    public static void scanClasspathDrivers() {
+        ClassLoader loader = getDriverClassLoader();
+        for (String driverClass : COMMON_DRIVER_CLASSES) {
+            try {
+                Class.forName(driverClass, false, loader);
+                registerDriverClass(driverClass);
+            } catch (ClassNotFoundException | LinkageError e) {
+                // not available, ignore
+            }
+        }
+        LOGGER.info("Available JDBC driver classes: " + getLoadedDriverClasses());
+    }
+
+    /**
+     * Get the sorted list of JDBC driver class names loaded at startup or added at runtime.
+     */
+    public static List<String> getLoadedDriverClasses() {
+        synchronized (loadedDriverClasses) {
+            return new ArrayList<>(loadedDriverClasses);
+        }
+    }
+
+    /**
+     * Add a listener called on the EDT whenever a new driver class becomes available.
+     */
+    public static void addDriverClassesListener(Runnable listener) {
+        driverClassesListeners.add(listener);
+    }
+
     /**
      * Get the driver class loader containing all loaded driver JARs.
      * Use this class loader when loading JDBC driver classes.

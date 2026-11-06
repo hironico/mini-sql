@@ -6,6 +6,7 @@ import com.formdev.flatlaf.util.SystemInfo;
 import net.hironico.common.swing.ComponentMover;
 import net.hironico.common.swing.ComponentResizer;
 import net.hironico.minisql.ui.MainWindow;
+import net.hironico.minisql.ui.config.DriverConfigPanel;
 import net.hironico.common.utils.DynamicFileLoader;
 import com.formdev.flatlaf.FlatLightLaf;
 
@@ -182,6 +183,9 @@ public class App {
 
         // load config file
         App.loadConfig();
+
+        // list the JDBC drivers available (embedded, ojdbc jars and configured jars)
+        DriverConfigPanel.scanClasspathDrivers();
 
         // kick off GUI
         App.startGui();
