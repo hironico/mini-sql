@@ -6,3 +6,4 @@
 *.versionsBackup
 
 .DS_store
+/.claude/
