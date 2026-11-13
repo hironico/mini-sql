@@ -80,6 +80,10 @@ public class DbObjectSelect1kAction extends AbstractDbExplorerAction {
             return DB_VENDOR.SYBASE;
         }
 
+        if (cfg.jdbcUrl.toLowerCase().contains("sqlserver")) {
+            return DB_VENDOR.SYBASE;
+        }
+
         if (cfg.jdbcUrl.toLowerCase().contains("postgres")) {
             return DB_VENDOR.POSTGRES;
         }

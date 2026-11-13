@@ -706,7 +706,7 @@ public class QueryPanel extends JRoundedPanel implements DbConfigFile.DbConfigFi
             Class<?> clazz = modelToDisplay.getColumnClass(index);
             String className = clazz.getName().toUpperCase();
 
-            LOGGER.info("Classname: " + className);
+            LOGGER.fine("Classname: " + className);
 
             TableCellRenderer rendererDelegate = new RowHighlightRenderer(table.getDefaultRenderer(clazz));
 
