@@ -8,12 +8,24 @@ public class DbExplorerRibbonTab extends RibbonTab {
     private RibbonGroup viewRibbonGroup = null;
     private RibbonGroup objectsRibbonGroup = null;
     private RibbonGroup selectRibbonGroup = null;
+    private RibbonGroup dataRibbonGroup = null;
 
     public DbExplorerRibbonTab() {
         super("Explorer");
         addGroup(getViewRibbonGroup());
         addGroup(getObjectsRibbonGroup());
         addGroup(getSelectRibbonGroup());
+        addGroup(getDataRibbonGroup());
+    }
+
+    private RibbonGroup getDataRibbonGroup() {
+        if (this.dataRibbonGroup == null) {
+            this.dataRibbonGroup = new RibbonGroup("Data");
+
+            this.dataRibbonGroup.addButton(new DbObjectExportDataAction(), RibbonGroup.LARGE);
+        }
+
+        return this.dataRibbonGroup;
     }
 
     private RibbonGroup getViewRibbonGroup() {
@@ -42,6 +54,9 @@ public class DbExplorerRibbonTab extends RibbonTab {
 
             DbObjectStructureAction structureAction = new DbObjectStructureAction();
             this.objectsRibbonGroup.addButton(structureAction, RibbonGroup.LARGE);
+
+            this.objectsRibbonGroup.addButton(new DbObjectExportStructureAction(), RibbonGroup.SMALL);
+            this.objectsRibbonGroup.addButton(new DbModelImportAction(), RibbonGroup.SMALL);
         }
 
         return this.objectsRibbonGroup;
@@ -51,10 +66,8 @@ public class DbExplorerRibbonTab extends RibbonTab {
         if (this.selectRibbonGroup == null) {
             this.selectRibbonGroup = new RibbonGroup("Select...");
 
-            this.selectRibbonGroup.addButton(new DbObjectSelect1kAction(), RibbonGroup.SMALL);
-            this.selectRibbonGroup.addButton(new DbObjectCountAction(), RibbonGroup.SMALL);
-            this.selectRibbonGroup.addButton(new DbObjectExportStructureAction(), RibbonGroup.LARGE);
-            this.selectRibbonGroup.addButton(new DbModelImportAction(), RibbonGroup.LARGE);
+            this.selectRibbonGroup.addButton(new DbObjectSelect1kAction(), RibbonGroup.LARGE);
+            this.selectRibbonGroup.addButton(new DbObjectCountAction(), RibbonGroup.LARGE);
         }
 
         return selectRibbonGroup;

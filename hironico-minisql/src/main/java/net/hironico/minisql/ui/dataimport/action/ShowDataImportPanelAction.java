@@ -19,7 +19,7 @@ public class ShowDataImportPanelAction extends AbstractRibbonAction {
      * Constructs a new ShowDataImportPanelAction with the data sheet icon.
      */
     public ShowDataImportPanelAction() {
-        super(NAME, "icons8_data_sheet_64px.png");
+        super(NAME, "icons8_import_csv_64px.png");
     }
 
     /**
