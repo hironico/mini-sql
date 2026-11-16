@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Table model used by the table structure step of the import wizard.
- * Columns: Include, CSV column, Column name, SQL type, Nullable.
+ * Columns: Include, CSV column, Column name, SQL type, Nullable, Primary key.
  */
 public class ImportColumnTableModel extends AbstractTableModel {
 
@@ -15,8 +15,9 @@ public class ImportColumnTableModel extends AbstractTableModel {
     public static final int COL_NAME = 2;
     public static final int COL_TYPE = 3;
     public static final int COL_NULLABLE = 4;
+    public static final int COL_PRIMARY_KEY = 5;
 
-    private static final String[] COLUMN_NAMES = {"Include", "CSV column", "Column name", "SQL type", "Nullable"};
+    private static final String[] COLUMN_NAMES = {"Include", "CSV column", "Column name", "SQL type", "Nullable", "Primary key"};
 
     private final List<ImportColumn> columns = new ArrayList<>();
 
@@ -66,12 +67,17 @@ public class ImportColumnTableModel extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return (columnIndex == COL_INCLUDE || columnIndex == COL_NULLABLE) ? Boolean.class : String.class;
+        return (columnIndex == COL_INCLUDE || columnIndex == COL_NULLABLE || columnIndex == COL_PRIMARY_KEY)
+                ? Boolean.class : String.class;
     }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex != COL_SOURCE;
+        if (columnIndex == COL_SOURCE) {
+            return false;
+        }
+        // a primary key column is always not nullable
+        return !(columnIndex == COL_NULLABLE && columns.get(rowIndex).isPrimaryKey());
     }
 
     @Override
@@ -83,6 +89,7 @@ public class ImportColumnTableModel extends AbstractTableModel {
             case COL_NAME -> col.getName();
             case COL_TYPE -> col.getSqlType();
             case COL_NULLABLE -> col.isNullable();
+            case COL_PRIMARY_KEY -> col.isPrimaryKey();
             default -> null;
         };
     }
@@ -103,6 +110,7 @@ public class ImportColumnTableModel extends AbstractTableModel {
                 col.setSqlType(type.isEmpty() ? ImportColumn.DEFAULT_SQL_TYPE : type);
             }
             case COL_NULLABLE -> col.setNullable(Boolean.TRUE.equals(value));
+            case COL_PRIMARY_KEY -> col.setPrimaryKey(Boolean.TRUE.equals(value));
             default -> {
                 return;
             }

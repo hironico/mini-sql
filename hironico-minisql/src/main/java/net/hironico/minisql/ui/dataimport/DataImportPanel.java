@@ -565,6 +565,7 @@ public class DataImportPanel extends JRoundedPanel implements DbConfigFile.DbCon
         tblColumns.getColumnModel().getColumn(ImportColumnTableModel.COL_TYPE).setCellEditor(new DefaultCellEditor(cmbTypeEditor));
         tblColumns.getColumnModel().getColumn(ImportColumnTableModel.COL_INCLUDE).setMaxWidth(70);
         tblColumns.getColumnModel().getColumn(ImportColumnTableModel.COL_NULLABLE).setMaxWidth(70);
+        tblColumns.getColumnModel().getColumn(ImportColumnTableModel.COL_PRIMARY_KEY).setMaxWidth(90);
         columnsModel.addTableModelListener(e -> updateCreateSql());
 
         JPanel pnlColumns = new JPanel(new BorderLayout(0, 5));

@@ -56,6 +56,32 @@ public class TestCsvTableImporter {
     }
 
     @Test
+    public void testCreateTableSqlWithCompositePrimaryKey() {
+        List<ImportColumn> cols = columns("A", "B", "C");
+        cols.get(0).setSqlType("INTEGER");
+        cols.get(0).setPrimaryKey(true);
+        cols.get(1).setPrimaryKey(true);
+
+        CsvTableImporter importer = new CsvTableImporter(null, cols, "", "T", false);
+
+        assertEquals("CREATE TABLE T (\n"
+                + "    A INTEGER NOT NULL,\n"
+                + "    B VARCHAR(150) NOT NULL,\n"
+                + "    C VARCHAR(150),\n"
+                + "    PRIMARY KEY (A, B)\n"
+                + ")", importer.buildCreateTableSql());
+
+        // quoted identifiers and excluded primary key columns
+        cols.get(1).setIncluded(false);
+        importer = new CsvTableImporter(null, cols, "", "T", true);
+        assertEquals("CREATE TABLE \"T\" (\n"
+                + "    \"A\" INTEGER NOT NULL,\n"
+                + "    \"C\" VARCHAR(150),\n"
+                + "    PRIMARY KEY (\"A\")\n"
+                + ")", importer.buildCreateTableSql());
+    }
+
+    @Test
     public void testQuotedIdentifiersAndSchema() {
         CsvTableImporter importer = new CsvTableImporter(null, columns("id", "my\"col"), "app", "data", true);
 

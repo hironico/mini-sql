@@ -26,6 +26,9 @@ public class ImportColumn {
     /** True if the column accepts NULL values */
     private boolean nullable = true;
 
+    /** True if the column is part of the primary key of the target table */
+    private boolean primaryKey = false;
+
     /**
      * Creates a new import column.
      *
@@ -77,5 +80,22 @@ public class ImportColumn {
 
     public void setNullable(boolean nullable) {
         this.nullable = nullable;
+    }
+
+    public boolean isPrimaryKey() {
+        return primaryKey;
+    }
+
+    /**
+     * Marks this column as part of the primary key. A primary key column cannot be null,
+     * so the column is made not nullable when it becomes part of the key.
+     *
+     * @param primaryKey true to include the column in the primary key
+     */
+    public void setPrimaryKey(boolean primaryKey) {
+        this.primaryKey = primaryKey;
+        if (primaryKey) {
+            this.nullable = false;
+        }
     }
 }

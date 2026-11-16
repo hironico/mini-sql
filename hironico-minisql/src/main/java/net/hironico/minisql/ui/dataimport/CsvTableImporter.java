@@ -205,6 +205,13 @@ public class CsvTableImporter {
             }
             sql.append(i < included.size() - 1 ? ",\n" : "\n");
         }
+        String pkColumns = included.stream().filter(ImportColumn::isPrimaryKey)
+                .map(c -> quote(c.getName())).collect(Collectors.joining(", "));
+        if (!pkColumns.isEmpty()) {
+            // replace the line break after the last column by a comma to append the constraint
+            sql.setLength(sql.length() - 1);
+            sql.append(",\n    PRIMARY KEY (").append(pkColumns).append(")\n");
+        }
         return sql.append(")").toString();
     }
 
